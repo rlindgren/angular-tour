@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website
- * @version v0.1.1 - 2014-04-15
+ * @version v0.1.5 - 2014-04-15
  * @link https://github.com/DaftMonk/angular-tour
  * @author Tyler Henkel
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -8,8 +8,11 @@
 
 (function (window, document, undefined) {
   'use strict';
-  angular.module('angular-tour', ['angular-tour.tpls']);
-  angular.module('angular-tour.tpls', []);
+  angular.module('angular-tour', [
+    'angular-tour.tpls',
+    'angular-tour.tour'
+  ]);
+  angular.module('angular-tour.tpls', ['tour/tour.tpl.html']);
   angular.module('tour/tour.tpl.html', []).run([
     '$templateCache',
     function ($templateCache) {
