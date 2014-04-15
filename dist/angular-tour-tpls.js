@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website
- * @version v0.1.1 - 2014-03-19
+ * @version v0.1.1 - 2014-04-15
  * @link https://github.com/DaftMonk/angular-tour
  * @author Tyler Henkel
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -24,45 +24,49 @@
     animation: true,
     nextLabel: 'Next',
     scrollSpeed: 500,
-    offset: 28
+    offset: 28,
+    frame: 'html,body'
   }).controller('TourController', [
     '$scope',
+    '$state',
     'orderedList',
-    function ($scope, orderedList) {
-      var self = this, steps = self.steps = orderedList();
+    function ($scope, $state, orderedList) {
+      var self = this;
       self.postTourCallback = angular.noop;
       self.postStepCallback = angular.noop;
       self.currentStep = 0;
-      $scope.$watch(function () {
-        return self.currentStep;
-      }, function (val) {
-        self.select(val);
+      // reset the current step on state change start
+      $scope.$on('$stateChangeSuccess', function (e, ts, fs, tp, fp) {
+        self.currentStep = 0;
+        self[$state.current.name] = {};
+        self[$state.current.name].steps = orderedList();
+        $scope.closeTour();
       });
       self.select = function (nextIndex) {
         if (!angular.isNumber(nextIndex))
           return;
         self.unselectAllSteps();
-        var step = steps.get(nextIndex);
+        var step = self[$state.current.name].steps.get(nextIndex);
         if (step) {
           step.ttOpen = true;
         }
         if (self.currentStep !== nextIndex) {
           self.currentStep = nextIndex;
         }
-        if (nextIndex >= steps.getCount()) {
+        if (nextIndex >= self[$state.current.name].steps.getCount()) {
           self.postTourCallback();
         }
         self.postStepCallback();
       };
       self.addStep = function (step) {
         if (angular.isNumber(step.index) && !isNaN(step.index)) {
-          steps.set(step.index, step);
+          self[$state.current.name].steps.set(step.index, step);
         } else {
-          steps.push(step);
+          self[$state.current.name].steps.push(step);
         }
       };
       self.unselectAllSteps = function () {
-        steps.forEach(function (step) {
+        self[$state.current.name].steps.forEach(function (step) {
           step.ttOpen = false;
         });
       };
@@ -71,8 +75,7 @@
         self.postTourCallback();
       };
       $scope.openTour = function () {
-        var startStep = self.currentStep >= steps.getCount() || self.currentStep < 0 ? 0 : self.currentStep;
-        self.select(startStep);
+        self.select(0);  // always start from 0
       };
       $scope.closeTour = function () {
         self.cancelTour();
@@ -80,7 +83,8 @@
     }
   ]).directive('tour', [
     '$parse',
-    function ($parse) {
+    '$rootScope',
+    function ($parse, $rootScope) {
       return {
         controller: 'TourController',
         restrict: 'EA',
@@ -106,6 +110,8 @@
           scope.setCurrentStep = function (val) {
             model.assign(scope.$parent, val);
             ctrl.currentStep = val;
+            ctrl.select(ctrl.currentStep);
+            $rootScope.$broadcast('$tour:nextStep' + (val - 1));
           };
           scope.getCurrentStep = function () {
             return ctrl.currentStep;
@@ -117,110 +123,138 @@
     '$window',
     '$compile',
     '$interpolate',
+    '$parse',
     '$timeout',
     'scrollTo',
     'tourConfig',
-    function ($window, $compile, $interpolate, $timeout, scrollTo, tourConfig) {
+    function ($window, $compile, $interpolate, $parse, $timeout, scrollTo, tourConfig) {
       var startSym = $interpolate.startSymbol(), endSym = $interpolate.endSymbol();
       var template = '<div tour-popup></div>';
       return {
         require: '^tour',
         restrict: 'EA',
         scope: true,
-        link: function (scope, element, attrs, tourCtrl) {
-          attrs.$observe('tourtip', function (val) {
-            scope.ttContent = val;
-          });
-          attrs.$observe('tourtipPlacement', function (val) {
-            scope.ttPlacement = val || tourConfig.placement;
-          });
-          attrs.$observe('tourtipNextLabel', function (val) {
-            scope.ttNextLabel = val || tourConfig.nextLabel;
-          });
-          attrs.$observe('tourtipOffset', function (val) {
-            scope.ttOffset = parseInt(val, 10) || tourConfig.offset;
-          });
-          scope.ttOpen = false;
-          scope.ttAnimation = tourConfig.animation;
-          scope.index = parseInt(attrs.tourtipStep, 10);
-          var tourtip = $compile(template)(scope);
-          tourCtrl.addStep(scope);
-          $timeout(function () {
-            scope.$watch('ttOpen', function (val) {
-              if (val) {
-                show();
-              } else {
-                hide();
+        compile: function (EL, ATTRS) {
+          var step = ATTRS.tourtipStep;
+          return {
+            pre: function (scope, element, attrs, tourCtrl) {
+              attrs.$observe('tourtip', function (val) {
+                scope.ttContent = val;
+              });
+              attrs.$observe('tourtipPlacement', function (val) {
+                scope.ttPlacement = val || tourConfig.placement;
+              });
+              attrs.$observe('tourtipNextLabel', function (val) {
+                scope.ttNextLabel = val || tourConfig.nextLabel;
+              });
+              attrs.$observe('tourtipOffset', function (val) {
+                scope.ttOffset = parseInt(val, 10) || tourConfig.offset;
+              });
+              attrs.$observe('tourtipFrame', function (val) {
+                scope.ttFrame = val || tourConfig.frame;
+              });
+              attrs.$observe('postStep', function (val) {
+                scope.ttPostStep = val ? $parse(val) : angular.noop;
+              });
+              scope.ttOpen = false;
+              scope.ttAnimation = tourConfig.animation;
+              scope.index = parseInt(attrs.tourtipStep, 10);
+              tourCtrl.addStep(scope);
+              scope.$on('$stateChangeStart', function () {
+                tourCtrl.addStep(scope);
+              });
+            },
+            post: function (scope, element, attrs, tourCtrl) {
+              var tourtip = $compile(template)(scope);
+              var hidden = false;
+              $timeout(function () {
+                scope.$watch('ttOpen', function (val) {
+                  if (val) {
+                    show();
+                  } else {
+                    hide();
+                  }
+                });
+              }, 500);
+              var updatePosition = function (targetElement, tourtip) {
+                var rects, ttWidth, ttHeight, ttPosition, height, width, arrowOffset;
+                rects = targetElement[0].getBoundingClientRect();
+                ttWidth = tourtip.width();
+                ttHeight = tourtip.height();
+                width = targetElement.width();
+                height = targetElement.height();
+                arrowOffset = 28;
+                switch (scope.ttPlacement) {
+                case 'right':
+                  ttPosition = {
+                    top: rects.top - (ttHeight > height ? arrowOffset : 0),
+                    left: rects.left + width + scope.ttOffset
+                  };
+                  break;
+                case 'bottom':
+                  ttPosition = {
+                    top: rects.top + height + scope.ttOffset,
+                    left: rects.left
+                  };
+                  break;
+                case 'left':
+                  ttPosition = {
+                    top: rects.top - (ttHeight > height ? arrowOffset : 0),
+                    left: rects.left - ttWidth - scope.ttOffset
+                  };
+                  break;
+                default:
+                  ttPosition = {
+                    top: rects.top - ttHeight - scope.ttOffset,
+                    left: rects.left
+                  };
+                  break;
+                }
+                ttPosition.top += 'px';
+                ttPosition.left += 'px';
+                tourtip.css(ttPosition);
+              };
+              function show() {
+                var targetElement;
+                if (!scope.ttContent) {
+                  return;
+                }
+                if (scope.ttAnimation)
+                  tourtip.fadeIn();
+                else {
+                  tourtip.css({ display: 'block' });
+                }
+                $('body').append(tourtip);
+                if (element.children().eq(0).length > 0) {
+                  targetElement = element.children().eq(0);
+                } else {
+                  targetElement = element;
+                }
+                angular.element($window).bind('resize.' + scope.$id, function (e) {
+                  updatePosition(targetElement, tourtip);
+                });
+                $(scope.ttFrame).bind('scroll', function (e) {
+                  updatePosition(targetElement, tourtip);
+                });
+                updatePosition(targetElement, tourtip);
+                scrollTo(tourtip, -200, -100, tourConfig.scrollSpeed, scope.ttFrame);
               }
-            });
-          }, 500);
-          function show() {
-            var position, ttWidth, ttHeight, ttPosition, height, width, targetElement;
-            if (!scope.ttContent) {
-              return;
-            }
-            if (scope.ttAnimation)
-              tourtip.fadeIn();
-            else {
-              tourtip.css({ display: 'block' });
-            }
-            element.after(tourtip);
-            if (element.children().eq(0).length > 0) {
-              targetElement = element.children().eq(0);
-            } else {
-              targetElement = element;
-            }
-            var updatePosition = function () {
-              position = targetElement.position();
-              ttWidth = tourtip.width();
-              ttHeight = tourtip.height();
-              width = targetElement.width();
-              height = targetElement.height();
-              switch (scope.ttPlacement) {
-              case 'right':
-                ttPosition = {
-                  top: position.top,
-                  left: position.left + width + scope.ttOffset
-                };
-                break;
-              case 'bottom':
-                ttPosition = {
-                  top: position.top + height + scope.ttOffset,
-                  left: position.left
-                };
-                break;
-              case 'left':
-                ttPosition = {
-                  top: position.top,
-                  left: position.left - ttWidth - scope.ttOffset
-                };
-                break;
-              default:
-                ttPosition = {
-                  top: position.top - ttHeight - scope.ttOffset,
-                  left: position.left
-                };
-                break;
+              function hide() {
+                tourtip.detach();
+                angular.element($window).unbind('resize.' + scope.$id);
+                $(scope.ttFrame).unbind('scroll', updatePosition);
               }
-              ttPosition.top += 'px';
-              ttPosition.left += 'px';
-              tourtip.css(ttPosition);
-              scrollTo(tourtip, -200, -300, tourConfig.scrollSpeed);
-            };
-            angular.element($window).bind('resize.' + scope.$id, function () {
-              updatePosition();
-            });
-            updatePosition();
-          }
-          function hide() {
-            tourtip.detach();
-            angular.element($window).unbind('resize.' + scope.$id);
-          }
-          scope.$on('$destroy', function onDestroyTourtip() {
-            angular.element($window).unbind('resize.' + scope.$id);
-            tourtip.remove();
-            tourtip = null;
-          });
+              scope.$on('$destroy', function onDestroyTourtip() {
+                angular.element($window).unbind('resize.' + scope.$id);
+                $(scope.ttFrame).unbind('scroll', updatePosition);
+                tourtip.remove();
+              });
+              scope.$on('$tour:nextStep' + step, function () {
+                if (scope.ttPostStep(scope.$parent))
+                  scope.ttPostStep(scope.$parent)();
+              });
+            }
+          };
         }
       };
     }
@@ -305,17 +339,17 @@
     };
     return orderedListFactory;
   }).factory('scrollTo', function () {
-    return function (target, offsetY, offsetX, speed) {
+    return function (target, offsetY, offsetX, speed, frame) {
       if (target) {
         offsetY = offsetY || -100;
         offsetX = offsetX || -100;
         speed = speed || 500;
-        $('html,body').stop().animate({
+        $(frame).stop().animate({
           scrollTop: target.offset().top + offsetY,
           scrollLeft: target.offset().left + offsetX
         }, speed);
       } else {
-        $('html,body').stop().animate({ scrollTop: 0 }, speed);
+        $(frame).stop().animate({ scrollTop: 0 }, speed);
       }
     };
   });
