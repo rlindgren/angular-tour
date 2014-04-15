@@ -4,8 +4,6 @@
  * @link https://github.com/DaftMonk/angular-tour
  * @author Tyler Henkel
  * @license MIT License, http://www.opensource.org/licenses/MIT
- *
- * Rewritten in part by Ryan Lindgren for knowify LLC
  */
 
 (function (window, document, undefined) {
