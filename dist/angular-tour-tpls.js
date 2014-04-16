@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website
- * @version v0.1.5 - 2014-04-15
+ * @version v0.1.6 - 2014-04-16
  * @link https://github.com/DaftMonk/angular-tour
  * @author Tyler Henkel
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -344,12 +344,12 @@
         offsetY = offsetY || -100;
         offsetX = offsetX || -100;
         speed = speed || 500;
-        $(frame).stop().animate({
+        target.closest(frame).stop().animate({
           scrollTop: target.offset().top + offsetY,
           scrollLeft: target.offset().left + offsetX
         }, speed);
       } else {
-        $(frame).stop().animate({ scrollTop: 0 }, speed);
+        target.closest(frame).stop().animate({ scrollTop: 0 }, speed);
       }
     };
   });

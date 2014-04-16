@@ -361,12 +361,12 @@ angular.module('angular-tour.tour', [])
         offsetY = offsetY || -100;
         offsetX = offsetX || -100;
         speed = speed || 500;
-        $(frame).stop().animate({
+        target.closest(frame).stop().animate({
           scrollTop: target.offset().top + offsetY,
           scrollLeft: target.offset().left + offsetX
         }, speed);
       } else {
-        $(frame).stop().animate({ scrollTop: 0 }, speed);
+        target.closest(frame).stop().animate({ scrollTop: 0 }, speed);
       }
     };
   });
