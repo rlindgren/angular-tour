@@ -1,8 +1,8 @@
 /**
- * An AngularJS directive for showcasing features of your website
+ * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk
  * @version v0.1.8 - 2014-04-18
  * @link https://github.com/DaftMonk/angular-tour
- * @author Tyler Henkel
+ * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
 

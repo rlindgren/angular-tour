@@ -1,7 +1,7 @@
 {
   "name": "angular-tour",
   "version": "0.1.8",
-  "description": "An AngularJS directive for showcasing features of your website",
+  "description": "An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk",
   "keywords": [
     "angularjs",
     "directive",
@@ -11,13 +11,13 @@
   "homepage": "https://github.com/DaftMonk/angular-tour",
   "bugs": "https://github.com/DaftMonk/angular-tour/issues",
   "author": {
-    "name": "Tyler Henkel",
+    "name": "Ryan Lindgren",
     "email": "",
-    "url": "https://github.com/DaftMonk"
+    "url": "https://github.com/tathata"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/DaftMonk/angular-tour.git"
+    "url": "git://github.com/tathata/angular-tour.git"
   },
   "dependencies": {},
   "devDependencies": {
