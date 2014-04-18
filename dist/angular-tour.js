@@ -9,8 +9,6 @@
 (function (window, document, undefined) {
   'use strict';
   angular.module('angular-tour', ['angular-tour.tour']);
-  var isUIRouter;
-  var navEvent;
   angular.module('angular-tour.tour', []).constant('tourConfig', {
     placement: 'top',
     animation: true,
@@ -20,49 +18,38 @@
     frame: 'html,body'
   }).controller('TourController', [
     '$scope',
-    '$injector',
     'orderedList',
-    function ($scope, $injector, orderedList) {
+    function ($scope, orderedList) {
       var self = this;
-      isUIRouter = $injector.has('$state');
-      navEvent = isUIRouter ? '$stateChangeSuccess' : '$locationChangeSuccess';
-      var currentState = isUIRouter ? $injector.get('$state').current.name : $injector.get('$location').path();
       self.postTourCallback = angular.noop;
       self.postStepCallback = angular.noop;
       self.currentStep = 0;
-      self[currentState] = {};
-      // reset the current step on state change start
-      $scope.$on(navEvent, function () {
-        self.currentStep = 0;
-        self[currentState] = {};
-        self[currentState].steps = orderedList();
-        $scope.closeTour();
-      });
+      self.steps = orderedList();
       self.select = function (nextIndex) {
         if (!angular.isNumber(nextIndex))
           return;
         self.unselectAllSteps();
-        var step = self[currentState].steps.get(nextIndex);
+        var step = self.steps.get(nextIndex);
         if (step) {
           step.ttOpen = true;
         }
         if (self.currentStep !== nextIndex) {
           self.currentStep = nextIndex;
         }
-        if (nextIndex >= self[currentState].steps.getCount()) {
+        if (nextIndex >= self.steps.getCount()) {
           self.postTourCallback();
         }
         self.postStepCallback();
       };
       self.addStep = function (step) {
         if (angular.isNumber(step.index) && !isNaN(step.index)) {
-          self[currentState].steps.set(step.index, step);
+          self.steps.set(step.index, step);
         } else {
-          self[currentState].steps.push(step);
+          self.steps.push(step);
         }
       };
       self.unselectAllSteps = function () {
-        self[currentState].steps.forEach(function (step) {
+        self.steps.forEach(function (step) {
           step.ttOpen = false;
         });
       };
@@ -132,21 +119,23 @@
         restrict: 'EA',
         scope: true,
         compile: function (EL, ATTRS) {
-          var step = ATTRS.tourtipStep;
           var _global = angular.element($window);
           return {
             pre: function (scope, element, attrs, tourCtrl) {
               attrs.$observe('tourtip', function (val) {
-                scope.ttContent = $sce.trustAsHtml(val);
+                scope.ttContent = val;
               });
               attrs.$observe('tourtipPlacement', function (val) {
                 scope.ttPlacement = val || tourConfig.placement;
               });
               attrs.$observe('tourtipNextLabel', function (val) {
-                scope.ttNextLabel = $sce.trustAsHtml(val || tourConfig.nextLabel);
+                scope.ttNextLabel = val || tourConfig.nextLabel;
               });
-              attrs.$observe('tourtipOffset', function (val) {
-                scope.ttOffset = parseInt(val, 10) || tourConfig.offset;
+              attrs.$observe('tourtipOffsetTop', function (val) {
+                scope.ttOffsetTop = parseInt(val, 10) || 0;
+              });
+              attrs.$observe('tourtipOffsetLeft', function (val) {
+                scope.ttOffsetLeft = parseInt(val, 10) || 0;
               });
               attrs.$observe('tourtipFrame', function (val) {
                 scope.ttFrame = val || tourConfig.frame;
@@ -159,11 +148,8 @@
               });
               scope.ttOpen = false;
               scope.ttAnimation = tourConfig.animation;
-              scope.index = parseInt(step, 10);
+              scope.index = parseInt(attrs.tourtipStep, 10);
               tourCtrl.addStep(scope);
-              scope.$on(navEvent, function () {
-                tourCtrl.addStep(scope);
-              });
             },
             post: function (scope, element, attrs, tourCtrl) {
               var tourtip = $compile(template)(scope);
@@ -171,12 +157,12 @@
               var scrollHandler = function (e) {
                 updatePosition(targetElement, tourtip);
               };
+              if (element.children().eq(0).length > 0)
+                targetElement = element.children().eq(0);
+              else
+                targetElement = element;
+              frame = targetElement.closest(scope.ttFrame);
               $timeout(function () {
-                if (element.children().eq(0).length > 0)
-                  targetElement = element.children().eq(0);
-                else
-                  targetElement = element;
-                frame = targetElement.closest(scope.ttFrame);
                 scope.$watch('ttOpen', function (val) {
                   if (val) {
                     show();
@@ -192,25 +178,25 @@
                 ttHeight = tourtip.height();
                 width = targetElement.width();
                 height = targetElement.height();
-                arrowOffset = tourConfig.offset;
+                arrowOffset = $('.tour-arrow')[0].getBoundingClientRect().height;
                 switch (scope.ttPlacement) {
                 case 'right':
                 case 'left':
-                  if (scope.ttAlign === 'top') {
-                    ttPosition = { top: rects.top - (ttHeight > height ? arrowOffset : 0) };
+                  if (scope.ttAlign == 'top') {
+                    ttPosition = { top: rects.top - (ttHeight > height ? height / 2 + arrowOffset : 0) + scope.ttOffsetTop };
                   } else {
-                    ttPosition = { top: rects.top - (ttHeight > height ? ttHeight - arrowOffset * 2 : ttHeight) };
+                    ttPosition = { top: rects.top - (ttHeight > height ? ttHeight - height / 2 - arrowOffset : ttHeight) + scope.ttOffsetTop };
                   }
-                  ttPosition.left = scope.ttPlacement === 'right' ? rects.left + width + scope.ttOffset : rects.left - ttWidth - scope.ttOffset;
+                  ttPosition.left = scope.ttPlacement == 'right' ? rects.left + width + scope.ttOffsetLeft : rects.left - ttWidth - scope.ttOffsetLeft;
                   break;
                 case 'bottom':
                 case 'top':
-                  if (scope.ttAlign === 'left') {
-                    ttPosition = { left: rects.left - (ttWidth < width ? arrowOffset : 0) };
+                  if (scope.ttAlign == 'left') {
+                    ttPosition = { left: rects.left - (ttWidth > width ? arrowOffset : 0) + scope.ttOffsetLeft };
                   } else {
-                    ttPosition = { left: rects.left - (ttWidth < width ? ttWidth - arrowOffset * 2 : ttWidth) };
+                    ttPosition = { left: rects.left - (ttWidth > width ? ttWidth + arrowOffset * 2 : ttWidth) + scope.ttOffsetLeft };
                   }
-                  ttPosition.top = scope.ttPlacement === 'bottom' ? rects.top + height + scope.ttOffset : rects.top - ttHeight - scope.ttOffset;
+                  ttPosition.top = scope.ttPlacement == 'bottom' ? rects.top + height + scope.ttOffsetTop : rects.top - ttHeight - scope.ttOffsetTop;
                   break;
                 }
                 ttPosition.top += 'px';
@@ -220,10 +206,12 @@
               function show() {
                 if (!scope.ttContent)
                   return;
-                if (scope.ttAnimation)
+                if (scope.ttAnimation) {
                   tourtip.fadeIn();
-                else
+                } else {
                   tourtip.css({ display: 'block' });
+                }
+                frame = targetElement.closest(scope.ttFrame);
                 $('body').append(tourtip);
                 _global.bind('resize.' + scope.$id, scrollHandler);
                 frame.bind('scroll', scrollHandler);
@@ -232,7 +220,7 @@
                     duration: tourConfig.speed,
                     easing: 'swing'
                   };
-                if (scope.ttPlacement === 'top' || scope.ttAlign === 'bottom') {
+                if (scope.ttPlacement == 'top' || scope.ttAlign == 'bottom') {
                   scrollConfig.offsetTop = tourtip.height() + frame.offset().top + 100;  // take tourtip height and the top offset of the frame into account
                 } else {
                   scrollConfig.offsetTop = frame.offset().top + 100;
@@ -240,6 +228,7 @@
                 scrollTo(frame, targetElement, scrollConfig);
               }
               function hide() {
+                frame = targetElement.closest(scope.ttFrame);
                 tourtip.detach();
                 _global.unbind('resize.' + scope.$id, scrollHandler);
                 frame.unbind('scroll', scrollHandler);
@@ -249,7 +238,7 @@
                 frame.unbind('scroll', scrollHandler);
                 tourtip.remove();
               });
-              scope.$on('$tour:nextStep' + step, function () {
+              scope.$on('$tour:nextStep' + attrs.tourtipStep, function () {
                 if (scope.ttPostStep(scope.$parent))
                   scope.ttPostStep(scope.$parent)();
               });
@@ -341,7 +330,7 @@
   }).factory('scrollTo', function () {
     // code adapted from: http://lions-mark.com/jquery/scrollTo/
     return function (frame, target, options, callback) {
-      frame = frame instanceof jQuery ? frame : $(frame);
+      frame = $(frame);
       if (typeof options === 'function' && arguments.length === 2) {
         callback = options;
         options = target;
@@ -354,6 +343,7 @@
         }, options);
       var scrollTarget = typeof settings.scrollTarget === 'number' ? settings.scrollTarget : $(settings.scrollTarget);
       var scrollY = typeof scrollTarget === 'number' ? scrollTarget : scrollTarget.offset().top + frame.scrollTop() - parseInt(settings.offsetTop, 10);
+      console.log(scrollY);
       frame.animate({ scrollTop: scrollY }, parseInt(settings.duration, 10), settings.easing, function () {
         if (typeof callback === 'function') {
           callback.call(this);
