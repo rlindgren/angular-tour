@@ -121,9 +121,10 @@
     '$interpolate',
     '$parse',
     '$timeout',
+    '$sce',
     'scrollTo',
     'tourConfig',
-    function ($window, $compile, $interpolate, $parse, $timeout, scrollTo, tourConfig) {
+    function ($window, $compile, $interpolate, $parse, $timeout, $sce, scrollTo, tourConfig) {
       var startSym = $interpolate.startSymbol(), endSym = $interpolate.endSymbol();
       var template = '<div tour-popup></div>';
       return {
@@ -136,13 +137,13 @@
           return {
             pre: function (scope, element, attrs, tourCtrl) {
               attrs.$observe('tourtip', function (val) {
-                scope.ttContent = val;
+                scope.ttContent = $sce.trustAsHtml(val);
               });
               attrs.$observe('tourtipPlacement', function (val) {
                 scope.ttPlacement = val || tourConfig.placement;
               });
               attrs.$observe('tourtipNextLabel', function (val) {
-                scope.ttNextLabel = val || tourConfig.nextLabel;
+                scope.ttNextLabel = $sce.trustAsHtml(val || tourConfig.nextLabel);
               });
               attrs.$observe('tourtipOffset', function (val) {
                 scope.ttOffset = parseInt(val, 10) || tourConfig.offset;

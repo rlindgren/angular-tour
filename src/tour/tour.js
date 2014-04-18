@@ -1,6 +1,4 @@
 'use strict';
-var isUIRouter;
-var navEvent;
 angular.module('angular-tour.tour', [])
 
   /**
@@ -20,36 +18,25 @@ angular.module('angular-tour.tour', [])
    * TourController
    * the logic for the tour, which manages all the steps
    */
-  .controller('TourController', function($scope, $injector, orderedList) {
+  .controller('TourController', function($scope, orderedList) {
     var self = this;
-    isUIRouter = $injector.has('$state');
-    navEvent = isUIRouter ? '$stateChangeSuccess' : '$locationChangeSuccess';
-    var currentState = isUIRouter ? $injector.get('$state').current.name : $injector.get('$location').path();
     self.postTourCallback = angular.noop;
     self.postStepCallback = angular.noop;
     self.currentStep = 0;
-    self[currentState] = {};
-
-    // reset the current step on state change start
-    $scope.$on(navEvent, function () {
-      self.currentStep = 0;
-      self[currentState] = {};
-      self[currentState].steps = orderedList();
-      $scope.closeTour();
-    });
+    self.steps = orderedList();
 
     self.select = function (nextIndex) {
       if (!angular.isNumber(nextIndex))
         return;
       self.unselectAllSteps();
-      var step = self[currentState].steps.get(nextIndex);
+      var step = self.steps.get(nextIndex);
       if (step) {
         step.ttOpen = true;
       }
       if (self.currentStep !== nextIndex) {
         self.currentStep = nextIndex;
       }
-      if (nextIndex >= self[currentState].steps.getCount()) {
+      if (nextIndex >= self.steps.getCount()) {
         self.postTourCallback();
       }
       self.postStepCallback();
@@ -57,14 +44,14 @@ angular.module('angular-tour.tour', [])
 
     self.addStep = function (step) {
       if (angular.isNumber(step.index) && !isNaN(step.index)) {
-        self[currentState].steps.set(step.index, step);
+        self.steps.set(step.index, step);
       } else {
-        self[currentState].steps.push(step);
+        self.steps.push(step);
       }
     };
 
     self.unselectAllSteps = function () {
-      self[currentState].steps.forEach(function (step) {
+      self[.steps.forEach(function (step) {
         step.ttOpen = false;
       });
     };
@@ -127,7 +114,7 @@ angular.module('angular-tour.tour', [])
    * Tourtip
    * tourtip manages the state of the tour-popup directive
    */
-  .directive('tourtip', function ($window, $compile, $interpolate, $parse, $timeout, scrollTo, tourConfig) {
+  .directive('tourtip', function ($window, $compile, $interpolate, $parse, $timeout, $sce, scrollTo, tourConfig) {
     var startSym = $interpolate.startSymbol(),
         endSym = $interpolate.endSymbol();
 
@@ -138,18 +125,17 @@ angular.module('angular-tour.tour', [])
       restrict: 'EA',
       scope: true,
       compile: function (EL, ATTRS) {
-        var step = ATTRS.tourtipStep;
         var _global = angular.element($window);
         return {
           pre: function (scope, element, attrs, tourCtrl) {
             attrs.$observe('tourtip', function (val) {
-              scope.ttContent = val;
+              scope.ttContent = $sce.trustAsHtml(val);
             });
             attrs.$observe('tourtipPlacement', function (val) {
               scope.ttPlacement = val || tourConfig.placement;
             });
             attrs.$observe('tourtipNextLabel', function (val) {
-              scope.ttNextLabel = val || tourConfig.nextLabel;
+              scope.ttNextLabel = $sce.trustAsHtml(val || tourConfig.nextLabel);
             });
             attrs.$observe('tourtipOffset', function (val) {
               scope.ttOffset = parseInt(val, 10) || tourConfig.offset;
@@ -165,11 +151,8 @@ angular.module('angular-tour.tour', [])
             });
             scope.ttOpen = false;
             scope.ttAnimation = tourConfig.animation;
-            scope.index = parseInt(step, 10);
+            scope.index = parseInt(attrs.tourtipStep, 10);
             tourCtrl.addStep(scope);
-            scope.$on(navEvent, function () {
-              tourCtrl.addStep(scope);
-            });
           },
           post: function (scope, element, attrs, tourCtrl) {
             var tourtip = $compile(template)(scope);
@@ -181,6 +164,7 @@ angular.module('angular-tour.tour', [])
               if (element.children().eq(0).length > 0) targetElement = element.children().eq(0);
               else targetElement = element;
               frame = targetElement.closest(scope.ttFrame);
+              console.log(frame);
               scope.$watch('ttOpen', function (val) {
                 if (val) {
                   show();
@@ -197,13 +181,14 @@ angular.module('angular-tour.tour', [])
               width = targetElement.width();
               height = targetElement.height();
               arrowOffset = tourConfig.offset;
+              console.log(targetElement, targetElement[0].getBoundingClientRect(), rects, scope.ttAlign, scope.ttPlacement);
               switch (scope.ttPlacement) {
               case 'right':
               case 'left':
                 if (scope.ttAlign === 'top') {
-                  ttPosition = { top: rects.top - (ttHeight > height ? arrowOffset : 0) };
+                  ttPosition = { top: (rects.top > 0 ? rects.top : targetElement.offset().top) - (ttHeight > height ? arrowOffset : 0) };
                 } else {
-                  ttPosition = { top: rects.top - (ttHeight > height ? ttHeight - arrowOffset*2 : ttHeight) };
+                  ttPosition = { top: (rects.top > 0 ? rects.top : targetElement.offset().top) - (ttHeight > height ? ttHeight - arrowOffset*2 : ttHeight) };
                 }
                 ttPosition.left = (scope.ttPlacement === 'right') ? rects.left + width + scope.ttOffset : rects.left - ttWidth - scope.ttOffset;
                 break;
@@ -249,7 +234,7 @@ angular.module('angular-tour.tour', [])
               frame.unbind('scroll', scrollHandler);
               tourtip.remove();
             });
-            scope.$on('$tour:nextStep' + step, function () {
+            scope.$on('$tour:nextStep' + attrs.tourtipStep, function () {
               if (scope.ttPostStep(scope.$parent)) scope.ttPostStep(scope.$parent)();
             });
           }
@@ -360,7 +345,7 @@ angular.module('angular-tour.tour', [])
   .factory('scrollTo', function() {
     // code adapted from: http://lions-mark.com/jquery/scrollTo/
     return function( frame, target, options, callback ){
-      frame = (frame instanceof jQuery) ? frame : $(frame);
+      frame = $(frame);
       if (typeof options === 'function' && arguments.length === 2) {
         callback = options;
         options = target;
@@ -373,6 +358,7 @@ angular.module('angular-tour.tour', [])
       }, options);
       var scrollTarget = (typeof settings.scrollTarget === 'number') ? settings.scrollTarget : $(settings.scrollTarget);
       var scrollY = (typeof scrollTarget === 'number') ? scrollTarget : scrollTarget.offset().top + frame.scrollTop() - parseInt(settings.offsetTop, 10);
+      console.log(scrollY);
       frame.animate({scrollTop : scrollY }, parseInt(settings.duration, 10), settings.easing, function(){
         if (typeof callback === 'function') { callback.call(this); }
       });
