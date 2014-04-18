@@ -32,7 +32,8 @@
   ],
   "dependencies": {
     "angular": "~1.2.x",
-    "jquery": "~2.0.3"
+    "jquery": "~2.0.3",
+    "jQuery": "~2.1.0"
   },
   "devDependencies": {
     "angular-mocks": "~1.x"

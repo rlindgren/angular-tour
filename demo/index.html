@@ -19,13 +19,10 @@
   <link rel='stylesheet' href='demoapp.css' type='text/css'>
 
   <!-- build:js lib/jquery/jquery.js -->
-  <script type="text/javascript" src="bower_components/jquery/jquery.js"></script>
+  <script type="text/javascript" src="bower_components/jquery/dist/jquery.js"></script>
   <!-- /build -->
   <!-- build:js lib/angular/angular.js -->
   <script type="text/javascript" src="bower_components/angular/angular.js"></script>
-  <!-- /build -->
-  <!-- build:js lib/angular-cookie/angular-cookie.min.js -->
-  <script type="text/javascript" src="bower_components/angular-cookie/angular-cookie.min.js"></script>
   <!-- /build -->
     <!-- build:js angular-tour-tpls.min.js -->
     <script type="text/javascript" src="tour/tour.js"></script>
@@ -34,10 +31,10 @@
     </script>
     <!-- /build -->
     <script type="text/javascript">
-      angular.module('demoApp', ['angular-tour', 'ivpusic.cookie'])
-        .controller('DemoCtrl', function($scope, ipCookie) {
+      angular.module('demoApp', ['angular-tour'])
+        .controller('DemoCtrl', function($scope) {
           // load from cookie if possible, otherwise set step to 0
-          $scope.currentStep = ipCookie('myTour') || 0;
+          $scope.currentStep = 0;
 
           // callback for when we've finished going through the tour
           $scope.postTourCallback = function() {
@@ -46,7 +43,7 @@
 
           // optional way of saving tour progress with cookies
           $scope.postStepCallback = function() {
-            ipCookie('myTour', $scope.currentStep, { expires: 3000 });
+          
           };          
         });
     </script>

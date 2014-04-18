@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk
- * @version v0.1.9 - 2014-04-18
+ * @version v0.1.10 - 2014-04-18
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -40,6 +40,7 @@
       self.postTourCallback = angular.noop;
       self.postStepCallback = angular.noop;
       self.currentStep = 0;
+      self[currentState] = {};
       // reset the current step on state change start
       $scope.$on(navEvent, function () {
         self.currentStep = 0;
@@ -204,21 +205,21 @@
                 switch (scope.ttPlacement) {
                 case 'right':
                 case 'left':
-                  if (scope.ttAlign == 'top') {
+                  if (scope.ttAlign === 'top') {
                     ttPosition = { top: rects.top - (ttHeight > height ? arrowOffset : 0) };
                   } else {
                     ttPosition = { top: rects.top - (ttHeight > height ? ttHeight - arrowOffset * 2 : ttHeight) };
                   }
-                  ttPosition.left = scope.ttPlacement == 'right' ? rects.left + width + scope.ttOffset : rects.left - ttWidth - scope.ttOffset;
+                  ttPosition.left = scope.ttPlacement === 'right' ? rects.left + width + scope.ttOffset : rects.left - ttWidth - scope.ttOffset;
                   break;
                 case 'bottom':
                 case 'top':
-                  if (scope.ttAlign == 'left') {
+                  if (scope.ttAlign === 'left') {
                     ttPosition = { left: rects.left - (ttWidth < width ? arrowOffset : 0) };
                   } else {
                     ttPosition = { left: rects.left - (ttWidth < width ? ttWidth - arrowOffset * 2 : ttWidth) };
                   }
-                  ttPosition.top = scope.ttPlacement == 'bottom' ? rects.top + height + scope.ttOffset : rects.top - ttHeight - scope.ttOffset;
+                  ttPosition.top = scope.ttPlacement === 'bottom' ? rects.top + height + scope.ttOffset : rects.top - ttHeight - scope.ttOffset;
                   break;
                 }
                 ttPosition.top += 'px';
@@ -240,7 +241,7 @@
                     duration: tourConfig.speed,
                     easing: 'swing'
                   };
-                if (scope.ttPlacement == 'top' || scope.ttAlign == 'bottom') {
+                if (scope.ttPlacement === 'top' || scope.ttAlign === 'bottom') {
                   scrollConfig.offsetTop = tourtip.height() + frame.offset().top + 100;  // take tourtip height and the top offset of the frame into account
                 } else {
                   scrollConfig.offsetTop = frame.offset().top + 100;
@@ -350,7 +351,7 @@
     // code adapted from: http://lions-mark.com/jquery/scrollTo/
     return function (frame, target, options, callback) {
       frame = frame instanceof jQuery ? frame : $(frame);
-      if (typeof options == 'function' && arguments.length == 2) {
+      if (typeof options === 'function' && arguments.length === 2) {
         callback = options;
         options = target;
       }
@@ -360,10 +361,10 @@
           duration: 500,
           easing: 'swing'
         }, options);
-      var scrollTarget = typeof settings.scrollTarget == 'number' ? settings.scrollTarget : $(settings.scrollTarget);
-      var scrollY = typeof scrollTarget == 'number' ? scrollTarget : scrollTarget.offset().top + frame.scrollTop() - parseInt(settings.offsetTop);
-      frame.animate({ scrollTop: scrollY }, parseInt(settings.duration), settings.easing, function () {
-        if (typeof callback == 'function') {
+      var scrollTarget = typeof settings.scrollTarget === 'number' ? settings.scrollTarget : $(settings.scrollTarget);
+      var scrollY = typeof scrollTarget === 'number' ? scrollTarget : scrollTarget.offset().top + frame.scrollTop() - parseInt(settings.offsetTop, 10);
+      frame.animate({ scrollTop: scrollY }, parseInt(settings.duration, 10), settings.easing, function () {
+        if (typeof callback === 'function') {
           callback.call(this);
         }
       });
