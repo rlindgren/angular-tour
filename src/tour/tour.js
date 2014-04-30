@@ -8,7 +8,7 @@ angular.module('angular-tour.tour', [])
   .constant('tourConfig', {
     placement        : 'top',                  // default placement relative to target. 'top', 'right', 'left', 'bottom'
     animation        : true,                   // if tips fade in
-    nextLabel        : 'Next',                 // default text in the next tip button
+    nextLabel        : 'NEXT',                 // default text in the next tip button
     scrollSpeed      : 500,                    // page scrolling speed in milliseconds
     offset           : 28,                     // how many pixels offset the tip is from the target
     frame            : 'html,body'             // base scrolling element
@@ -98,10 +98,10 @@ angular.module('angular-tour.tour', [])
           }
         };
         scope.setCurrentStep = function (val) {
+          $rootScope.$broadcast('$tour:nextStep'+(val-1));
           model.assign(scope.$parent, val);
           ctrl.currentStep = val;
           ctrl.select(ctrl.currentStep);
-          $rootScope.$broadcast('$tour:nextStep'+(val-1));
         };
         scope.getCurrentStep = function () {
           return ctrl.currentStep;
@@ -129,13 +129,13 @@ angular.module('angular-tour.tour', [])
         return {
           pre: function (scope, element, attrs, tourCtrl) {
             attrs.$observe('tourtip', function (val) {
-              scope.ttContent = val;
+              scope.ttContent = $sce.trustAsHtml(val);
             });
             attrs.$observe('tourtipPlacement', function (val) {
               scope.ttPlacement = val || tourConfig.placement;
             });
             attrs.$observe('tourtipNextLabel', function (val) {
-              scope.ttNextLabel = val || tourConfig.nextLabel;
+              scope.ttNextLabel = $sce.trustAsHtml(val || tourConfig.nextLabel);
             });
             attrs.$observe('tourtipOffsetTop', function (val) {
               scope.ttOffsetTop = parseInt(val, 10) || 0;
