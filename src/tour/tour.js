@@ -368,7 +368,6 @@ angular.module('angular-tour.tour', [])
       }, options);
       var scrollTarget = (typeof settings.scrollTarget === 'number') ? settings.scrollTarget : $(settings.scrollTarget);
       var scrollY = (typeof scrollTarget === 'number') ? scrollTarget : scrollTarget.offset().top + frame.scrollTop() - parseInt(settings.offsetTop, 10);
-      console.log(scrollY);
       frame.animate({scrollTop : scrollY }, parseInt(settings.duration, 10), settings.easing, function(){
         if (typeof callback === 'function') { callback.call(this); }
       });

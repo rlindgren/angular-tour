@@ -1,6 +1,6 @@
 /**
- * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk
- * @version v0.1.10 - 2014-04-18
+ * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
+ * @version v0.1.13 - 2014-04-30
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -12,7 +12,7 @@
   angular.module('angular-tour.tour', []).constant('tourConfig', {
     placement: 'top',
     animation: true,
-    nextLabel: 'Next',
+    nextLabel: 'NEXT',
     scrollSpeed: 500,
     offset: 28,
     frame: 'html,body'
@@ -91,10 +91,10 @@
             }
           };
           scope.setCurrentStep = function (val) {
+            $rootScope.$broadcast('$tour:nextStep' + (val - 1));
             model.assign(scope.$parent, val);
             ctrl.currentStep = val;
             ctrl.select(ctrl.currentStep);
-            $rootScope.$broadcast('$tour:nextStep' + (val - 1));
           };
           scope.getCurrentStep = function () {
             return ctrl.currentStep;
@@ -123,13 +123,13 @@
           return {
             pre: function (scope, element, attrs, tourCtrl) {
               attrs.$observe('tourtip', function (val) {
-                scope.ttContent = val;
+                scope.ttContent = $sce.trustAsHtml(val);
               });
               attrs.$observe('tourtipPlacement', function (val) {
                 scope.ttPlacement = val || tourConfig.placement;
               });
               attrs.$observe('tourtipNextLabel', function (val) {
-                scope.ttNextLabel = val || tourConfig.nextLabel;
+                scope.ttNextLabel = $sce.trustAsHtml(val || tourConfig.nextLabel);
               });
               attrs.$observe('tourtipOffsetTop', function (val) {
                 scope.ttOffsetTop = parseInt(val, 10) || 0;
@@ -343,7 +343,6 @@
         }, options);
       var scrollTarget = typeof settings.scrollTarget === 'number' ? settings.scrollTarget : $(settings.scrollTarget);
       var scrollY = typeof scrollTarget === 'number' ? scrollTarget : scrollTarget.offset().top + frame.scrollTop() - parseInt(settings.offsetTop, 10);
-      console.log(scrollY);
       frame.animate({ scrollTop: scrollY }, parseInt(settings.duration, 10), settings.easing, function () {
         if (typeof callback === 'function') {
           callback.call(this);
