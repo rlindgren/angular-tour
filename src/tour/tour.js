@@ -123,7 +123,6 @@ angular.module('angular-tour.tour', [])
     return {
       require: '^tour',
       restrict: 'EA',
-      scope: true,
       compile: function (EL, ATTRS) {
         var _global = angular.element($window);
         return {
