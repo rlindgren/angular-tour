@@ -8,8 +8,7 @@
 
 (function (window, document, undefined) {
   'use strict';
-  angular.module('angular-tour', ['angular-tour.tpls']);
-  angular.module('angular-tour.tpls', []);
+  angular.module('angular-tour', ['angular-tour.tour', 'tour/tour.tpl.html']);
   angular.module('tour/tour.tpl.html', []).run([
     '$templateCache',
     function ($templateCache) {
@@ -227,9 +226,9 @@
                     easing: 'swing'
                   };
                 if (scope.ttPlacement == 'top' || scope.ttAlign == 'bottom') {
-                  scrollConfig.offsetTop = tourtip.height() + (frame.offset().top ? frame.offset().top + 100 : 100);  // take tourtip height and the top offset of the frame into account
+                  scrollConfig.offsetTop = tourtip.height() + (frame.offset() ? frame.offset().top + 100 : 100);  // take tourtip height and the top offset of the frame into account
                 } else {
-                  scrollConfig.offsetTop = frame.offset().top ? frame.offset().top + 100 : 100;
+                  scrollConfig.offsetTop = frame.offset() ? frame.offset().top + 100 : 100;
                 }
                 scrollTo(frame, targetElement, scrollConfig);
               }
