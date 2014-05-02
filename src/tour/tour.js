@@ -225,9 +225,9 @@ angular.module('angular-tour.tour', [])
                 easing: 'swing'
               };
               if (scope.ttPlacement == 'top' || scope.ttAlign == 'bottom') {
-                scrollConfig.offsetTop = tourtip.height() + frame.offset().top + 100;  // take tourtip height and the top offset of the frame into account
+                scrollConfig.offsetTop = tourtip.height() + (frame.offset().top ? frame.offset().top + 100 : 100);  // take tourtip height and the top offset of the frame into account
               } else {
-                scrollConfig.offsetTop = frame.offset().top + 100;
+                scrollConfig.offsetTop = frame.offset().top ? frame.offset().top + 100 : 100;
               }
               scrollTo(frame, targetElement, scrollConfig);
             }

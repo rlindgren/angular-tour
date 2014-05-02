@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v0.1.13 - 2014-04-30
+ * @version v0.1.16 - 2014-05-02
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -117,7 +117,6 @@
       return {
         require: '^tour',
         restrict: 'EA',
-        scope: true,
         compile: function (EL, ATTRS) {
           var _global = angular.element($window);
           return {
@@ -221,9 +220,9 @@
                     easing: 'swing'
                   };
                 if (scope.ttPlacement == 'top' || scope.ttAlign == 'bottom') {
-                  scrollConfig.offsetTop = tourtip.height() + frame.offset().top + 100;  // take tourtip height and the top offset of the frame into account
+                  scrollConfig.offsetTop = tourtip.height() + (frame.offset().top ? frame.offset().top + 100 : 100);  // take tourtip height and the top offset of the frame into account
                 } else {
-                  scrollConfig.offsetTop = frame.offset().top + 100;
+                  scrollConfig.offsetTop = frame.offset().top ? frame.offset().top + 100 : 100;
                 }
                 scrollTo(frame, targetElement, scrollConfig);
               }
