@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v0.1.18 - 2014-05-02
+ * @version v0.1.20 - 2014-05-07
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -117,6 +117,7 @@
       return {
         require: '^tour',
         restrict: 'EA',
+        scope: true,
         compile: function (EL, ATTRS) {
           var _global = angular.element($window);
           return {
