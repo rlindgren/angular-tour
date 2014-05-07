@@ -8,7 +8,7 @@
 
 (function (window, document, undefined) {
   'use strict';
-  angular.module('angular-tour', ['angular-tour.tpls']);
+  angular.module('angular-tour', ['angular-tour.tpls', 'angular-tour.tour', 'tour/tour.tpl.html']);
   angular.module('angular-tour.tpls', []);
   angular.module('tour/tour.tpl.html', []).run([
     '$templateCache',
