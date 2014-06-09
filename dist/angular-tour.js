@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v0.1.27 - 2014-06-09
+ * @version v0.1.28 - 2014-06-09
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -13,6 +13,7 @@
     placement: 'top',
     animation: true,
     nextLabel: 'NEXT',
+    backLabel: 'BACK',
     scrollSpeed: 500,
     offset: 28,
     frame: 'html,body'
@@ -132,6 +133,9 @@
               attrs.$observe('tourtipNextLabel', function (val) {
                 scope.ttNextLabel = $sce.trustAsHtml(val || tourConfig.nextLabel);
               });
+              attrs.$observe('tourtipBackLabel', function (val) {
+                scope.ttBackLabel = $sce.trustAsHtml(val || tourConfig.backLabel);
+              });
               attrs.$observe('tourtipOffsetTop', function (val) {
                 scope.ttOffsetTop = parseInt(val, 10) || 0;
               });
@@ -148,7 +152,7 @@
                 scope.ttAlign = 'top bottom'.match(scope.ttPlacement) ? val || 'left' : val || 'top';
               });
               attrs.$observe('tourtipTitle', function (val) {
-                scope.ttTitle = 'Features Tour';
+                scope.ttTitle = val || 'Feature Tour';
               });
               scope.ttOpen = false;
               scope.ttAnimation = tourConfig.animation;
