@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v0.1.20 - 2014-05-07
+ * @version v0.1.24 - 2014-06-09
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -8,8 +8,11 @@
 
 (function (window, document, undefined) {
   'use strict';
-  angular.module('angular-tour', ['angular-tour.tpls', 'angular-tour.tour', 'tour/tour.tpl.html']);
-  angular.module('angular-tour.tpls', []);
+  angular.module('angular-tour', [
+    'angular-tour.tpls',
+    'angular-tour.tour'
+  ]);
+  angular.module('angular-tour.tpls', ['tour/tour.tpl.html']);
   angular.module('tour/tour.tpl.html', []).run([
     '$templateCache',
     function ($templateCache) {
@@ -25,8 +28,9 @@
     frame: 'html,body'
   }).controller('TourController', [
     '$scope',
+    '$rootScope',
     'orderedList',
-    function ($scope, orderedList) {
+    function ($scope, $rootScope, orderedList) {
       var self = this;
       self.postTourCallback = angular.noop;
       self.postStepCallback = angular.noop;
@@ -64,10 +68,10 @@
         self.unselectAllSteps();
         self.postTourCallback();
       };
-      $scope.openTour = function () {
+      $rootScope.openTour = function () {
         self.select(0);  // always start from 0
       };
-      $scope.closeTour = function () {
+      $rootScope.closeTour = function () {
         self.cancelTour();
       };
     }
