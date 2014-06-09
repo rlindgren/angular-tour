@@ -9,6 +9,7 @@ angular.module('angular-tour.tour', [])
     placement        : 'top',                  // default placement relative to target. 'top', 'right', 'left', 'bottom'
     animation        : true,                   // if tips fade in
     nextLabel        : 'NEXT',                 // default text in the next tip button
+    backLabel        : 'BACK',                 // default text in the prev tip button
     scrollSpeed      : 500,                    // page scrolling speed in milliseconds
     offset           : 28,                     // how many pixels offset the tip is from the target
     frame            : 'html,body'             // base scrolling element
@@ -137,6 +138,9 @@ angular.module('angular-tour.tour', [])
             attrs.$observe('tourtipNextLabel', function (val) {
               scope.ttNextLabel = $sce.trustAsHtml(val || tourConfig.nextLabel);
             });
+            attrs.$observe('tourtipBackLabel', function (val) {
+              scope.ttBackLabel = $sce.trustAsHtml(val || tourConfig.backLabel);
+            });
             attrs.$observe('tourtipOffsetTop', function (val) {
               scope.ttOffsetTop = parseInt(val, 10) || 0;
             });
@@ -153,7 +157,7 @@ angular.module('angular-tour.tour', [])
               scope.ttAlign = 'top bottom'.match(scope.ttPlacement) ? val || 'left' : val || 'top';
             });
             attrs.$observe('tourtipTitle', function (val) {
-              scope.ttTitle = 'Features Tour';
+              scope.ttTitle = val || 'Feature Tour';
             });
             scope.ttOpen = false;
             scope.ttAnimation = tourConfig.animation;
