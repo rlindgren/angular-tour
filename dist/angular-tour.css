@@ -1,18 +1,45 @@
 .tour-tip {
   display: none;
   position: fixed;
-  background: #666666;
-  color: #FFF;
+  background: #888888;
+  color: whitesmoke;
   z-index: 101;
   font-family: inherit;
   font-weight: 400;
-  max-width: 650px;
+  max-width: 700px;
   border-radius: 10px;
   border: 1px solid #333333;
 }
 
-.tour-tip p {
-  color: #fefefe;
+.tour-tip .tour-tip-header .tour-close-tip {
+  position: absolute;
+  right: 0 !important;
+  top: 0 !important;
+  color: white !important;
+  text-decoration: none;
+  font-size: 30px !important;
+  font-weight: 400;
+  line-height: 0.5 !important;
+  padding: 10px !important;
+  cursor: pointer;
+}
+
+.tour-tip .tour-tip-header .tour-close-tip:hover,
+.tour-tip .tour-tip-header .tour-close-tip:focus {
+  color: #eeeeee !important;
+}
+
+.tour-tip .tour-tip-body .tour-content-wrapper {
+  padding: 1.5em 3em 1.5em 1.5em !important;
+  white-space: normal;
+}
+
+.tour-tip .tour-tip-body .tour-content-wrapper .button {
+  margin-bottom: 0 !important;
+}
+
+.tour-tip .tour-tip-body .tour-content-wrapper p {
+  color: whitesmoke;
   font-size: 1.4em;
   line-height: 1.5em;
   margin: 0 0 1.125em;
@@ -58,84 +85,144 @@
   border: inset 14px;
 }
 
-.tour-tip .tour-arrow.tt-top-left {
+.tour-tip .tour-arrow.tt-top-left,
+.tour-tip .tour-arrow.tt-top-left-border {
   border-style: solid;
-  bottom: -27px;
-  left: 22px;
-  border-color: #666666 transparent transparent !important;
+  left: 28px;
+}
+
+.tour-tip .tour-arrow.tt-top-left {
+  bottom: -28px;
+  border-color: #888888 transparent transparent !important;
+}
+
+.tour-tip .tour-arrow.tt-top-left-border {
+  bottom: -29px;
+  border-color: #333333 transparent transparent !important;
+}
+
+.tour-tip .tour-arrow.tt-top-right,
+.tour-tip .tour-arrow.tt-top-right-border {
+  border-style: solid;
+  right: 28px;
 }
 
 .tour-tip .tour-arrow.tt-top-right {
+  bottom: -28px;
+  border-color: #888888 transparent transparent !important;
+}
+
+.tour-tip .tour-arrow.tt-top-right-border {
+  bottom: -29px;
+  border-color: #333333 transparent transparent !important;
+}
+
+.tour-tip .tour-arrow.tt-bottom-left,
+.tour-tip .tour-arrow.tt-bottom-left-border {
   border-style: solid;
-  bottom: -27px;
-  left: 22px;
-  border-color: #666666 transparent transparent !important;
+  left: 28px;
 }
 
 .tour-tip .tour-arrow.tt-bottom-left {
-  border-style: solid;
   top: -28px;
-  left: 22px;
-  border-color: transparent transparent #666666 !important;
+  border-color: transparent transparent #888888 !important;
+}
+
+.tour-tip .tour-arrow.tt-bottom-left-border {
+  top: -29px;
+  border-color: transparent transparent #333333 !important;
+}
+
+.tour-tip .tour-arrow.tt-bottom-right,
+.tour-tip .tour-arrow.tt-bottom-right-border {
+  border-style: solid;
+  right: 28px;
 }
 
 .tour-tip .tour-arrow.tt-bottom-right {
-  border-style: solid;
   top: -28px;
-  right: 28px;
-  border-color: transparent transparent #666666 !important;
+  border-color: transparent transparent #888888 !important;
+}
+
+.tour-tip .tour-arrow.tt-bottom-right-border {
+  top: -29px;
+  border-color: transparent transparent #333333 !important;
+}
+
+.tour-tip .tour-arrow.tt-right-top,
+.tour-tip .tour-arrow.tt-right-top-border {
+  border-style: solid;
+  top: 28px;
 }
 
 .tour-tip .tour-arrow.tt-right-top {
+  left: -28px;
+  border-color: transparent #888888 transparent transparent !important;
+}
+
+.tour-tip .tour-arrow.tt-right-top-border {
+  left: -29px;
+  border-color: transparent #333333 transparent transparent !important;
+}
+
+.tour-tip .tour-arrow.tt-right-bottom,
+.tour-tip .tour-arrow.tt-right-bottom-border {
   border-style: solid;
-  left: -27px;
-  top: 28px;
-  border-color: transparent #666666 transparent transparent !important;
+  bottom: 28px;
 }
 
 .tour-tip .tour-arrow.tt-right-bottom {
+  left: -28px;
+  border-color: transparent #888888 transparent transparent !important;
+}
+
+.tour-tip .tour-arrow.tt-right-bottom-border {
+  left: -29px;
+  border-color: transparent #333333 transparent transparent !important;
+}
+
+.tour-tip .tour-arrow.tt-left-top,
+.tour-tip .tour-arrow.tt-left-top-border {
   border-style: solid;
-  left: -27px;
-  bottom: 28px;
-  border-color: transparent #1c252e transparent transparent !important;
+  top: 28px;
 }
 
 .tour-tip .tour-arrow.tt-left-top {
+  right: -28px;
+  border-color: transparent transparent transparent #888888 !important;
+}
+
+.tour-tip .tour-arrow.tt-left-top-border {
+  right: -29px;
+  border-color: transparent transparent transparent #333333 !important;
+}
+
+.tour-tip .tour-arrow.tt-left-bottom,
+.tour-tip .tour-arrow.tt-left-bottom-border {
   border-style: solid;
-  left: 100%;
-  top: 28px;
-  border-color: transparent transparent transparent #1c252e !important;
+  bottom: 28px;
 }
 
 .tour-tip .tour-arrow.tt-left-bottom {
-  border-style: solid;
-  left: 100%;
-  bottom: 28px;
-  border-color: transparent transparent transparent #1c252e !important;
+  right: -28px;
+  border-color: transparent transparent transparent #888888 !important;
 }
 
-.tour-tip .tour-content-wrapper {
-  padding: 1.5em !important;
+.tour-tip .tour-arrow.tt-left-bottom-border {
+  right: -29px;
+  border-color: transparent transparent transparent #333333 !important;
 }
 
-.tour-tip .tour-content-wrapper .button {
-  margin-bottom: 0 !important;
+[tourtip] {
+  margin: 0 !important;
 }
 
-.tour-tip .tour-close-tip {
-  position: absolute;
-  right: 0 !important;
-  top: 0 !important;
-  color: white !important;
-  text-decoration: none;
-  font-size: 30px !important;
-  font-weight: 400;
-  line-height: 0.5 !important;
-  padding: 10px !important;
-  cursor: pointer;
+.welcome-salute {
+  font-size: 30px;
+  margin: 0;
 }
 
-.tour-tip .tour-close-tip:hover,
-.tour-tip .tour-close-tip:focus {
-  color: #eeeeee !important;
+.welcome-body {
+  font-size: 16px;
+  line-height: 20px;
 }
