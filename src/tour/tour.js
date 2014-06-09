@@ -18,7 +18,7 @@ angular.module('angular-tour.tour', [])
    * TourController
    * the logic for the tour, which manages all the steps
    */
-  .controller('TourController', function($scope, orderedList) {
+  .controller('TourController', function($scope, $rootScope, orderedList) {
     var self = this;
     self.postTourCallback = angular.noop;
     self.postStepCallback = angular.noop;
@@ -61,11 +61,11 @@ angular.module('angular-tour.tour', [])
       self.postTourCallback();
     };
 
-    $scope.openTour = function () {
+    $rootScope.openTour = function () {
       self.select(0);  // always start from 0
     };
 
-    $scope.closeTour = function () {
+    $rootScope.closeTour = function () {
       self.cancelTour();
     };
   })
