@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v0.1.26 - 2014-06-09
+ * @version v0.1.27 - 2014-06-09
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -146,6 +146,9 @@
               });
               attrs.$observe('tourtipAlign', function (val) {
                 scope.ttAlign = 'top bottom'.match(scope.ttPlacement) ? val || 'left' : val || 'top';
+              });
+              attrs.$observe('tourtipTitle', function (val) {
+                scope.ttTitle = 'Features Tour';
               });
               scope.ttOpen = false;
               scope.ttAnimation = tourConfig.animation;
