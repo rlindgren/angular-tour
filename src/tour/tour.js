@@ -152,6 +152,9 @@ angular.module('angular-tour.tour', [])
             attrs.$observe('tourtipAlign', function (val) {
               scope.ttAlign = 'top bottom'.match(scope.ttPlacement) ? val || 'left' : val || 'top';
             });
+            attrs.$observe('tourtipTitle', function (val) {
+              scope.ttTitle = 'Features Tour';
+            });
             scope.ttOpen = false;
             scope.ttAnimation = tourConfig.animation;
             scope.index = parseInt(attrs.tourtipStep, 10);
