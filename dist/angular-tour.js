@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v0.1.36 - 2014-06-10
+ * @version v0.1.37 - 2014-06-10
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -54,12 +54,12 @@
         if (!self.steps.get(val + 1)) {
           while (val < self.steps.getCount()) {
             if (self.steps.get(val))
-              return true;
+              return false;
             val += 1;
           }
-          return false;
-        } else {
           return true;
+        } else {
+          return false;
         }
       };
       self.unselectAllSteps = function () {
