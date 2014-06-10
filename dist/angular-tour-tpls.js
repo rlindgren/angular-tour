@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v0.1.31 - 2014-06-10
+ * @version v0.1.32 - 2014-06-10
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -16,7 +16,7 @@
   angular.module('tour/tour.tpl.html', []).run([
     '$templateCache',
     function ($templateCache) {
-      $templateCache.put('tour/tour.tpl.html', '<div class="tour-tip">\n' + '\t<span class="tour-arrow tt-{{ ttPlacement + \'-\' + ttAlign }}-border"></span>\n' + '    <span class="tour-arrow tt-{{ ttPlacement + \'-\' + ttAlign }}"></span>\n' + '\t<div class="tour-tip-header">\n' + '\t\t<div class="tt-title" ng-bind-html="ttTitle"></div>\n' + '\t\t<a ng-click="closeTour()" class="tour-close-tip">\xd7</a>\n' + '\t</div>\n' + '\t<div class="tour-tip-body">\n' + '\t\t<div class="tour-content-wrapper">\n' + '\t        <p ng-bind-html="ttContent"></p>\n' + '\t    </div>\n' + '\t</div>\n' + '\t<div class="tour-tip-footer">\n' + '\t\t<a ng-click="setCurrentStep(getPrevStep())" ng-bind-html="ttBackLabel" class="small button tour-prev-tip"></a>\n' + '\t\t<a ng-click="setCurrentStep(getNextStep())" ng-bind-html="ttNextLabel" class="small button tour-next-tip"></a>\n' + '\t</div>\n' + '\t    \n' + '</div>\n' + '');
+      $templateCache.put('tour/tour.tpl.html', '<div class="tour-tip">\n' + '\t<span class="tour-arrow tt-{{ ttPlacement + \'-\' + ttAlign }}-border"></span>\n' + '    <span class="tour-arrow tt-{{ ttPlacement + \'-\' + ttAlign }}"></span>\n' + '\t<div class="tour-tip-header">\n' + '\t\t<a ng-click="closeTour()" class="tour-close-tip">\xd7</a>\n' + '\t</div>\n' + '\t<div class="tour-tip-body">\n' + '\t\t<div class="tour-content-wrapper">\n' + '\t        <p ng-bind-html="ttContent"></p>\n' + '\t    </div>\n' + '\t</div>\n' + '\t<div class="tour-tip-footer">\n' + '\t\t<a ng-if="!ttFirst" ng-click="setCurrentStep(getPrevStep())" ng-bind-html="ttBackLabel" class="small button tour-prev-tip"></a>\n' + '\t\t<a ng-if="!ttLast" ng-click="setCurrentStep(getNextStep())" ng-bind-html="ttNextLabel" class="small button tour-next-tip"></a>\n' + '\t\t<a ng-if="ttLast" ng-click="setCurrentStep(getNextStep())" class="small button">Finish</a>\n' + '\t</div>\n' + '\t    \n' + '</div>\n' + '');
     }
   ]);
   angular.module('angular-tour.tour', []).constant('tourConfig', {
@@ -37,24 +37,18 @@
       self.postStepCallback = angular.noop;
       self.currentStep = 0;
       self.steps = orderedList();
-      $scope.$on('$locationChangeStart', function () {
-        self.steps = orderedList();
-      });
-      self.select = function (nextIndex) {
+      // $scope.$on('$locationChangeStart', function () {
+      //   self.steps = orderedList();
+      // });
+      self.select = function (step) {
         if (!angular.isNumber(nextIndex))
           return;
         self.unselectAllSteps();
-        var step = self.steps.get(nextIndex);
         if (step) {
+          self.currentStep = step.index;
           step.ttOpen = true;
         }
-        if (self.currentStep !== nextIndex) {
-          self.currentStep = nextIndex;
-        }
-        if (nextIndex >= self.steps.getCount()) {
-          self.postTourCallback();
-        }
-        self.postStepCallback();
+        self.ttPostStep();
       };
       self.addStep = function (step) {
         if (angular.isNumber(step.index) && !isNaN(step.index)) {
@@ -73,7 +67,7 @@
         self.postTourCallback();
       };
       $rootScope.openTour = function () {
-        self.select(0);  // always start from 0
+        self.select(self.steps.get(0));  // always start from 0
       };
       $rootScope.closeTour = function () {
         self.cancelTour();
@@ -105,35 +99,42 @@
               scope.$parent.$eval(attrs.postStep);
             }
           };
-          scope.setCurrentStep = function (val) {
-            $rootScope.$broadcast('$tour:nextStep' + (val - 1));
-            model.assign(scope.$parent, val);
-            ctrl.currentStep = val;
-            ctrl.select(ctrl.currentStep);
+          scope.setCurrentStep = function (step) {
+            model.assign(scope.$parent, step.index);
+            ctrl.currentStep = step.index;
+            ctrl.select(step);
+          };
+          scope.setNextStep = function (val) {
+            var step = ctrl.steps.get(val);
+            if (!step) {
+              if (val + 1 < ctrl.steps.getCount())
+                scope.setNextStep(val + 1);
+              else
+                ctrl.cancelTour();
+            } else {
+              ctrl.select(step);
+            }
+          };
+          scope.setPrevStep = function (val) {
+            var step = ctrl.steps.get(val);
+            if (!step) {
+              if (val - 1 >= 0)
+                scope.setPrevStep(val - 1);
+              else
+                ctrl.cancelTour();
+            } else {
+              ctrl.select(step);
+            }
           };
           scope.getCurrentStep = function () {
             return ctrl.currentStep;
           };
-          scope.getNextStep = function (current) {
-            var nextStep = (current || ctrl.currentStep) + 1;
-            if (ctrl.currentStep < ctrl.getCount() - 1) {
-              if (!ctrl.select(nextStep)) {
-                return scope.getNextStep(nextStep);
-              } else {
-                return nextStep;
-              }
-            }
+          scope.getNextStep = function () {
+            var nextStep = ctrl.currentStep + 1;
             return nextStep;
           };
-          scope.getPrevStep = function (current) {
-            var prevStep = (current || ctrl.currentStep) - 1;
-            if (ctrl.currentStep > 0) {
-              if (!ctrl.select(prevStep)) {
-                return scope.getPrevStep(prevStep);
-              } else {
-                return prevStep;
-              }
-            }
+          scope.getPrevStep = function () {
+            var prevStep = ctrl.currentStep - 1;
             return prevStep;
           };
         }
@@ -186,12 +187,11 @@
               attrs.$observe('tourtipAlign', function (val) {
                 scope.ttAlign = 'top bottom'.match(scope.ttPlacement) ? val || 'left' : val || 'top';
               });
-              attrs.$observe('tourtipTitle', function (val) {
-                scope.ttTitle = val || 'Feature Tour';
-              });
               scope.ttOpen = false;
               scope.ttAnimation = tourConfig.animation;
               scope.index = parseInt(attrs.tourtipStep, 10);
+              scope.ttFirst = scope.index == 0;
+              scope.ttLast = scope.index == tourCtrl.steps.getCount() - 1;
               tourCtrl.addStep(scope);
             },
             post: function (scope, element, attrs, tourCtrl) {
@@ -264,9 +264,9 @@
                     easing: 'swing'
                   };
                 if (scope.ttPlacement == 'top' || scope.ttAlign == 'bottom') {
-                  scrollConfig.offsetTop = tourtip.height() + (frame.offset().top ? frame.offset().top + 100 : 100);  // take tourtip height and the top offset of the frame into account
+                  scrollConfig.offsetTop = tourtip.height() + (frame.offset() ? frame.offset().top + 100 : 100);  // take tourtip height and the top offset of the frame into account
                 } else {
-                  scrollConfig.offsetTop = frame.offset().top ? frame.offset().top + 100 : 100;
+                  scrollConfig.offsetTop = frame.offset() ? frame.offset().top + 100 : 100;
                 }
                 scrollTo(frame, targetElement, scrollConfig);
               }
@@ -280,10 +280,6 @@
                 _global.unbind('resize.' + scope.$id, scrollHandler);
                 frame.unbind('scroll', scrollHandler);
                 tourtip.remove();
-              });
-              scope.$on('$tour:nextStep' + attrs.tourtipStep, function () {
-                if (scope.ttPostStep(scope.$parent))
-                  scope.ttPostStep(scope.$parent)();
               });
             }
           };
