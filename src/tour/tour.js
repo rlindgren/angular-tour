@@ -44,6 +44,21 @@ angular.module('angular-tour.tour', [])
         self.steps.push(step);
       }
     };
+    self.isFirstStep = function (val) {
+      return val == 0;
+    };
+    self.isLastStep = function (val) {
+      var len = self.steps.getCount();
+      if (!self.steps.get(val + 1)) {
+        while (val < self.steps.getCount()) {
+          if (self.steps.get(val)) return true;
+          val += 1;
+        }
+        return false;
+      } else {
+        return true;
+      }
+    };
     self.unselectAllSteps = function () {
       self.steps.forEach(function (step) {
         step.ttOpen = false;
@@ -91,11 +106,8 @@ angular.module('angular-tour.tour', [])
         scope.setNextStep = function (val) {
           var step = ctrl.steps.get(val);
           if (!step) {
-            var nextVal = val + 1;
-            if (!ctrl.steps.get(nextVal) && nextVal < ctrl.steps.getCount()) 
-              scope.setNextStep(nextVal);
-            else
-              ctrl.cancelTour();
+            if (ctrl.isLastStep(val)) ctrl.cancelTour();
+            else scope.setNextStep(val + 1);
           } else {
             scope.setCurrentStep(step);
           }
@@ -104,10 +116,8 @@ angular.module('angular-tour.tour', [])
           var step = ctrl.steps.get(val);
           if (!step) {
             var nextVal = val - 1;
-            if (!ctrl.steps.get(nextVal) && nextVal >= 0)
-              scope.setPrevStep(nextVal);
-            else
-              ctrl.cancelTour();
+            if (ctrl.isFirstStep(nextVal)) ctrl.cancelTour();
+            else scope.setPrevStep(nextVal);
           } else {
             scope.setCurrentStep(step);
           }
@@ -230,8 +240,8 @@ angular.module('angular-tour.tour', [])
             function show() {
               if (!scope.ttContent)
                 return;
-              scope.ttFirst = scope.index == 0;
-              scope.ttLast = !tourCtrl.steps.get(scope.index + 1);
+              scope.ttFirst = tourCtrl.isFirstStep(scope.index);
+              scope.ttLast  = tourCtrl.isLastStep(scope.index);
               if (scope.ttAnimation) {
                 tourtip.fadeIn();
               } else {
