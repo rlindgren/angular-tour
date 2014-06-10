@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v0.1.30 - 2014-06-09
+ * @version v0.1.31 - 2014-06-10
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -16,7 +16,7 @@
   angular.module('tour/tour.tpl.html', []).run([
     '$templateCache',
     function ($templateCache) {
-      $templateCache.put('tour/tour.tpl.html', '<div class="tour-tip">\n' + '\t<span class="tour-arrow tt-{{ ttPlacement + \'-\' + ttAlign }}-border"></span>\n' + '    <span class="tour-arrow tt-{{ ttPlacement + \'-\' + ttAlign }}"></span>\n' + '\t<div class="tour-tip-header">\n' + '\t\t<div class="tt-title" ng-bind-html="ttTitle"></div>\n' + '\t\t<a ng-click="closeTour()" class="tour-close-tip">\xd7</a>\n' + '\t</div>\n' + '\t<div class="tour-tip-body">\n' + '\t\t<div class="tour-content-wrapper">\n' + '\t        <p ng-bind-html="ttContent"></p>\n' + '\t    </div>\n' + '\t</div>\n' + '\t<div class="tour-tip-footer">\n' + '\t\t<a ng-click="setCurrentStep(getCurrentStep() - 1)" ng-bind-html="ttBackLabel" class="small button tour-prev-tip"></a>\n' + '\t\t<a ng-click="setCurrentStep(getCurrentStep() + 1)" ng-bind-html="ttNextLabel" class="small button tour-next-tip"></a>\n' + '\t\t<ol class="tt-pagination-wrapper">\n' + '\t\t\t<li class="tt-page-number" ng-repeat="num in pageNums" ng-bind="num" ng-click="setCurrentStep(num)"></li>\n' + '\t\t</ol>\n' + '\t</div>\n' + '\t    \n' + '</div>\n' + '');
+      $templateCache.put('tour/tour.tpl.html', '<div class="tour-tip">\n' + '\t<span class="tour-arrow tt-{{ ttPlacement + \'-\' + ttAlign }}-border"></span>\n' + '    <span class="tour-arrow tt-{{ ttPlacement + \'-\' + ttAlign }}"></span>\n' + '\t<div class="tour-tip-header">\n' + '\t\t<div class="tt-title" ng-bind-html="ttTitle"></div>\n' + '\t\t<a ng-click="closeTour()" class="tour-close-tip">\xd7</a>\n' + '\t</div>\n' + '\t<div class="tour-tip-body">\n' + '\t\t<div class="tour-content-wrapper">\n' + '\t        <p ng-bind-html="ttContent"></p>\n' + '\t    </div>\n' + '\t</div>\n' + '\t<div class="tour-tip-footer">\n' + '\t\t<a ng-click="setCurrentStep(getPrevStep())" ng-bind-html="ttBackLabel" class="small button tour-prev-tip"></a>\n' + '\t\t<a ng-click="setCurrentStep(getNextStep())" ng-bind-html="ttNextLabel" class="small button tour-next-tip"></a>\n' + '\t</div>\n' + '\t    \n' + '</div>\n' + '');
     }
   ]);
   angular.module('angular-tour.tour', []).constant('tourConfig', {
@@ -26,7 +26,7 @@
     backLabel: 'Back',
     scrollSpeed: 500,
     offset: 28,
-    frame: 'html,body'
+    frame: 'body'
   }).controller('TourController', [
     '$scope',
     '$rootScope',
@@ -37,6 +37,9 @@
       self.postStepCallback = angular.noop;
       self.currentStep = 0;
       self.steps = orderedList();
+      $scope.$on('$locationChangeStart', function () {
+        self.steps = orderedList();
+      });
       self.select = function (nextIndex) {
         if (!angular.isNumber(nextIndex))
           return;
@@ -111,6 +114,28 @@
           scope.getCurrentStep = function () {
             return ctrl.currentStep;
           };
+          scope.getNextStep = function (current) {
+            var nextStep = (current || ctrl.currentStep) + 1;
+            if (ctrl.currentStep < ctrl.getCount() - 1) {
+              if (!ctrl.select(nextStep)) {
+                return scope.getNextStep(nextStep);
+              } else {
+                return nextStep;
+              }
+            }
+            return nextStep;
+          };
+          scope.getPrevStep = function (current) {
+            var prevStep = (current || ctrl.currentStep) - 1;
+            if (ctrl.currentStep > 0) {
+              if (!ctrl.select(prevStep)) {
+                return scope.getPrevStep(prevStep);
+              } else {
+                return prevStep;
+              }
+            }
+            return prevStep;
+          };
         }
       };
     }
@@ -168,10 +193,6 @@
               scope.ttAnimation = tourConfig.animation;
               scope.index = parseInt(attrs.tourtipStep, 10);
               tourCtrl.addStep(scope);
-              scope.pageNums = [];
-              for (var i = 1; i <= tourCtrl.getCount(); i++) {
-                scope.pageNums.push(i);
-              }
             },
             post: function (scope, element, attrs, tourCtrl) {
               var tourtip = $compile(template)(scope);

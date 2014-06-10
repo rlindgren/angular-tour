@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v0.1.30 - 2014-06-09
+ * @version v0.1.31 - 2014-06-10
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -16,7 +16,7 @@
     backLabel: 'Back',
     scrollSpeed: 500,
     offset: 28,
-    frame: 'html,body'
+    frame: 'body'
   }).controller('TourController', [
     '$scope',
     '$rootScope',
@@ -27,6 +27,9 @@
       self.postStepCallback = angular.noop;
       self.currentStep = 0;
       self.steps = orderedList();
+      $scope.$on('$locationChangeStart', function () {
+        self.steps = orderedList();
+      });
       self.select = function (nextIndex) {
         if (!angular.isNumber(nextIndex))
           return;
@@ -101,6 +104,28 @@
           scope.getCurrentStep = function () {
             return ctrl.currentStep;
           };
+          scope.getNextStep = function (current) {
+            var nextStep = (current || ctrl.currentStep) + 1;
+            if (ctrl.currentStep < ctrl.getCount() - 1) {
+              if (!ctrl.select(nextStep)) {
+                return scope.getNextStep(nextStep);
+              } else {
+                return nextStep;
+              }
+            }
+            return nextStep;
+          };
+          scope.getPrevStep = function (current) {
+            var prevStep = (current || ctrl.currentStep) - 1;
+            if (ctrl.currentStep > 0) {
+              if (!ctrl.select(prevStep)) {
+                return scope.getPrevStep(prevStep);
+              } else {
+                return prevStep;
+              }
+            }
+            return prevStep;
+          };
         }
       };
     }
@@ -158,10 +183,6 @@
               scope.ttAnimation = tourConfig.animation;
               scope.index = parseInt(attrs.tourtipStep, 10);
               tourCtrl.addStep(scope);
-              scope.pageNums = [];
-              for (var i = 1; i <= tourCtrl.getCount(); i++) {
-                scope.pageNums.push(i);
-              }
             },
             post: function (scope, element, attrs, tourCtrl) {
               var tourtip = $compile(template)(scope);
