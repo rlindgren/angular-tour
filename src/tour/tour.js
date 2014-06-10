@@ -51,12 +51,12 @@ angular.module('angular-tour.tour', [])
       var len = self.steps.getCount();
       if (!self.steps.get(val + 1)) {
         while (val < self.steps.getCount()) {
-          if (self.steps.get(val)) return true;
+          if (self.steps.get(val)) return false;
           val += 1;
         }
-        return false;
-      } else {
         return true;
+      } else {
+        return false;
       }
     };
     self.unselectAllSteps = function () {
