@@ -13,6 +13,9 @@
 	<div class="tour-tip-footer">
 		<a ng-click="setCurrentStep(getCurrentStep() - 1)" ng-bind-html="ttBackLabel" class="small button tour-prev-tip"></a>
 		<a ng-click="setCurrentStep(getCurrentStep() + 1)" ng-bind-html="ttNextLabel" class="small button tour-next-tip"></a>
+		<ol class="tt-pagination-wrapper">
+			<li class="tt-page-number" ng-repeat="num in pageNums" ng-bind="num" ng-click="setCurrentStep(num)"></li>
+		</ol>
 	</div>
 	    
 </div>

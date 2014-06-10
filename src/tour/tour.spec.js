@@ -159,6 +159,11 @@ describe('Directive: tour', function () {
       expect(elm).toHaveOpenTourtips(1);
     });
 
+    it('should show number of tips as array on $scope.pageNums', function () {
+      scope.$digest();
+      expect(scope.pageNums).toBeDefined();
+    });
+
     describe('tourtip', function() {
       it('should contain original text', function () {
         expect(elm.html()).toContain('Important website feature');

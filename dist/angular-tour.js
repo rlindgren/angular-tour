@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v0.1.29 - 2014-06-09
+ * @version v0.1.30 - 2014-06-09
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -12,8 +12,8 @@
   angular.module('angular-tour.tour', []).constant('tourConfig', {
     placement: 'top',
     animation: true,
-    nextLabel: 'NEXT',
-    backLabel: 'BACK',
+    nextLabel: 'Next',
+    backLabel: 'Back',
     scrollSpeed: 500,
     offset: 28,
     frame: 'html,body'
@@ -158,6 +158,10 @@
               scope.ttAnimation = tourConfig.animation;
               scope.index = parseInt(attrs.tourtipStep, 10);
               tourCtrl.addStep(scope);
+              scope.pageNums = [];
+              for (var i = 1; i <= tourCtrl.getCount(); i++) {
+                scope.pageNums.push(i);
+              }
             },
             post: function (scope, element, attrs, tourCtrl) {
               var tourtip = $compile(template)(scope);

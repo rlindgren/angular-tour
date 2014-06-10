@@ -8,8 +8,8 @@ angular.module('angular-tour.tour', [])
   .constant('tourConfig', {
     placement        : 'top',                  // default placement relative to target. 'top', 'right', 'left', 'bottom'
     animation        : true,                   // if tips fade in
-    nextLabel        : 'NEXT',                 // default text in the next tip button
-    backLabel        : 'BACK',                 // default text in the prev tip button
+    nextLabel        : 'Next',                 // default text in the next tip button
+    backLabel        : 'Back',                 // default text in the prev tip button
     scrollSpeed      : 500,                    // page scrolling speed in milliseconds
     offset           : 28,                     // how many pixels offset the tip is from the target
     frame            : 'html,body'             // base scrolling element
@@ -163,6 +163,8 @@ angular.module('angular-tour.tour', [])
             scope.ttAnimation = tourConfig.animation;
             scope.index = parseInt(attrs.tourtipStep, 10);
             tourCtrl.addStep(scope);
+            scope.pageNums = [];
+            for (var i=1; i<=tourCtrl.getCount(); i++) { scope.pageNums.push(i); }
           },
           post: function (scope, element, attrs, tourCtrl) {
             var tourtip = $compile(template)(scope);
