@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v0.1.35 - 2014-06-10
+ * @version v0.1.36 - 2014-06-10
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -44,6 +44,22 @@
           self.steps.set(step.index, step);
         } else {
           self.steps.push(step);
+        }
+      };
+      self.isFirstStep = function (val) {
+        return val == 0;
+      };
+      self.isLastStep = function (val) {
+        var len = self.steps.getCount();
+        if (!self.steps.get(val + 1)) {
+          while (val < self.steps.getCount()) {
+            if (self.steps.get(val))
+              return true;
+            val += 1;
+          }
+          return false;
+        } else {
+          return true;
         }
       };
       self.unselectAllSteps = function () {
@@ -91,11 +107,10 @@
           scope.setNextStep = function (val) {
             var step = ctrl.steps.get(val);
             if (!step) {
-              var nextVal = val + 1;
-              if (!ctrl.steps.get(nextVal) && nextVal < ctrl.steps.getCount())
-                scope.setNextStep(nextVal);
-              else
+              if (ctrl.isLastStep(val))
                 ctrl.cancelTour();
+              else
+                scope.setNextStep(val + 1);
             } else {
               scope.setCurrentStep(step);
             }
@@ -104,10 +119,10 @@
             var step = ctrl.steps.get(val);
             if (!step) {
               var nextVal = val - 1;
-              if (!ctrl.steps.get(nextVal) && nextVal >= 0)
-                scope.setPrevStep(nextVal);
-              else
+              if (ctrl.isFirstStep(nextVal))
                 ctrl.cancelTour();
+              else
+                scope.setPrevStep(nextVal);
             } else {
               scope.setCurrentStep(step);
             }
@@ -234,8 +249,8 @@
               function show() {
                 if (!scope.ttContent)
                   return;
-                scope.ttFirst = scope.index == 0;
-                scope.ttLast = !tourCtrl.steps.get(scope.index + 1);
+                scope.ttFirst = tourCtrl.isFirstStep(scope.index);
+                scope.ttLast = tourCtrl.isLastStep(scope.index);
                 if (scope.ttAnimation) {
                   tourtip.fadeIn();
                 } else {
