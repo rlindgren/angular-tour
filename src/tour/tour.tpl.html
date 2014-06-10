@@ -2,7 +2,6 @@
 	<span class="tour-arrow tt-{{ ttPlacement + '-' + ttAlign }}-border"></span>
     <span class="tour-arrow tt-{{ ttPlacement + '-' + ttAlign }}"></span>
 	<div class="tour-tip-header">
-		<div class="tt-title" ng-bind-html="ttTitle"></div>
 		<a ng-click="closeTour()" class="tour-close-tip">×</a>
 	</div>
 	<div class="tour-tip-body">
@@ -11,8 +10,9 @@
 	    </div>
 	</div>
 	<div class="tour-tip-footer">
-		<a ng-click="setCurrentStep(getPrevStep())" ng-bind-html="ttBackLabel" class="small button tour-prev-tip"></a>
-		<a ng-click="setCurrentStep(getNextStep())" ng-bind-html="ttNextLabel" class="small button tour-next-tip"></a>
+		<a ng-if="!ttFirst" ng-click="setCurrentStep(getPrevStep())" ng-bind-html="ttBackLabel" class="small button tour-prev-tip"></a>
+		<a ng-if="!ttLast" ng-click="setCurrentStep(getNextStep())" ng-bind-html="ttNextLabel" class="small button tour-next-tip"></a>
+		<a ng-if="ttLast" ng-click="setCurrentStep(getNextStep())" class="small button">Finish</a>
 	</div>
 	    
 </div>

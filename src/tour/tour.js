@@ -26,25 +26,19 @@ angular.module('angular-tour.tour', [])
     self.currentStep = 0;
     self.steps = orderedList();
 
-    $scope.$on('$locationChangeStart', function () {
-      self.steps = orderedList();
-    });
+    // $scope.$on('$locationChangeStart', function () {
+    //   self.steps = orderedList();
+    // });
 
-    self.select = function (nextIndex) {
+    self.select = function (step) {
       if (!angular.isNumber(nextIndex))
         return;
       self.unselectAllSteps();
-      var step = self.steps.get(nextIndex);
       if (step) {
+        self.currentStep = step.index;
         step.ttOpen = true;
       }
-      if (self.currentStep !== nextIndex) {
-        self.currentStep = nextIndex;
-      }
-      if (nextIndex >= self.steps.getCount()) {
-        self.postTourCallback();
-      }
-      self.postStepCallback();
+      self.ttPostStep();
     };
 
     self.addStep = function (step) {
@@ -67,7 +61,7 @@ angular.module('angular-tour.tour', [])
     };
 
     $rootScope.openTour = function () {
-      self.select(0);  // always start from 0
+      self.select(self.steps.get(0));  // always start from 0
     };
 
     $rootScope.closeTour = function () {
@@ -102,35 +96,38 @@ angular.module('angular-tour.tour', [])
             scope.$parent.$eval(attrs.postStep);
           }
         };
-        scope.setCurrentStep = function (val) {
-          $rootScope.$broadcast('$tour:nextStep'+(val-1));
-          model.assign(scope.$parent, val);
-          ctrl.currentStep = val;
-          ctrl.select(ctrl.currentStep);
+        scope.setCurrentStep = function (step) {
+          model.assign(scope.$parent, step.index);
+          ctrl.currentStep = step.index;
+          ctrl.select(step);
+        };
+        scope.setNextStep = function (val) {
+          var step = ctrl.steps.get(val);
+          if (!step) {
+            if (val + 1 < ctrl.steps.getCount()) scope.setNextStep(val + 1);
+            else ctrl.cancelTour();
+          } else {
+            ctrl.select(step);
+          }
+        };
+        scope.setPrevStep = function (val) {
+          var step = ctrl.steps.get(val);
+          if (!step) {
+            if (val - 1 >= 0) scope.setPrevStep(val - 1);
+            else ctrl.cancelTour();
+          } else {
+            ctrl.select(step);
+          }
         };
         scope.getCurrentStep = function () {
           return ctrl.currentStep;
         };
-        scope.getNextStep = function (current) {
-          var nextStep = (current || ctrl.currentStep) + 1;
-          if (ctrl.currentStep < ctrl.getCount() - 1) {
-            if (!ctrl.select(nextStep)) {
-              return scope.getNextStep(nextStep);
-            } else {
-              return nextStep;
-            }
-          }
+        scope.getNextStep = function () {
+          var nextStep = ctrl.currentStep + 1;
           return nextStep;
         };
-        scope.getPrevStep = function (current) {
-          var prevStep = (current || ctrl.currentStep) - 1;
-          if (ctrl.currentStep > 0) {
-            if (!ctrl.select(prevStep)) {
-              return scope.getPrevStep(prevStep);
-            } else {
-              return prevStep;
-            }
-          }
+        scope.getPrevStep = function () {
+          var prevStep = ctrl.currentStep - 1;
           return prevStep;
         };
       }
@@ -182,12 +179,11 @@ angular.module('angular-tour.tour', [])
             attrs.$observe('tourtipAlign', function (val) {
               scope.ttAlign = 'top bottom'.match(scope.ttPlacement) ? val || 'left' : val || 'top';
             });
-            attrs.$observe('tourtipTitle', function (val) {
-              scope.ttTitle = val || 'Feature Tour';
-            });
             scope.ttOpen = false;
             scope.ttAnimation = tourConfig.animation;
             scope.index = parseInt(attrs.tourtipStep, 10);
+            scope.ttFirst = scope.index == 0;
+            scope.ttLast = scope.index == tourCtrl.steps.getCount() - 1;
             tourCtrl.addStep(scope);
           },
           post: function (scope, element, attrs, tourCtrl) {
@@ -259,9 +255,9 @@ angular.module('angular-tour.tour', [])
                 easing: 'swing'
               };
               if (scope.ttPlacement == 'top' || scope.ttAlign == 'bottom') {
-                scrollConfig.offsetTop = tourtip.height() + (frame.offset().top ? frame.offset().top + 100 : 100);  // take tourtip height and the top offset of the frame into account
+                scrollConfig.offsetTop = tourtip.height() + (frame.offset() ? frame.offset().top + 100 : 100);  // take tourtip height and the top offset of the frame into account
               } else {
-                scrollConfig.offsetTop = frame.offset().top ? frame.offset().top + 100 : 100;
+                scrollConfig.offsetTop = frame.offset() ? frame.offset().top + 100 : 100;
               }
               scrollTo(frame, targetElement, scrollConfig);
             }
@@ -275,10 +271,6 @@ angular.module('angular-tour.tour', [])
               _global.unbind('resize.' + scope.$id, scrollHandler);
               frame.unbind('scroll', scrollHandler);
               tourtip.remove();
-            });
-            scope.$on('$tour:nextStep' + attrs.tourtipStep, function () {
-              if (scope.ttPostStep(scope.$parent))
-                scope.ttPostStep(scope.$parent)();
             });
           }
         };
