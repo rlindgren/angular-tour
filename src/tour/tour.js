@@ -31,13 +31,10 @@ angular.module('angular-tour.tour', [])
     // });
 
     self.select = function (step) {
-      if (!angular.isNumber(nextIndex))
-        return;
       self.unselectAllSteps();
-      if (step) {
-        self.currentStep = step.index;
-        step.ttOpen = true;
-      }
+      if (!step) return;
+      self.currentStep = step.index;
+      step.ttOpen = true;
       self.ttPostStep();
     };
 
