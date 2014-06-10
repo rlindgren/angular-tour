@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v0.1.32 - 2014-06-10
+ * @version v0.1.33 - 2014-06-10
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -41,13 +41,11 @@
       //   self.steps = orderedList();
       // });
       self.select = function (step) {
-        if (!angular.isNumber(nextIndex))
-          return;
         self.unselectAllSteps();
-        if (step) {
-          self.currentStep = step.index;
-          step.ttOpen = true;
-        }
+        if (!step)
+          return;
+        self.currentStep = step.index;
+        step.ttOpen = true;
         self.ttPostStep();
       };
       self.addStep = function (step) {
