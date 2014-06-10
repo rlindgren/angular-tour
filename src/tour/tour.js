@@ -67,6 +67,7 @@ angular.module('angular-tour.tour', [])
     self.cancelTour = function () {
       self.unselectAllSteps();
       self.postTourCallback();
+      $scope.tourActive = false;
     };
     $rootScope.openTour = function () {
       self.select(self.steps.get(0));  // always start from 0
@@ -74,7 +75,6 @@ angular.module('angular-tour.tour', [])
     };
     $rootScope.closeTour = function () {
       self.cancelTour();
-      $scope.tourActive = false;
     };
   })
 
@@ -108,7 +108,7 @@ angular.module('angular-tour.tour', [])
         scope.setNextStep = function (val) {
           var step = ctrl.steps.get(val);
           if (!step) {
-            if (ctrl.isLastStep(val)) ctrl.closeTour();
+            if (ctrl.isLastStep(val)) ctrl.cancelTour();
             else scope.setNextStep(val + 1);
           } else {
             scope.setCurrentStep(step);
@@ -118,7 +118,7 @@ angular.module('angular-tour.tour', [])
           var step = ctrl.steps.get(val);
           if (!step) {
             var nextVal = val - 1;
-            if (ctrl.isFirstStep(nextVal)) ctrl.closeTour();
+            if (ctrl.isFirstStep(nextVal)) ctrl.cancelTour();
             else scope.setPrevStep(nextVal);
           } else {
             scope.setCurrentStep(step);
