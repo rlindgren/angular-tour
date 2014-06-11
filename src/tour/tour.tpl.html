@@ -10,9 +10,9 @@
 	    </div>
 	</div>
 	<div class="tour-tip-footer">
-		<a ng-if="!ttFirst" ng-click="setPrevStep(getPrevStep(this))" ng-bind-html="ttBackLabel" class="small button tour-prev-tip"></a>
-		<a ng-if="!ttLast" ng-click="setNextStep(getNextStep(this))" ng-bind-html="ttNextLabel" class="small button tour-next-tip"></a>
-		<a ng-if="ttLast" ng-click="setNextStep(getNextStep(this))" ng-bind-html="ttFinishLabel" class="small button tour-last-tip"></a>
+		<a ng-if="!ttFirst" ng-click="setPrevStep()" ng-bind-html="ttBackLabel" class="small button tour-prev-tip"></a>
+		<a ng-if="!ttLast" ng-click="setNextStep()" ng-bind-html="ttNextLabel" class="small button tour-next-tip"></a>
+		<a ng-if="ttLast" ng-click="setNextStep()" ng-bind-html="ttFinishLabel" class="small button tour-last-tip"></a>
 	</div>
 	    
 </div>
