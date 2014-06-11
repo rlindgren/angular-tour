@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v0.1.39 - 2014-06-10
+ * @version v0.1.40 - 2014-06-10
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -21,9 +21,12 @@
   }).controller('TourController', [
     '$scope',
     '$rootScope',
+    '$attrs',
+    '$parse',
     'orderedList',
-    function ($scope, $rootScope, orderedList) {
+    function ($scope, $rootScope, $attrs, $parse, orderedList) {
       var self = this;
+      var model = $parse($attrs.step);
       self.postTourCallback = angular.noop;
       self.postStepCallback = angular.noop;
       self.currentStep = 0;
@@ -46,22 +49,6 @@
           self.steps.push(step);
         }
       };
-      self.isFirstStep = function (val) {
-        return val == 0;
-      };
-      self.isLastStep = function (val) {
-        var len = self.steps.getCount();
-        if (!self.steps.get(val + 1)) {
-          while (val < self.steps.getCount()) {
-            if (self.steps.get(val))
-              return false;
-            val += 1;
-          }
-          return true;
-        } else {
-          return false;
-        }
-      };
       self.unselectAllSteps = function () {
         self.steps.forEach(function (step) {
           step.ttOpen = false;
@@ -70,7 +57,13 @@
       self.cancelTour = function () {
         self.unselectAllSteps();
         self.postTourCallback();
+        self.currentStep = 0;
         $scope.tourActive = false;
+      };
+      self.setStep = function (step) {
+        model.assign($scope.$parent, step.index);
+        self.currentStep = step.index;
+        self.select(step);
       };
       $rootScope.openTour = function () {
         self.select(self.steps.get(0));
@@ -80,11 +73,34 @@
       $rootScope.closeTour = function () {
         self.cancelTour();
       };
+      $rootScope.ttNextStep = function (val) {
+        var val = (val || self.currentStep) + 1;
+        if (val == self.steps.getCount()) {
+          self.cancelTour();
+          return;
+        }
+        var step = self.steps.get(val);
+        if (!step)
+          $rootScope.ttNextStep(val);
+        else
+          self.setStep(step);
+      };
+      $rootScope.ttPrevStep = function (val) {
+        var val = (val || self.currentStep) - 1;
+        if (val < 0) {
+          self.cancelTour();
+          return;
+        }
+        var step = self.steps.get(val);
+        if (!step)
+          $rootScope.ttPrevStep(val);
+        else
+          self.setStep(step);
+      };
     }
   ]).directive('tour', [
-    '$parse',
     '$rootScope',
-    function ($parse, $rootScope) {
+    function ($rootScope) {
       return {
         controller: 'TourController',
         restrict: 'EA',
@@ -93,7 +109,6 @@
           if (!angular.isDefined(attrs.step)) {
             throw 'The <tour> directive requires a `step` attribute to bind the current step to.';
           }
-          var model = $parse(attrs.step);
           scope.$on(attrs.rebuildOn ? attrs.rebuildOn : '$locationChangeStart', function () {
             ctrl.newList();
           });
@@ -102,42 +117,11 @@
               scope.$parent.$eval(attrs.postTour);
             }
           };
-          scope.setCurrentStep = function (step) {
-            model.assign(scope.$parent, step.index);
-            ctrl.currentStep = step.index;
-            ctrl.select(step);
+          scope.setNextStep = function () {
+            $rootScope.ttNextStep();
           };
-          scope.setNextStep = function (val) {
-            var step = ctrl.steps.get(val);
-            if (!step) {
-              if (ctrl.isLastStep(val))
-                ctrl.cancelTour();
-              else
-                scope.setNextStep(val + 1);
-            } else {
-              scope.setCurrentStep(step);
-            }
-          };
-          scope.setPrevStep = function (val) {
-            var step = ctrl.steps.get(val);
-            if (!step) {
-              var nextVal = val - 1;
-              if (ctrl.isFirstStep(nextVal))
-                ctrl.cancelTour();
-              else
-                scope.setPrevStep(nextVal);
-            } else {
-              scope.setCurrentStep(step);
-            }
-          };
-          scope.getCurrentStep = function () {
-            return ctrl.currentStep;
-          };
-          scope.getNextStep = function (step) {
-            return step.index + 1;
-          };
-          scope.getPrevStep = function (step) {
-            return step.index - 1;
+          scope.setPrevStep = function () {
+            $rootScope.ttPrevStep();
           };
         }
       };
@@ -195,6 +179,28 @@
               scope.ttOpen = false;
               scope.ttAnimation = tourConfig.animation;
               scope.index = parseInt(attrs.tourtipStep, 10);
+              scope.isFirstStep = function () {
+                var index = parseInt(scope.index.toString(), 10);
+                var len = tourCtrl.steps.getCount();
+                while (index >= 0) {
+                  index -= 1;
+                  if (tourCtrl.steps.get(index)) {
+                    return false;
+                  }
+                }
+                return true;
+              };
+              scope.isLastStep = function () {
+                var index = parseInt(scope.index.toString(), 10);
+                var len = tourCtrl.steps.getCount();
+                while (index < len) {
+                  index += 1;
+                  if (tourCtrl.steps.get(index)) {
+                    return false;
+                  }
+                }
+                return true;
+              };
               tourCtrl.addStep(scope);
             },
             post: function (scope, element, attrs, tourCtrl) {
@@ -252,8 +258,8 @@
               function show() {
                 if (!scope.ttContent)
                   return;
-                scope.ttFirst = tourCtrl.isFirstStep(scope.index);
-                scope.ttLast = tourCtrl.isLastStep(scope.index);
+                scope.ttFirst = scope.isFirstStep();
+                scope.ttLast = scope.isLastStep();
                 if (scope.ttAnimation) {
                   tourtip.fadeIn();
                 } else {
