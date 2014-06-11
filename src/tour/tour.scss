@@ -8,7 +8,7 @@ $tt-controls-color: #898989;
 
 .tour-tip {
   display: none;
-  position: fixed;
+  position: absolute;
   background: transparent;
   color: #fff;
   z-index: 101;
@@ -235,10 +235,4 @@ $tt-controls-color: #898989;
       border-color: transparent transparent transparent $tt-border-color !important;
     }
   }
-}
-
-
-// general style override
-[tourtip] { 
-  margin: 0 !important;
 }

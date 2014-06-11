@@ -13,7 +13,8 @@ angular.module('angular-tour.tour', [])
     finishLabel      : 'Finish',               // default text in the finish tour button
     scrollSpeed      : 500,                    // page scrolling speed in milliseconds
     offset           : 28,                     // how many pixels offset the tip is from the target
-    attachTo         : 'html,body'             // base scrolling element
+    appendToBody     : false,                  // append tourtip to body tag (parent element by default)
+    scrollTarget     : 'body'                  // base scrolling element
   })
 
   /**
@@ -23,21 +24,25 @@ angular.module('angular-tour.tour', [])
   .controller('TourController', function ($scope, $rootScope, $attrs, $parse, tourtipMap) {
     var self = this;
     var model = $parse($attrs.step);
-    self.postTourCallback = angular.noop;
-    self.postStepCallback = angular.noop;
-    self.currentStep = 0;
+    self.postTourCallback = $attrs.postTour || 'angular.noop()';
+    self.postStepCallback = $attrs.postStep || 'angular.noop()';
+    self.currentIndex = 0;
     self.newList = function () {
       if ($scope.tourActive) self.cancelTour();
       self.steps = tourtipMap();
     };
     self.newList();
+    self.currentStep = self.steps.get(0);
     self.select = function (step) {
-      if (!step)
+      if (!step) {
         return;
+      }
       self.unselectAllSteps();
-      self.currentStep = step.index;
-      step.ttOpen = true;
-      $scope.$parent.$eval(step.ttPostStep);
+      if (self.currentStep) $scope.$parent.$eval(self.currentStep.ttPostStep);
+      self.currentStep = step;
+      self.currentIndex = step.index;
+      $scope.$parent.$eval(step.ttPreStep);
+      step.open();
     };
     self.addStep = function (step) {
       if (angular.isNumber(step.index) && !isNaN(step.index)) {
@@ -46,24 +51,27 @@ angular.module('angular-tour.tour', [])
     };
     self.unselectAllSteps = function () {
       self.steps.forEach(function (step) {
-        step.ttOpen = false;
+        step.close();
       });
     };
     self.cancelTour = function () {
       self.unselectAllSteps();
+      if (self.currentStep) $scope.$parent.$eval(self.currentStep.ttPostStep);
+      self.postStepCallback();
       self.postTourCallback();
-      self.currentStep = 0;
+      self.currentIndex = 0;
+      self.currentStep = null;
       $scope.tourActive = false;
     };
     self.setStep = function (step) {
       model.assign($scope.$parent, step.index);
-      self.currentStep = step.index;
       self.select(step);
     };
     $rootScope.openTour = function () {
+      console.log(self.steps);
       var step = self.steps.get(0);
       if (step) {
-        self.select(step);
+        self.setStep(step);
         $scope.tourActive = true;
       }
     };
@@ -71,24 +79,30 @@ angular.module('angular-tour.tour', [])
       self.cancelTour();
     };
     $rootScope.ttNextStep = function (val) {
-      var val = (val || self.currentStep) + 1;
-      if (val == self.steps.getCount() ) {
+      val = (val || self.currentIndex) + 1;
+      if (val === self.steps.getCount() ) {
         self.cancelTour();
         return;
       }
       var step = self.steps.get(val);
-      if (!step) $rootScope.ttNextStep(val);
-      else self.setStep(step);
+      if (!step) {
+        $rootScope.ttNextStep(val);
+      } else {
+        self.setStep(step);
+      }
     };
     $rootScope.ttPrevStep = function (val) {
-      var val = (val || self.currentStep) - 1;
+      val = (val || self.currentIndex) - 1;
       if (val < 0) {
         self.cancelTour();
         return;
       }
       var step = self.steps.get(val);
-      if (!step) $rootScope.ttPrevStep(val);
-      else self.setStep(step);
+      if (!step) {
+        $rootScope.ttPrevStep(val);
+      } else {
+        self.setStep(step);
+      }
     };
   })
 
@@ -109,9 +123,10 @@ angular.module('angular-tour.tour', [])
           ctrl.newList();
         });
         ctrl.postTourCallback = function () {
-          if (angular.isDefined(attrs.postTour)) {
-            scope.$parent.$eval(attrs.postTour);
-          }
+          scope.$parent.$eval(attrs.postTour || 'angular.noop()');
+        };
+        ctrl.postStepCallback = function () {
+          scope.$parent.$eval(attrs.postStep || 'angular.noop()');
         };
         scope.setNextStep = function () {
           $rootScope.ttNextStep();
@@ -127,7 +142,7 @@ angular.module('angular-tour.tour', [])
    * Tourtip
    * tourtip manages the state of the tour-popup directive
    */
-  .directive('tourtip', function ($window, $compile, $interpolate, $parse, $timeout, $sce, scrollTo, tourConfig) {
+  .directive('tourtip', function ($window, $compile, $interpolate, $timeout, $sce, scrollTo, tourConfig) {
       var startSym = $interpolate.startSymbol(), endSym = $interpolate.endSymbol();
       var template = '<div tour-popup></div>';
       return {
@@ -139,19 +154,25 @@ angular.module('angular-tour.tour', [])
           return {
             pre: function (scope, element, attrs, tourCtrl) {
               attrs.$observe('tourtip', function (val) {
-                scope.ttContent = $sce.trustAsHtml('html', val || '');
+                scope.ttContent = $sce.trustAsHtml(val || '');
               });
               attrs.$observe('tourtipPlacement', function (val) {
                 scope.ttPlacement = val || tourConfig.placement;
               });
+              attrs.$observe('tourtipAlign', function (val) {
+                scope.ttAlign = 'top bottom'.match(scope.ttPlacement) ? val || 'left' : val || 'top';
+              });
               attrs.$observe('tourtipNextLabel', function (val) {
-                scope.ttNextLabel = $sce.trustAsHtml('html', val || tourConfig.nextLabel);
+                scope.ttNextLabel = $sce.trustAsHtml(val || tourConfig.nextLabel);
               });
               attrs.$observe('tourtipBackLabel', function (val) {
-                scope.ttBackLabel = $sce.trustAsHtml('html', val || tourConfig.backLabel);
+                scope.ttBackLabel = $sce.trustAsHtml(val || tourConfig.backLabel);
               });
               attrs.$observe('tourtipFinishLabel', function (val) {
-                scope.ttFinishLabel = $sce.trustAsHtml('html', val || tourConfig.finishLabel);
+                scope.ttFinishLabel = $sce.trustAsHtml(val || tourConfig.finishLabel);
+              });
+              attrs.$observe('tourtipOffset', function (val) {
+                scope.ttOffset = parseInt(val, 10) || tourConfig.offset;
               });
               attrs.$observe('tourtipOffsetTop', function (val) {
                 scope.ttOffsetTop = parseInt(val, 10) || 0;
@@ -159,19 +180,25 @@ angular.module('angular-tour.tour', [])
               attrs.$observe('tourtipOffsetLeft', function (val) {
                 scope.ttOffsetLeft = parseInt(val, 10) || 0;
               });
-              attrs.$observe('tourtipFrame', function (val) {
-                scope.ttFrame = val || tourConfig.frame;
+              attrs.$observe('tourtipScrollTarget', function (val) {
+                scope.ttFrame = val || tourConfig.scrollTarget;
+              });
+              attrs.$observe('tourtipAppendToBody', function (val) {
+                scope.ttAppendToBody = scope.$eval(val) || tourConfig.appendToBody;
+              });
+              attrs.$observe('preStep', function (val) {
+                scope.ttPreStep = val || 'angular.noop()';
               });
               attrs.$observe('postStep', function (val) {
                 scope.ttPostStep = val || 'angular.noop()';
               });
-              attrs.$observe('tourtipAlign', function (val) {
-                scope.ttAlign = 'top bottom'.match(scope.ttPlacement) ? val || 'left' : val || 'top';
-              });
-              scope.ttOpen = false;
-              scope.ttAnimation = tourConfig.animation;
-              scope.ttOffset = tourConfig.offset;
               scope.index = parseInt(attrs.tourtipStep, 10);
+              scope.open = function () {
+                scope.ttOpen = true;
+              };
+              scope.close = function () {
+                scope.ttOpen = false;
+              };
               scope.isFirstStep = function () {
                 var index = parseInt(scope.index.toString(), 10);
                 var len = tourCtrl.steps.getCount();
@@ -194,19 +221,18 @@ angular.module('angular-tour.tour', [])
                 }
                 return true;
               };
+              scope.close();
+              scope.ttAnimation = tourConfig.animation;
+              scope.ttOffset = tourConfig.offset;
               tourCtrl.addStep(scope);
             },
             post: function (scope, element, attrs, tourCtrl) {
               var tourtip = $compile(template)(scope);
-              var targetElement, frame;
+              var $frame;
               var scrollHandler = function (e) {
-                updatePosition(targetElement, tourtip);
+                updatePosition(element, tourtip);
               };
-              if (element.children().eq(0).length > 0)
-                targetElement = element.children().eq(0);
-              else
-                targetElement = element;
-              frame = targetElement.closest(scope.ttFrame);
+              element = element;
               $timeout(function () {
                 scope.$watch('ttOpen', function (val) {
                   if (val) {
@@ -216,35 +242,55 @@ angular.module('angular-tour.tour', [])
                   }
                 });
               }, 500);
-              var updatePosition = function (targetElement, tourtip) {
-                var elHeight, elWidth, elTop, elLeft, ttHeight, ttWidth, ttPlacement, ttAlign, ttPosition, ttOffset;
-                elHeight = targetElement.height();
-                elWidth = targetElement.width();
-                elTop = targetElement.offset().top;
-                elLeft = targetElement.offset().left;
-                ttWidth = tourtip.width();
-                ttHeight = tourtip.height();
-                ttPlacement = targetElement.scope().ttPlacement;
-                ttPosition = {};
-                ttAlign = scope.ttAlign;
-                ttOffset = scope.ttOffset;
+              var updatePosition = function (element, tourtip) {
+                var elHeight, elWidth, elTop, elBottom, elLeft, elRight, ttWidth, ttHeight, ttPlacement, ttPosition, ttAlign, ttOffset, arrowOffset, atb = scope.ttAppendToBody;
+                elHeight = element.height(),
+                elWidth = element.width(),
+                elTop = element.offset().top,
+                elBottom = elTop + elHeight,
+                elLeft = element.offset().left,
+                elRight = elLeft + elWidth,
+                ttWidth = tourtip.width(),
+                ttHeight = tourtip.height(),
+                ttPlacement = scope.ttPlacement,
+                ttPosition = {},
+                ttAlign = scope.ttAlign,
+                ttOffset = scope.ttOffset,
+                arrowOffset = 14;
+
+                var arrowCenter = 42;
+                // should we point directly at the element?
+                var pointAt = 'left right'.match(ttPlacement) ? elHeight < arrowCenter*2 : elWidth < arrowCenter*2;
+
                 switch (ttPlacement) {
                 case 'right':
                 case 'left':
-                  if (ttAlign == 'top') ttPosition.top = elTop + scope.ttOffsetTop;
-                  else ttPosition.top = elTop + elHeight - ttHeight - ttOffset + scope.ttOffsetTop
-                  if (ttPlacement == 'right') ttPosition.left = elLeft + elWidth + ttOffset + scope.ttOffsetLeft;
-                  else ttPosition.left = elLeft - ttWidth - ttOffset - scope.ttOffsetLeft;
+                  if (ttAlign === 'top') {
+                    if (pointAt) ttPosition.top = elTop - arrowCenter/2 + scope.ttOffsetTop;
+                    else ttPosition.top = elTop + scope.ttOffsetTop;
+                  } else {
+                    ttPosition.top = elBottom - ttHeight - scope.ttOffsetTop;
+                  }
+                  if (ttPlacement === 'right') {
+                    ttPosition.left = elRight + ttOffset + arrowOffset + scope.ttOffsetLeft;
+                  } else {
+                    ttPosition.left = elLeft - ttWidth - ttOffset - arrowOffset + scope.ttOffsetLeft;
+                  }
                   break;
                 case 'bottom':
                 case 'top':
-                  if (ttAlign == 'right') ttPosition.left = elLeft + elWidth - ttWidth - scope.ttOffsetLeft;
-                  else ttPosition.left = elLeft + scope.ttOffsetLeft;
-                  if (ttPlacement == 'top') ttPosition.top = elTop - ttHeight - ttOffset - scope.ttOffsetTop;
-                  else ttPosition.top = elTop + elHeight + ttOffset + scope.ttOffsetTop;
+                  if (ttAlign === 'right') {
+                    ttPosition.left = elRight - ttWidth + scope.ttOffsetLeft;
+                  } else {
+                    ttPosition.left = elLeft + scope.ttOffsetLeft;
+                  }
+                  if (ttPlacement === 'top') {
+                    ttPosition.top = elTop - ttOffset - arrowOffset + scope.ttOffsetTop;
+                  } else {
+                    ttPosition.top = elBottom + ttOffset + arrowOffset + scope.ttOffsetTop;
+                  }
                   break;
                 default:
-
                 }
                 ttPosition.top += 'px';
                 ttPosition.left += 'px';
@@ -260,31 +306,32 @@ angular.module('angular-tour.tour', [])
                 } else {
                   tourtip.css({ display: 'block' });
                 }
-                frame = targetElement.closest(scope.ttFrame);
-                $('body').append(tourtip);
-                _global.bind('resize.' + scope.$id, scrollHandler);
-                frame.bind('scroll', scrollHandler);
-                updatePosition(targetElement, tourtip);
-                var scrollConfig = {
-                    duration: tourConfig.speed,
-                    easing: 'swing'
-                  };
-                if (scope.ttPlacement == 'top' || scope.ttAlign == 'bottom') {
-                  scrollConfig.offsetTop = tourtip.height() + (frame.offset() ? frame.offset().top + 100 : 100);  // take tourtip height and the top offset of the frame into account
+                if (scope.ttAppendToBody) {
+                  $('body').append(tourtip);
                 } else {
-                  scrollConfig.offsetTop = frame.offset() ? frame.offset().top + 100 : 100;
+                  element.append(tourtip);
                 }
-                scrollTo(frame, targetElement, scrollConfig);
+                $frame = 'html,body'.match(scope.ttFrame) ? $('body') : element.closest(scope.ttFrame);
+                _global.bind('resize.' + scope.$id, scrollHandler);
+                ('html,body'.match(scope.ttFrame) ? _global : $frame).bind('scroll', scrollHandler);
+                updatePosition(element, tourtip);
+                var scrollConfig = { duration: tourConfig.scrollSpeed };
+                if (scope.ttPlacement === 'top' || scope.ttAlign === 'bottom') {
+                  scrollConfig.offsetTop = tourtip.height() + ($frame.offset() ? $frame.offset().top + 100 : 100);  // take tourtip height and the top offset of the frame into account
+                } else {
+                  scrollConfig.offsetTop = $frame.offset() ? $frame.offset().top + 100 : 100;
+                }
+                scrollTo($frame, tourtip, scrollConfig);
               }
               function hide() {
-                frame = targetElement.closest(scope.ttFrame);
-                tourtip.detach();
+                $frame = element.closest(scope.ttFrame);
+                $frame.unbind('scroll', scrollHandler);
                 _global.unbind('resize.' + scope.$id, scrollHandler);
-                frame.unbind('scroll', scrollHandler);
+                tourtip.detach();
               }
               scope.$on('$destroy', function onDestroyTourtip() {
+                $frame.unbind('scroll', scrollHandler);
                 _global.unbind('resize.' + scope.$id, scrollHandler);
-                frame.unbind('scroll', scrollHandler);
                 tourtip.remove();
               });
             }
@@ -317,7 +364,7 @@ angular.module('angular-tour.tour', [])
       this.map = {};
     };
     TourtipMap.prototype.set = function (key, value) {
-      if (!angular.isNumber(key) || angular.isDefined(value))
+      if (!angular.isNumber(key) || angular.isUndefined(value))
         return;
       this.map[key] = value;
     };
@@ -354,24 +401,253 @@ angular.module('angular-tour.tour', [])
    * ScrollTo
    * Smoothly scroll to a dom element
    */
-  .factory('scrollTo', function() {
-    // code adapted from: http://lions-mark.com/jquery/scrollTo/
+  .factory('scrollTo', function ($interval, easingFunctions) {
+    var requestAnimationFrame = window.requestAnimationFrame || 
+      window.mozRequestAnimationFrame || 
+      window.webkitRequestAnimationFrame || 
+      window.msRequestAnimationFrame;
+
     return function( frame, target, options, callback ){
-      frame = $(frame);
-      if (typeof options === 'function' && arguments.length === 2) {
+      
+      if (angular.isFunction(options)) {
         callback = options;
         options = target;
       }
-      var settings = $.extend({
+
+      var settings = {
         scrollTarget  : target,
         offsetTop     : 50,
         duration      : 500,
-        easing        : 'swing'
-      }, options);
-      var scrollTarget = (typeof settings.scrollTarget === 'number') ? settings.scrollTarget : $(settings.scrollTarget);
-      var scrollY = (typeof scrollTarget === 'number') ? scrollTarget : scrollTarget.offset().top + frame.scrollTop() - parseInt(settings.offsetTop, 10);
-      frame.animate({scrollTop : scrollY }, parseInt(settings.duration, 10), settings.easing, function(){
-        if (typeof callback === 'function') { callback.call(this); }
-      });
+        easing        : 'ease-in-out'
+      };
+
+      angular.extend(settings, options);
+
+      var startTime = 0;
+      var startValue = frame.scrollTop();
+      var endValue = target.offset().top - startValue - parseInt(settings.offsetTop, 10);
+      var duration = settings.duration;
+
+      function animate () {
+        var s = startTime, b = startValue, c = endValue, d = duration;
+        var backward = s > d;
+        var count = s;
+        function runAnimation (time) {
+          if (!easingFunctions[settings.easing]) throw new Error('easing function: "' + settings.easing + '" is unsupported by the `scrollTo` service')
+          frame[0].scrollTop = easingFunctions[settings.easing](count,b,c,d);
+          if (backward) {
+            count -= 16;
+            if (count > d) requestAnimationFrame(runAnimation);
+          } else {
+            count += 16;
+            if (count < d) requestAnimationFrame(runAnimation);
+          }
+        }
+        requestAnimationFrame(runAnimation);
+      }
+      animate();
     };
+  })
+
+
+  /**
+   * easingFunctions
+   * Robert Penner's easing function library
+   *
+   * easing function params:
+   * @param {Number} [t] [current time]
+   * @param {Number} [b] [from value]
+   * @param {Number} [c] [to value]
+   * @param {Number} [d] [duration]
+   */
+  .factory('easingFunctions', function () {
+    var Fns = {};
+
+    //simple linear tweening - no easing, no acceleration
+    Fns.linearTween = function (t, b, c, d) {
+      return c*t/d + b;
+    };
+        
+
+    // quadratic easing in - accelerating from zero velocity
+    Fns.easeInQuad = function (t, b, c, d) {
+      t /= d;
+      return c*t*t + b;
+    };
+        
+
+    // quadratic easing out - decelerating to zero velocity
+    Fns.easeOutQuad = function (t, b, c, d) {
+      t /= d;
+      return -c * t*(t-2) + b;
+    };
+
+        
+    // quadratic easing in/out - acceleration until halfway, then deceleration
+    Fns.easeInOutQuad = function (t, b, c, d) {
+      t /= d/2;
+      if (t < 1) return c/2*t*t + b;
+      t--;
+      return -c/2 * (t*(t-2) - 1) + b;
+    };
+
+
+    // cubic easing in - accelerating from zero velocity
+    Fns.easeInCubic = function (t, b, c, d) {
+      t /= d;
+      return c*t*t*t + b;
+    };
+
+        
+    // cubic easing out - decelerating to zero velocity
+    Fns.easeOutCubic = function (t, b, c, d) {
+      t /= d;
+      t--;
+      return c*(t*t*t + 1) + b;
+    };
+
+        
+    // cubic easing in/out - acceleration until halfway, then deceleration
+    Fns.easeInOutCubic = function (t, b, c, d) {
+      t /= d/2;
+      if (t < 1) return c/2*t*t*t + b;
+      t -= 2;
+      return c/2*(t*t*t + 2) + b;
+    };
+      
+
+    // quartic easing in - accelerating from zero velocity
+    Fns.easeInQuart = function (t, b, c, d) {
+      t /= d;
+      return c*t*t*t*t + b;
+    };
+
+        
+    // quartic easing out - decelerating to zero velocity
+    Fns.easeOutQuart = function (t, b, c, d) {
+      t /= d;
+      t--;
+      return -c * (t*t*t*t - 1) + b;
+    };
+
+        
+    // quartic easing in/out - acceleration until halfway, then deceleration
+    Fns.easeInOutQuart = function (t, b, c, d) {
+      t /= d/2;
+      if (t < 1) return c/2*t*t*t*t + b;
+      t -= 2;
+      return -c/2 * (t*t*t*t - 2) + b;
+    };
+
+
+    // quintic easing in - accelerating from zero velocity
+    Fns.easeInQuint = function (t, b, c, d) {
+      t /= d;
+      return c*t*t*t*t*t + b;
+    };
+
+        
+    // quintic easing out - decelerating to zero velocity
+    Fns.easeOutQuint = function (t, b, c, d) {
+      t /= d;
+      t--;
+      return c*(t*t*t*t*t + 1) + b;
+    };
+
+        
+    // quintic easing in/out - acceleration until halfway, then deceleration
+    Fns.easeInOutQuint = function (t, b, c, d) {
+      t /= d/2;
+      if (t < 1) return c/2*t*t*t*t*t + b;
+      t -= 2;
+      return c/2*(t*t*t*t*t + 2) + b;
+    };
+        
+
+    // sinusoidal easing in - accelerating from zero velocity
+    Fns.easeInSine = function (t, b, c, d) {
+      return -c * Math.cos(t/d * (Math.PI/2)) + c + b;
+    };
+
+        
+    // sinusoidal easing out - decelerating to zero velocity
+    Fns.easeOutSine = function (t, b, c, d) {
+      return c * Math.sin(t/d * (Math.PI/2)) + b;
+    };
+
+        
+    // sinusoidal easing in/out - accelerating until halfway, then decelerating
+    Fns.easeInOutSine = function (t, b, c, d) {
+      return -c/2 * (Math.cos(Math.PI*t/d) - 1) + b;
+    };
+
+        
+    // exponential easing in - accelerating from zero velocity
+    Fns.easeInExpo = function (t, b, c, d) {
+      return c * Math.pow( 2, 10 * (t/d - 1) ) + b;
+    };
+
+        
+    // exponential easing out - decelerating to zero velocity
+    Fns.easeOutExpo = function (t, b, c, d) {
+      return c * ( -Math.pow( 2, -10 * t/d ) + 1 ) + b;
+    };
+
+        
+    // exponential easing in/out - accelerating until halfway, then decelerating
+    Fns.easeInOutExpo = function (t, b, c, d) {
+      t /= d/2;
+      if (t < 1) return c/2 * Math.pow( 2, 10 * (t - 1) ) + b;
+      t--;
+      return c/2 * ( -Math.pow( 2, -10 * t) + 2 ) + b;
+    };
+        
+
+    // circular easing in - accelerating from zero velocity
+    Fns.easeInCirc = function (t, b, c, d) {
+      t /= d;
+      return -c * (Math.sqrt(1 - t*t) - 1) + b;
+    };
+
+        
+    // circular easing out - decelerating to zero velocity
+    Fns.easeOutCirc = function (t, b, c, d) {
+      t /= d;
+      t--;
+      return c * Math.sqrt(1 - t*t) + b;
+    };
+
+        
+    // circular easing in/out - acceleration until halfway, then deceleration
+    Fns.easeInOutCirc = function (t, b, c, d) {
+      t /= d/2;
+      if (t < 1) return -c/2 * (Math.sqrt(1 - t*t) - 1) + b;
+      t -= 2;
+      return c/2 * (Math.sqrt(1 - t*t) + 1) + b;
+    };
+
+    Fns['linear']            = Fns.linearTween;
+    Fns['ease-in']           = Fns.easeInQuad;
+    Fns['ease-out']          = Fns.easeOutQuad;
+    Fns['ease-in-out']       = Fns.easeInOutQuad;
+    Fns['ease-in-cubic']     = Fns.easeInCubic;
+    Fns['ease-out-cubic']    = Fns.easeOutCubic;
+    Fns['ease-in-out-cubic'] = Fns.easeInOutCubic;
+    Fns['ease-in-quart']     = Fns.easeInQuart;
+    Fns['ease-out-quart']    = Fns.easeOutQuart;
+    Fns['ease-in-out-quart'] = Fns.easeInOutQuart;
+    Fns['ease-in-quint']     = Fns.easeInQuint;
+    Fns['ease-out-quint']    = Fns.easeOutQuint;
+    Fns['ease-in-out-quint'] = Fns.easeInOutQuint;
+    Fns['ease-in-sine']      = Fns.easeInSine;
+    Fns['ease-out-sine']     = Fns.easeOutSine;
+    Fns['ease-in-out-sine']  = Fns.easeInOutSine;
+    Fns['ease-in-expo']      = Fns.easeInExpo;
+    Fns['ease-out-expo']     = Fns.easeOutExpo;
+    Fns['ease-in-out-expo']  = Fns.easeInOutExpo;
+    Fns['ease-in-circ']      = Fns.easeInCirc;
+    Fns['ease-out-circ']     = Fns.easeOutCirc;
+    Fns['ease-in-out-circ']  = Fns.easeInOutCirc;
+
+    return Fns;
   });
