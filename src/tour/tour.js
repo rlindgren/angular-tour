@@ -10,10 +10,10 @@ angular.module('angular-tour.tour', [])
     animation        : true,                   // if tips fade in
     nextLabel        : 'Next',                 // default text in the next tip button
     backLabel        : 'Back',                 // default text in the prev tip button
-    finishLabel        : 'Finish',                 // default text in the finish tour button
+    finishLabel      : 'Finish',               // default text in the finish tour button
     scrollSpeed      : 500,                    // page scrolling speed in milliseconds
     offset           : 28,                     // how many pixels offset the tip is from the target
-    frame            : 'body'                  // base scrolling element
+    attachTo         : 'html,body'             // base scrolling element
   })
 
   /**
@@ -27,6 +27,7 @@ angular.module('angular-tour.tour', [])
     self.postStepCallback = angular.noop;
     self.currentStep = 0;
     self.newList = function () {
+      if ($scope.tourActive) self.cancelTour();
       self.steps = orderedList();
     };
     self.newList();
@@ -140,19 +141,19 @@ angular.module('angular-tour.tour', [])
           return {
             pre: function (scope, element, attrs, tourCtrl) {
               attrs.$observe('tourtip', function (val) {
-                scope.ttContent = $sce.trustAsHtml(val);
+                scope.ttContent = $sce.trustAsHtml('html', val || '');
               });
               attrs.$observe('tourtipPlacement', function (val) {
                 scope.ttPlacement = val || tourConfig.placement;
               });
               attrs.$observe('tourtipNextLabel', function (val) {
-                scope.ttNextLabel = $sce.trustAsHtml(val || tourConfig.nextLabel);
+                scope.ttNextLabel = $sce.trustAsHtml('html', val || tourConfig.nextLabel);
               });
               attrs.$observe('tourtipBackLabel', function (val) {
-                scope.ttBackLabel = $sce.trustAsHtml(val || tourConfig.backLabel);
+                scope.ttBackLabel = $sce.trustAsHtml('html', val || tourConfig.backLabel);
               });
               attrs.$observe('tourtipFinishLabel', function (val) {
-                scope.ttFinishLabel = $sce.trustAsHtml(val || tourConfig.finishLabel);
+                scope.ttFinishLabel = $sce.trustAsHtml('html', val || tourConfig.finishLabel);
               });
               attrs.$observe('tourtipOffsetTop', function (val) {
                 scope.ttOffsetTop = parseInt(val, 10) || 0;
@@ -171,6 +172,7 @@ angular.module('angular-tour.tour', [])
               });
               scope.ttOpen = false;
               scope.ttAnimation = tourConfig.animation;
+              scope.ttOffset = tourConfig.offset;
               scope.index = parseInt(attrs.tourtipStep, 10);
               scope.isFirstStep = function () {
                 var index = parseInt(scope.index.toString(), 10);
@@ -217,32 +219,34 @@ angular.module('angular-tour.tour', [])
                 });
               }, 500);
               var updatePosition = function (targetElement, tourtip) {
-                var rects, ttWidth, ttHeight, ttPosition, height, width, arrowOffset;
-                rects = targetElement[0].getBoundingClientRect();
+                var elHeight, elWidth, elTop, elLeft, ttHeight, ttWidth, ttPlacement, ttAlign, ttPosition, ttOffset;
+                elHeight = targetElement.height();
+                elWidth = targetElement.width();
+                elTop = targetElement.offset().top;
+                elLeft = targetElement.offset().left;
                 ttWidth = tourtip.width();
                 ttHeight = tourtip.height();
-                width = targetElement.width();
-                height = targetElement.height();
-                arrowOffset = $('.tour-arrow')[0].getBoundingClientRect().height;
-                switch (scope.ttPlacement) {
+                ttPlacement = targetElement.scope().ttPlacement;
+                ttPosition = {};
+                ttAlign = scope.ttAlign;
+                ttOffset = scope.ttOffset;
+                switch (ttPlacement) {
                 case 'right':
                 case 'left':
-                  if (scope.ttAlign == 'top') {
-                    ttPosition = { top: rects.top - (ttHeight > height ? height / 2 + arrowOffset : 0) + scope.ttOffsetTop };
-                  } else {
-                    ttPosition = { top: rects.top - (ttHeight > height ? ttHeight - height / 2 - arrowOffset : ttHeight) + scope.ttOffsetTop };
-                  }
-                  ttPosition.left = scope.ttPlacement == 'right' ? rects.left + width + scope.ttOffsetLeft : rects.left - ttWidth - scope.ttOffsetLeft;
+                  if (ttAlign == 'top') ttPosition.top = elTop + scope.ttOffsetTop;
+                  else ttPosition.top = elTop + elHeight - ttHeight - ttOffset + scope.ttOffsetTop
+                  if (ttPlacement == 'right') ttPosition.left = elLeft + elWidth + ttOffset + scope.ttOffsetLeft;
+                  else ttPosition.left = elLeft - ttWidth - ttOffset - scope.ttOffsetLeft;
                   break;
                 case 'bottom':
                 case 'top':
-                  if (scope.ttAlign == 'left') {
-                    ttPosition = { left: rects.left - (ttWidth > width ? arrowOffset : 0) + scope.ttOffsetLeft };
-                  } else {
-                    ttPosition = { left: rects.left - (ttWidth > width ? ttWidth + arrowOffset * 2 : ttWidth) + scope.ttOffsetLeft };
-                  }
-                  ttPosition.top = scope.ttPlacement == 'bottom' ? rects.top + height + scope.ttOffsetTop : rects.top - ttHeight - scope.ttOffsetTop;
+                  if (ttAlign == 'right') ttPosition.left = elLeft + elWidth - ttWidth - scope.ttOffsetLeft;
+                  else ttPosition.left = elLeft + scope.ttOffsetLeft;
+                  if (ttPlacement == 'top') ttPosition.top = elTop - ttHeight - ttOffset - scope.ttOffsetTop;
+                  else ttPosition.top = elTop + elHeight + ttOffset + scope.ttOffsetTop;
                   break;
+                default:
+
                 }
                 ttPosition.top += 'px';
                 ttPosition.left += 'px';

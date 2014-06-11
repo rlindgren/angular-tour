@@ -41,6 +41,7 @@
       self.postStepCallback = angular.noop;
       self.currentStep = 0;
       self.newList = function () {
+        self.cancelTour();
         self.steps = orderedList();
       };
       self.newList();
@@ -78,7 +79,7 @@
       $rootScope.openTour = function () {
         var step = self.steps.get(0);
         if (step) {
-          self.select(step);
+          self.setStep(step);
           $scope.tourActive = true;
         }
       };
@@ -121,9 +122,10 @@
           if (!angular.isDefined(attrs.step)) {
             throw 'The <tour> directive requires a `step` attribute to bind the current step to.';
           }
-          scope.$on(attrs.rebuildOn ? attrs.rebuildOn : '$locationChangeStart', function () {
+          var handler = scope.$on(attrs.rebuildOn ? attrs.rebuildOn : '$locationChangeStart', function () {
             ctrl.newList();
           });
+          $scope.$on('$destroy', function () { handler(); });
           ctrl.postTourCallback = function () {
             if (angular.isDefined(attrs.postTour)) {
               scope.$parent.$eval(attrs.postTour);

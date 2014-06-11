@@ -1,24 +1,35 @@
-$tt-bg-color: #888;
-$tt-text-color: #f5f5f5;
-$tt-border-color: #333;
+$tt-bg-color: #f1f1f1;
+$tt-text-color: #666;
+$tt-border-color: #888;
+$tt-header-color: #f8f8f8;
+$tt-body-color: #f8f8f8;
+$tt-footer-color: #f2f2f2;
+$tt-controls-color: #898989;
 
 .tour-tip {
   display: none;
   position: fixed;
-  background: $tt-bg-color;
-  color: $tt-text-color;
+  background: transparent;
+  color: #fff;
   z-index: 101;
   font-family: inherit;
   font-weight: 400;
-  max-width: 700px;
+  min-width: 300px;
+  max-width: 580px;
   border-radius: 10px;
-  border: 1px solid $tt-border-color;
+  box-shadow: 1px 1px 12px rgba(0, 0, 0, .5);
+  -webkit-box-shadow: 1px 1px 12px rgba(0, 0, 0, .5);
   .tour-tip-header {
+    border-radius: 10px 10px 0 0;
+    border: 1px solid $tt-border-color;
+    border-bottom: none;
+    height: 34px;
+    background: $tt-header-color;
     .tour-close-tip {
       position: absolute;
       right: 0 !important;
       top: 0 !important;
-      color: white !important;
+      color: #bbbbbb !important;
       text-decoration: none;
       font-size: 30px !important;
       font-weight: 400;
@@ -26,34 +37,42 @@ $tt-border-color: #333;
       padding: 10px !important;
       cursor: pointer;
       &:hover, &:focus {
-        color: #eeeeee !important;
+        color: $tt-border-color !important;
       }
-    }
-    .tt-title {
-
     }
   }
   .tour-tip-body {
+    border-radius: 0;
+    border: 1px solid $tt-border-color;
+    border-top: none;
+    border-bottom: none;
+    height: auto;
+    background: $tt-body-color;
+    padding: 0 2.5em 2.5em 2.5em !important;
     .tour-content-wrapper {
-      padding: 1.5em 3em 1.5em 1.5em !important;
       white-space: normal;
       .button {
         margin-bottom: 0!important;
       }
       p {
         color: $tt-text-color;
-        font-size: 1.4em;
+        font-size: 1.3em;
         line-height: 1.5em;
-        margin: 0 0 1.125em;
+        margin: 0;
       }
     }
   }
   .tour-tip-footer {
-    
+    border-radius: 0 0 10px 10px;
+    border: 1px solid $tt-border-color;
+    border-top: 1px solid #d4d4d4;
+    height: 52px;
+    padding: 10px 15px;
+    background: $tt-footer-color;
   }
   
-  button, .button {
-    background-color: #428bca;
+  .button {
+    // background-color: #428bca;
     cursor: pointer;
     font-family: inherit;
     font-weight: 700;
@@ -63,25 +82,39 @@ $tt-border-color: #333;
     text-align: center;
     display: inline-block;
     font-size: 1.2em;
-    color: #FFF !important;
-    border: 1px solid #285e8e !important;
-    margin: 0 0 1.25em;
-    padding: .5em 1.25em .6em !important;
-    border-radius: 6px;
+    color: #bbbbbb;
+    // border: 1px solid #285e8e !important;
+    margin: 0;
+    padding: .4em !important;
+    // border-radius: 6px;
     small {
       padding-top: .625em;
       padding-bottom: .5625em;
       -webkit-appearance: none;
     }
     &:hover {
-      background-color: #3276b1;
-      border: 1px solid #285e8e;
+      color: $tt-border-color !important;
     }
     &.tour-prev-tip {
-
+      float: left;
+      &:before {
+        font-family: FontAwesome;
+        content: "\f060";
+        display: inline-block;
+        padding-right: 10px;
+      }
     }
     &.tour-next-tip {
-
+      float: right;
+      &:after {
+        font-family: FontAwesome;
+        content: "\f061";
+        display: inline-block;
+        padding-left: 10px;
+      }
+    }
+    &.tour-last-tip {
+      float: right;
     }
   }
   .tour-arrow {
@@ -93,112 +126,112 @@ $tt-border-color: #333;
     // top-left
     &.tt-top-left, &.tt-top-left-border {
       border-style: solid;
-      left: 28px;
+      left: 22px;
     }
     &.tt-top-left {
-      bottom: -28px;
-      border-color: $tt-bg-color transparent transparent !important;
+      bottom: -27px;
+      border-color: $tt-footer-color transparent transparent !important;
     }
     &.tt-top-left-border {
-      bottom: -29px;
+      bottom: -28px;
       border-color: $tt-border-color transparent transparent !important;
     }
 
     // top-right
     &.tt-top-right, &.tt-top-right-border {
       border-style: solid;
-      right: 28px;
+      right: 22px;
     }
     &.tt-top-right {
-      bottom: -28px;
-      border-color: $tt-bg-color transparent transparent !important;
+      bottom: -27px;
+      border-color: $tt-footer-color transparent transparent !important;
     }
     &.tt-top-right-border {
-      bottom: -29px;
+      bottom: -28px;
       border-color: $tt-border-color transparent transparent !important;
     }
 
     // bottom-left
     &.tt-bottom-left, &.tt-bottom-left-border {
       border-style: solid;
-      left: 28px;
+      left: 22px;
     }
     &.tt-bottom-left {
-      top: -28px;
-      border-color: transparent transparent $tt-bg-color !important;
+      top: -27px;
+      border-color: transparent transparent $tt-header-color !important;
     }
     &.tt-bottom-left-border {
-      top: -29px;
+      top: -28px;
       border-color: transparent transparent $tt-border-color !important;
     }
 
     // bottom-right
     &.tt-bottom-right, &.tt-bottom-right-border {
       border-style: solid;
-      right: 28px;
+      right: 22px;
     }
     &.tt-bottom-right {
-      top: -28px;
-      border-color: transparent transparent $tt-bg-color !important;
+      top: -27px;
+      border-color: transparent transparent $tt-header-color !important;
     }
     &.tt-bottom-right-border {
-      top: -29px;
+      top: -28px;
       border-color: transparent transparent $tt-border-color !important;
     }
 
     // right-top
     &.tt-right-top, &.tt-right-top-border {
       border-style: solid;
-      top: 28px;
+      top: 22px;
     }
     &.tt-right-top {
-      left: -28px;
-      border-color: transparent $tt-bg-color transparent transparent !important;
+      left: -27px;
+      border-color: transparent $tt-body-color transparent transparent !important;
     }
     &.tt-right-top-border {
-      left: -29px;
+      left: -28px;
       border-color: transparent $tt-border-color transparent transparent !important;
     }
 
     // right-bottom
     &.tt-right-bottom, &.tt-right-bottom-border {
       border-style: solid;
-      bottom: 28px;
+      bottom: 22px;
     }
     &.tt-right-bottom {
-      left: -28px;
-      border-color: transparent $tt-bg-color transparent transparent !important;
+      left: -27px;
+      border-color: transparent $tt-footer-color transparent transparent !important;
     }
     &.tt-right-bottom-border {
-      left: -29px;
+      left: -28px;
       border-color: transparent $tt-border-color transparent transparent !important;
     }
 
     // left-top
     &.tt-left-top, &.tt-left-top-border {
       border-style: solid;
-      top: 28px;
+      top: 22px;
     }
     &.tt-left-top {
-      right: -28px;
-      border-color: transparent transparent transparent $tt-bg-color !important;
+      right: -27px;
+      border-color: transparent transparent transparent $tt-body-color !important;
     }
     &.tt-left-top-border {
-      right: -29px;
+      right: -28px;
       border-color: transparent transparent transparent $tt-border-color !important;
     }
 
     // left-bottom
     &.tt-left-bottom, &.tt-left-bottom-border {
       border-style: solid;
-      bottom: 28px;
+      bottom: 22px;
     }
     &.tt-left-bottom {
-      right: -28px;
-      border-color: transparent transparent transparent $tt-bg-color !important;
+      right: -27px;
+      border-color: transparent transparent transparent $tt-footer-color !important;
     }
     &.tt-left-bottom-border {
-      right: -29px;
+      right: -28px;
       border-color: transparent transparent transparent $tt-border-color !important;
     }
   }
@@ -208,17 +241,4 @@ $tt-border-color: #333;
 // general style override
 [tourtip] { 
   margin: 0 !important;
-}
-
-
-// Welcome modal
-
-.welcome-salute {
-  font-size: 30px;
-  margin: 0;
-}
-
-.welcome-body {
-  font-size: 16px;
-  line-height: 20px;
 }

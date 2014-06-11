@@ -44,7 +44,7 @@
           // optional way of saving tour progress with cookies
           $scope.postStepCallback = function() {
           
-          };          
+          };    
         });
     </script>
     <!-- build:css angular-tour.css -->
@@ -56,7 +56,6 @@
   <a tourtip="Thanks for reading. Head over to the github page for more info."
      tourtip-next-label="Finish"
      tourtip-placement="left"
-     tourtip-offset="60"
      tourtip-step="13"
      href="https://github.com/DaftMonk/angular-tour"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
   <div class="container">
@@ -65,7 +64,7 @@
          tourtip="Angular Tour allows you to give an interactive tour to showcase the features of your website."
          tourtip-next-label="Learn more"
          tourtip-placement="right"
-         tourtip-offset="60"
+         tourtip-align="bottom"
          tourtip-step="0"><img src="assets/logo.png"/></a>
               <!-- <div class="social">
                 <ul class="social-buttons">
@@ -124,7 +123,6 @@
             tourtip="Angular tour has some cool features."
             tourtip-next-label="Continue"
             tourtip-placement="right"
-            tourtip-offset="100"
             tourtip-step="1">
             <ul class="list">
               <li>Easy to use</li>
@@ -142,7 +140,6 @@
               tourtip="And is tested in all major browsers."
               tourtip-next-label="Continue"
               tourtip-placement="bottom"
-              tourtip-offset="200"
               tourtip-step="2">
             <li>Chrome</li>
             <li>Firefox</li>
@@ -163,12 +160,10 @@
                tourtip="Configuration is easy, for more info check the github page."
                tourtip-next-label="Continue"
                tourtip-placement="bottom"
-               tourtip-offset="130"
                tourtip-step="5">
             <span tourtip="You can also go backwards through the DOM, like we just did."
                   tourtip-next-label="Cool. How do I use it?"
                   tourtip-placement="bottom"
-                  tourtip-offset="130"
                   tourtip-step="6"></span>
             You can inject the <code>tourConfig</code> service into your app and modify the defaults.
           </div>
@@ -182,7 +177,6 @@
                tourtip="You can use your own markup."
                tourtip-next-label="Continue"
                tourtip-placement="bottom"
-               tourtip-offset="60"
                tourtip-step="4">
             HTML templates are cleanly separated, and you can easily substitute your own template.
           </div>
@@ -196,7 +190,6 @@
                tourtip="Easily change the look and feel."
                tourtip-next-label="Continue"
                tourtip-placement="bottom"
-               tourtip-offset="60"
                tourtip-step="3">
             A default CSS can be used for your convenience, but feel free to use your own css!
           </div>
@@ -212,12 +205,10 @@
             <div tourtip='Just add a tourtip attribute wherever you want a tip, and wrap your tourtips in a &lt;tour>.'
                  tourtip-next-label="Continue"
                  tourtip-placement="right"
-                 tourtip-offset="-400"
                  tourtip-step="7">
                  <div tourtip='A tour requires a model for the current step e.g. <tour step="currentStep">'
                    tourtip-next-label="Continue"
                    tourtip-placement="right"
-                   tourtip-offset="-400"
                    tourtip-step="8">
                    Usage example</div></div>
 
@@ -253,7 +244,6 @@ $scope.postStepCallback = function() {
                tourtip="You can include buttons inside your tour to open and close it."
                tourtip-next-label="How about installation?"
                tourtip-placement="right"
-               tourtip-offset="80"
                tourtip-step="9">Close Tour</a>
           </div>
 
@@ -270,13 +260,11 @@ $scope.postStepCallback = function() {
             <div><span tourtip="Use bower to download all the dependencies"
                        tourtip-next-label="Continue"
                        tourtip-placement="right"
-                       tourtip-offset="60"
                        tourtip-step="10">Install with bower using</span></div>
               <pre>bower install angular-tour</pre>
             <div><span tourtip="Then add those to your index.html"
                        tourtip-next-label="Continue"
                        tourtip-placement="right"
-                       tourtip-offset="260"
                        tourtip-step="11">Add the dependencies to your html file</span></div>
               <pre><code data-language="html">&lt;script src="bower_components/jquery/jquery.js">&lt;/script>
 &lt;script src="bower_components/angular/angular.js">&lt;/script>
@@ -286,7 +274,6 @@ $scope.postStepCallback = function() {
             <div><span tourtip="Lastly, add angular-tour to your module and you're good to go!"
                        tourtip-next-label="Continue"
                        tourtip-placement="right"
-                       tourtip-offset="100"
                        tourtip-step="12">Lastly, add angular-tour as a dependency to your angular module</span></div>
               <pre><code data-language="javascript">angular.module('myApp', ['angular-tour']);</pre></code>
           </div>
