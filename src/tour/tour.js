@@ -62,9 +62,12 @@ angular.module('angular-tour.tour', [])
       self.select(step);
     };
     $rootScope.openTour = function () {
-      self.select(self.steps.get(0));
-      // always start from 0
-      $scope.tourActive = true;
+      var step = self.steps.get(0);
+      if (step) {
+        self.select(0);
+        $scope.tourActive = true;
+        return;
+      }
     };
     $rootScope.closeTour = function () {
       self.cancelTour();
