@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v0.1.40 - 2014-06-10
+ * @version v0.1.41 - 2014-06-10
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -76,9 +76,12 @@
         self.select(step);
       };
       $rootScope.openTour = function () {
-        self.select(self.steps.get(0));
-        // always start from 0
-        $scope.tourActive = true;
+        var step = self.steps.get(0);
+        if (step) {
+          self.select(0);
+          $scope.tourActive = true;
+          return;
+        }
       };
       $rootScope.closeTour = function () {
         self.cancelTour();
