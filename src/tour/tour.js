@@ -20,7 +20,7 @@ angular.module('angular-tour.tour', [])
    * TourController
    * the logic for the tour, which manages all the steps
    */
-  .controller('TourController', function ($scope, $rootScope, $attrs, $parse, orderedList) {
+  .controller('TourController', function ($scope, $rootScope, $attrs, $parse, tourtipMap) {
     var self = this;
     var model = $parse($attrs.step);
     self.postTourCallback = angular.noop;
@@ -28,13 +28,13 @@ angular.module('angular-tour.tour', [])
     self.currentStep = 0;
     self.newList = function () {
       if ($scope.tourActive) self.cancelTour();
-      self.steps = orderedList();
+      self.steps = tourtipMap();
     };
     self.newList();
     self.select = function (step) {
-      self.unselectAllSteps();
       if (!step)
         return;
+      self.unselectAllSteps();
       self.currentStep = step.index;
       step.ttOpen = true;
       $scope.$parent.$eval(step.ttPostStep);
@@ -42,8 +42,6 @@ angular.module('angular-tour.tour', [])
     self.addStep = function (step) {
       if (angular.isNumber(step.index) && !isNaN(step.index)) {
         self.steps.set(step.index, step);
-      } else {
-        self.steps.push(step);
       }
     };
     self.unselectAllSteps = function () {
@@ -311,80 +309,45 @@ angular.module('angular-tour.tour', [])
   })
 
   /**
-   * OrderedList
+   * TourtipMap
    * Used for keeping steps in order
    */
-  .factory('orderedList', function () {
-    var OrderedList = function () {
+  .factory('tourtipMap', function () {
+    var TourtipMap = function () {
       this.map = {};
-      this._array = [];
     };
-    OrderedList.prototype.set = function (key, value) {
-      if (!angular.isNumber(key))
+    TourtipMap.prototype.set = function (key, value) {
+      if (!angular.isNumber(key) || angular.isDefined(value))
         return;
-      if (key in this.map) {
-        this.map[key] = value;
-      } else {
-        if (key < this._array.length) {
-          var insertIndex = key - 1 > 0 ? key - 1 : 0;
-          this._array.splice(insertIndex, 0, key);
-        } else {
-          this._array.push(key);
-        }
-        this.map[key] = value;
-        this._array.sort(function (a, b) {
-          return a - b;
-        });
-      }
-    };
-    OrderedList.prototype.indexOf = function (value) {
-      for (var prop in this.map) {
-        if (this.map.hasOwnProperty(prop)) {
-          if (this.map[prop] === value)
-            return Number(prop);
-        }
-      }
-    };
-    OrderedList.prototype.push = function (value) {
-      var key = this._array[this._array.length - 1] + 1 || 0;
-      this._array.push(key);
       this.map[key] = value;
-      this._array.sort(function (a, b) {
-        return a - b;
-      });
     };
-    OrderedList.prototype.remove = function (key) {
-      var index = this._array.indexOf(key);
-      if (index === -1) {
-        throw new Error('key does not exist');
-      }
-      this._array.splice(index, 1);
+    TourtipMap.prototype.indexOf = function (value) {
+      angular.forEach(this.map, function (v, prop) {
+        if (this.map[prop] === value) return Number(prop);
+      });
+      return -1;
+    };
+    TourtipMap.prototype.remove = function (key) {
       delete this.map[key];
     };
-    OrderedList.prototype.get = function (key) {
+    TourtipMap.prototype.get = function (key) {
       return this.map[key];
     };
-    OrderedList.prototype.getCount = function () {
-      return this._array.length;
+    TourtipMap.prototype.getCount = function () {
+      return Object.keys(this.map).length;
     };
-    OrderedList.prototype.forEach = function (f) {
-      var key, value;
-      for (var i = 0; i < this._array.length; i++) {
-        key = this._array[i];
-        value = this.map[key];
-        f(value, key);
-      }
+    TourtipMap.prototype.forEach = function (f) {
+      angular.forEach(this.map, function (v, k) {
+        f(v, k);
+      });
     };
-    OrderedList.prototype.first = function () {
-      var key, value;
-      key = this._array[0];
-      value = this.map[key];
-      return value;
+    TourtipMap.prototype.first = function () {
+      return this.map[0];
     };
-    var orderedListFactory = function () {
-      return new OrderedList();
+    var tourtipMapFactory = function () {
+      return new TourtipMap();
     };
-    return orderedListFactory;
+    return tourtipMapFactory;
   })
 
   /**
