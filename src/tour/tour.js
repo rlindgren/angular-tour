@@ -358,6 +358,7 @@ angular.module('angular-tour.tour', [])
                 tourtip.detach();
               }
               scope.$on('$destroy', function onDestroyTourtip() {
+                $frame = element.closest(scope.ttFrame);
                 $frame.unbind('scroll', scrollHandler);
                 _global.unbind('resize.' + scope.$id, scrollHandler);
                 tourtip.remove();
