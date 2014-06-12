@@ -263,10 +263,10 @@ angular.module('angular-tour.tour', [])
                 var elRect = element[0].getBoundingClientRect(),
                     elHeight = elRect.height,
                     elWidth = elRect.width,
-                    elTop = element.offset().top,
-                    elBottom = elTop + elHeight,
-                    elLeft = element.offset().left,
-                    elRight = elLeft + elWidth,
+                    elTop = scope.ttAppendToBody ? elRect.top : element.offset().top,
+                    elBottom = scope.ttAppendToBody ? elRect.bottom : elTop + elHeight,
+                    elLeft = scope.ttAppendToBody ? elRect.left : element.offset().left,
+                    elRight = scope.ttAppendToBody ? elRect.right : elLeft + elWidth,
                     ttWidth = tourtip.width(),
                     ttHeight = tourtip.height(),
                     ttPlacement = scope.ttPlacement,
@@ -287,7 +287,7 @@ angular.module('angular-tour.tour', [])
                     else ttPosition.top = elTop + scope.ttOffsetTop;
                   } else {
                     if (pointAt) ttPosition.top = elBottom - ttHeight + arrowCenter/2 + scope.ttOffsetTop;
-                    else ttPosition.top = elBottom - ttHeight - scope.ttOffsetTop;
+                    else ttPosition.top = elBottom - ttHeight + scope.ttOffsetTop;
                   }
                   if (ttPlacement === 'right') {
                     ttPosition.left = elRight + ttOffset + arrowOffset + scope.ttOffsetLeft;
@@ -299,7 +299,7 @@ angular.module('angular-tour.tour', [])
                 case 'top':
                   if (ttAlign === 'right') {
                     if (pointAt) ttPosition.left = elRight - ttWidth + arrowCenter/2 + scope.ttOffsetLeft;
-                    else ttPosition.left = elLeft + (elWidth - ttWidth) - scope.ttOffsetLeft;
+                    else ttPosition.left = elRight - ttWidth + scope.ttOffsetLeft;
                   } else {
                     if (pointAt) ttPosition.left = elLeft - arrowCenter/2 + scope.ttOffsetLeft;
                     else ttPosition.left = elLeft + scope.ttOffsetLeft;
@@ -324,6 +324,7 @@ angular.module('angular-tour.tour', [])
                 tourtip.css({display: 'none'});
                 if (scope.ttAppendToBody) {
                   $('body').append(tourtip);
+                  tourtip.css({position: 'fixed'});
                 } else {
                   element.append(tourtip);
                 }
