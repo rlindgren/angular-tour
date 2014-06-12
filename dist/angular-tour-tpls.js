@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v0.1.43 - 2014-06-12
+ * @version v0.1.44 - 2014-06-12
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -277,7 +277,7 @@
               }, 500);
               var updatePosition = function (element, tourtip) {
                 var atb = scope.ttAppendToBody;
-                var elRect = element[0].getBoundingClientRect(), elHeight = elRect.height, elWidth = elRect.width, elTop = element.offset().top, elBottom = elTop + elHeight, elLeft = element.offset().left, elRight = elLeft + elWidth, ttWidth = tourtip.width(), ttHeight = tourtip.height(), ttPlacement = scope.ttPlacement, ttPosition = {}, ttAlign = scope.ttAlign, ttOffset = scope.ttOffset, arrowOffset = 14;
+                var elRect = element[0].getBoundingClientRect(), elHeight = elRect.height, elWidth = elRect.width, elTop = scope.ttAppendToBody ? elRect.top : element.offset().top, elBottom = scope.ttAppendToBody ? elRect.bottom : elTop + elHeight, elLeft = scope.ttAppendToBody ? elRect.left : element.offset().left, elRight = scope.ttAppendToBody ? elRect.right : elLeft + elWidth, ttWidth = tourtip.width(), ttHeight = tourtip.height(), ttPlacement = scope.ttPlacement, ttPosition = {}, ttAlign = scope.ttAlign, ttOffset = scope.ttOffset, arrowOffset = 14;
                 var arrowCenter = 48;
                 // should we point directly at the element?
                 var pointAt = 'left right'.match(ttPlacement) ? elHeight < arrowCenter * 2 : elWidth < arrowCenter * 2;
@@ -293,7 +293,7 @@
                     if (pointAt)
                       ttPosition.top = elBottom - ttHeight + arrowCenter / 2 + scope.ttOffsetTop;
                     else
-                      ttPosition.top = elBottom - ttHeight - scope.ttOffsetTop;
+                      ttPosition.top = elBottom - ttHeight + scope.ttOffsetTop;
                   }
                   if (ttPlacement === 'right') {
                     ttPosition.left = elRight + ttOffset + arrowOffset + scope.ttOffsetLeft;
@@ -307,7 +307,7 @@
                     if (pointAt)
                       ttPosition.left = elRight - ttWidth + arrowCenter / 2 + scope.ttOffsetLeft;
                     else
-                      ttPosition.left = elLeft + (elWidth - ttWidth) - scope.ttOffsetLeft;
+                      ttPosition.left = elRight - ttWidth + scope.ttOffsetLeft;
                   } else {
                     if (pointAt)
                       ttPosition.left = elLeft - arrowCenter / 2 + scope.ttOffsetLeft;
@@ -334,6 +334,7 @@
                 tourtip.css({ display: 'none' });
                 if (scope.ttAppendToBody) {
                   $('body').append(tourtip);
+                  tourtip.css({ position: 'fixed' });
                 } else {
                   element.append(tourtip);
                 }
