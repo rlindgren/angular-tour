@@ -32,7 +32,7 @@
     <!-- /build -->
     <script type="text/javascript">
       angular.module('demoApp', ['angular-tour'])
-        .controller('DemoCtrl', function($scope) {
+        .controller('DemoCtrl', function($scope, $timeout) {
           // load from cookie if possible, otherwise set step to 0
           $scope.currentStep = 0;
 
@@ -44,7 +44,10 @@
           // optional way of saving tour progress with cookies
           $scope.postStepCallback = function() {
           
-          };    
+          };
+          $timeout(function () {
+            $scope.openTour();
+          }, 200);
         });
     </script>
     <!-- build:css angular-tour.css -->
@@ -55,8 +58,9 @@
 <tour step="currentStep" post-tour="postTourCallback()" post-step="postStepCallback()">
   <a tourtip="Thanks for reading. Head over to the github page for more info."
      tourtip-next-label="Finish"
-     tourtip-placement="right"
-     tourtip-step="13"
+     tourtip-placement="left"
+     tourtip-align="bottom"
+     tourtip-step="14"
      href="https://github.com/DaftMonk/angular-tour"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
   <div class="container">
     <div>
@@ -122,6 +126,8 @@
             tourtip="Angular tour has some cool features."
             tourtip-next-label="Continue"
             tourtip-placement="right"
+            tourtip-offset-left="-250"
+            tourtip-offset-top="20"
             tourtip-step="1">
             <ul class="list">
               <li>Easy to use</li>
@@ -139,7 +145,6 @@
               tourtip="And is tested in all major browsers."
               tourtip-next-label="Continue"
               tourtip-placement="bottom"
-              tourtip-align="right"
               tourtip-step="2">
             <li>Chrome</li>
             <li>Firefox</li>
@@ -161,7 +166,7 @@
                tourtip-next-label="Continue"
                tourtip-placement="bottom"
                tourtip-step="5">
-            <span tourtip="You can also go backwards through the DOM, like we just did."
+            <span tourtip="You can also wwards through the DOM, like we just did."
                   tourtip-next-label="Cool. How do I use it?"
                   tourtip-placement="bottom"
                   tourtip-step="6"></span>
@@ -172,12 +177,14 @@
 
       <div class="col-4">
         <div class="tile">
-          <div class="tile-title">Customizing HTML</div>
-          <div class="tile-content"
-               tourtip="You can use your own markup."
-               tourtip-next-label="Continue"
-               tourtip-placement="bottom"
-               tourtip-step="4">
+          <div class="tile-title"
+            tourtip="You can use your own markup."
+            tourtip-next-label="Continue"
+            tourtip-placement="top"
+            tourtip-step="4">
+            Customizing HTML
+          </div>
+          <div class="tile-content">
             HTML templates are cleanly separated, and you can easily substitute your own template.
           </div>
         </div>
@@ -185,96 +192,114 @@
 
       <div class="col-4">
         <div class="tile">
-          <div class="tile-title">Customizing CSS</div>
-          <div class="tile-content"
-               tourtip="Easily change the look and feel."
-               tourtip-next-label="Continue"
-               tourtip-placement="bottom"
-               tourtip-step="3">
+          <div class="tile-title"
+            tourtip="Easily change the look and feel."
+            tourtip-next-label="Continue"
+            tourtip-placement="top"
+            tourtip-step="3">
+            Customizing CSS
+          </div>
+          <div class="tile-content">
             A default CSS can be used for your convenience, but feel free to use your own css!
           </div>
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="title-row"><div class="title title-xl">Example</div></div>
 
-      <div class="col-12">
+    <div class="title-row">
+      <div class="col-6">
+        <div class="title title-xl">Example</div>
+      </div>
+      <div class="col-6">
+        <div class="title title-xl">How to install</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-6 example-container">
         <div class="tile">
           <div class="tile-content">
             <div tourtip='Just add a tourtip attribute wherever you want a tip, and wrap your tourtips in a &lt;tour>.'
                  tourtip-next-label="Continue"
                  tourtip-placement="right"
+                 tourtip-align="bottom"
+                 tourtip-scroll-target=".example-container"
                  tourtip-step="7">
                  <div tourtip='A tour requires a model for the current step e.g. <tour step="currentStep">'
                    tourtip-next-label="Continue"
-                   tourtip-placement="right"
+                   tourtip-placement="top"
+                   tourtip-scroll-target=".example-container"
                    tourtip-step="8">
                    Usage example</div></div>
 
               <pre><code data-language="html">&lt;tour step="currentStep">
-  &lt;span tourtip="tip 1"> Highlighted &lt;/span>
-  &lt;span tourtip="tip 2"> Elements &lt;/span>
-  &lt;input tourtip="You can use it as an attribute on your element" />
-  &lt;span tourtip="Full options"
-        tourtip-step="3"
-        tourtip-next-label="Next"
-        tourtip-placement="right"
-        tourtip-offset="60">Full options&lt;/span>
-&lt;/tour></code></pre>
+                &lt;span tourtip="tip 1"> Highlighted &lt;/span>
+                &lt;span tourtip="tip 2"> Elements &lt;/span>
+                &lt;input tourtip="You can use it as an attribute on your element" />
+                &lt;span tourtip="Full options"
+                      tourtip-step="3"
+                      tourtip-next-label="Next"
+                      tourtip-placement="right"
+                      tourtip-offset="60">Full options&lt;/span>
+                &lt;/tour></code></pre>
 
-You can also add callbacks to the <code>&lt;tour></code>:
-<pre><code data-language="html">&lt;tour step="currentStep" post-tour="tourComplete()" post-step="stepComplete()">
-</code></pre>
+                You can also add callbacks to the <code>&lt;tour></code>:
+                <pre><code data-language="html">&lt;tour step="currentStep" post-tour="tourComplete()" post-step="stepComplete()">
+                </code></pre>
 
-It is very easy to add a cookie module that remembers what step a user was on. With the angular-cookie module, this is all you need to integrate cookies:
+                It is very easy to add a cookie module that remembers what step a user was on. With the angular-cookie module, this is all you need to integrate cookies:
 
-<pre><code data-language="javascript">$scope.currentStep = ipCookie('myTour') || 0;
+                <pre><code data-language="javascript">$scope.currentStep = ipCookie('myTour') || 0;
 
-$scope.postStepCallback = function() {
-  ipCookie('myTour', $scope.currentStep, { expires: 3000 });
-};
-</code></pre>    
+                $scope.postStepCallback = function() {
+                  ipCookie('myTour', $scope.currentStep, { expires: 3000 });
+                };
+                </code></pre>    
 
-        Inside your <code>&lt;tour></code> you have access to two scope methods for ending and starting the tour.
-<pre><code data-language="html">&lt;a ng-click="openTour()">Open Tour&lt;/a>
-&lt;a ng-click="closeTour()">Close Tour&lt;/a></code></pre>
-            <a class="button" href="" ng-click="openTour()">Open Tour</a>
-            <a class="button" href="" ng-click="closeTour()"
-               tourtip="You can include buttons inside your tour to open and close it."
-               tourtip-next-label="How about installation?"
-               tourtip-placement="right"
-               tourtip-step="9">Close Tour</a>
+                        Inside your <code>&lt;tour></code> you have access to two scope methods for ending and starting the tour.
+                <pre><code data-language="html">&lt;a ng-click="openTour()">Open Tour&lt;/a>
+                &lt;a ng-click="closeTour()">Close Tour&lt;/a></code></pre>
+              <a class="button" href="" ng-click="openTour()">Open Tour</a>
+              <a class="button" href="" ng-click="closeTour()"
+                 tourtip="You can include buttons inside your tour</br>to open and close it."
+                 tourtip-next-label="How about installation?"
+                 tourtip-placement="top"
+                 tourtip-scroll-target=".example-container"
+                 tourtip-delay="240"
+                 tourtip-step="9">Close Tour</a>
+              <div class="circle-sm" 
+                tourtip="Check out the 'smart' positioning for really small elements :)"
+                tourtip-next-label="Moving on, I suppose..."
+                tourtip-placement="top"
+                tourtip-align="right"
+                tourtip-scroll-target=".example-container"
+                tourtip-step="10">
+              </div>
           </div>
-
         </div>
       </div>
-    </div>
 
-    <div class="row">
-      <div class="title-row"><div class="title title-xl">How to install</div></div>
-
-      <div class="col-12">
+      <div class="col-6">
         <div class="tile">
           <div class="tile-content">
             <div><span tourtip="Use bower to download all the dependencies"
                        tourtip-next-label="Continue"
-                       tourtip-placement="right"
-                       tourtip-step="10">Install with bower using</span></div>
+                       tourtip-placement="left"
+                       tourtip-step="11">Install with bower using</span></div>
               <pre>bower install angular-tour</pre>
             <div><span tourtip="Then add those to your index.html"
                        tourtip-next-label="Continue"
-                       tourtip-placement="right"
-                       tourtip-step="11">Add the dependencies to your html file</span></div>
+                       tourtip-placement="left"
+                       tourtip-step="12">Add the dependencies to your html file</span></div>
               <pre><code data-language="html">&lt;script src="bower_components/jquery/jquery.js">&lt;/script>
-&lt;script src="bower_components/angular/angular.js">&lt;/script>
-&lt;script src="bower_components/angular-tour/dist/angular-tour-tpls.min.js">&lt;/script></code></pre>
+                &lt;script src="bower_components/angular/angular.js">&lt;/script>
+                &lt;script src="bower_components/angular-tour/dist/angular-tour-tpls.min.js">&lt;/script></code></pre>
             <div>You'll also probably want to add the default stylesheet.</div>
               <pre><code data-language="html">&lt;link rel="bower_components/angular-tour/dist/angular-tour.css"/></code></pre>
             <div><span tourtip="Lastly, add angular-tour to your module and you're good to go!"
                        tourtip-next-label="Continue"
-                       tourtip-placement="right"
-                       tourtip-step="12">Lastly, add angular-tour as a dependency to your angular module</span></div>
+                       tourtip-placement="top"
+                       tourtip-step="13">Lastly, add angular-tour as a dependency to your angular module</span></div>
               <pre><code data-language="javascript">angular.module('myApp', ['angular-tour']);</pre></code>
           </div>
         </div>

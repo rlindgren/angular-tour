@@ -11,7 +11,7 @@ html, body {
     position: relative;
     color: #464637;
     min-height: 100%;
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 300;
 }
 
@@ -98,6 +98,12 @@ ul {
     clear: both;
 }
 
+.example-container {
+    height: 480px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
 .button {
     color: #fff;
     margin: 8px 20px 10px 0;
@@ -111,6 +117,18 @@ ul {
 
 .button:hover {
     background-color: #477edf;
+}
+
+.circle-sm {
+    -webkit-border-radius: 50% 50%;
+    border-radius: 50% 50%;
+    border-width: 10px;
+    border-color: green;
+    border-style: solid;
+    width: 1px;
+    height: 1px;
+    background-color: green;
+    float: right;
 }
 
 .tile {

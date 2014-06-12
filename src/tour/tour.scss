@@ -56,7 +56,7 @@ $tt-controls-color: #898989;
       }
       p {
         color: $tt-text-color;
-        font-size: 1.3em;
+        font-size: 1em;
         line-height: 1.5em;
         margin: 0;
       }
@@ -66,17 +66,17 @@ $tt-controls-color: #898989;
     border-radius: 0 0 10px 10px;
     border: 1px solid $tt-border-color;
     border-top: 1px solid #d4d4d4;
-    height: 52px;
-    padding: 10px 15px;
+    height: 40px;
+    padding: 6px 15px;
     background: $tt-footer-color;
   }
   
   .button {
-    // background-color: #428bca;
+    // background-color: $tt-footer-color;
     cursor: pointer;
     font-family: inherit;
     font-weight: 700;
-    line-height: 1;
+    line-height: 1.3em;
     position: relative;
     text-decoration: none;
     text-align: center;
@@ -93,22 +93,22 @@ $tt-controls-color: #898989;
       -webkit-appearance: none;
     }
     &:hover {
-      color: $tt-border-color !important;
+      color: $tt-border-color;
     }
     &.tour-prev-tip {
-      float: left;
+      position: relative;
+      left: 0;
       &:before {
-        font-family: FontAwesome;
-        content: "\f060";
+        content: "\2039";
         display: inline-block;
         padding-right: 10px;
       }
     }
     &.tour-next-tip {
-      float: right;
+      position: relative;
+      right: 0;
       &:after {
-        font-family: FontAwesome;
-        content: "\f061";
+        content: "\203a";
         display: inline-block;
         padding-left: 10px;
       }
