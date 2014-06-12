@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v0.1.47 - 2014-06-12
+ * @version v0.1.48 - 2014-06-12
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -48,7 +48,7 @@
           $scope.$parent.$eval(step.ttPostStep);
         self.currentStep = step;
         self.currentIndex = step.index;
-        $scope.$parent.$eval(step.ttPreStep);
+        $scope.$parent.$eval(self.currentStep.ttPreStep);
         step.open();
       };
       self.addStep = function (step) {
@@ -64,7 +64,7 @@
       self.cancelTour = function () {
         self.unselectAllSteps();
         if (self.currentStep)
-          $scope.$parent.$eval(step.ttPostStep);
+          $scope.$parent.$eval(self.currentStep.ttPostStep);
         self.postStepCallback();
         self.postTourCallback();
         self.currentIndex = 0;
