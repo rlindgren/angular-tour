@@ -39,7 +39,7 @@ angular.module('angular-tour.tour', [])
         return;
       }
       self.unselectAllSteps();
-      if (self.currentStep) $scope.$parent.$eval(step.ttPostStep);
+      if (self.currentStep) $scope.$parent.$eval(self.currentStep.ttPostStep);
       self.currentStep = step;
       self.currentIndex = step.index;
       $scope.$parent.$eval(self.currentStep.ttPreStep);
