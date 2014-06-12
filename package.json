@@ -1,6 +1,6 @@
 {
   "name": "angular-tour",
-  "version": "0.1.46",
+  "version": "0.1.47",
   "description": "An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour",
   "keywords": [
     "angularjs",
