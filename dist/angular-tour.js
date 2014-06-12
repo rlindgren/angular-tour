@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v0.1.45 - 2014-06-12
+ * @version v0.1.46 - 2014-06-12
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -202,14 +202,14 @@
               attrs.$observe('tourtipAppendToBody', function (val) {
                 scope.ttAppendToBody = scope.$eval(val) || tourConfig.appendToBody;
               });
-              attrs.$observe('tourtip-preStep', function (val) {
+              attrs.$observe('tourtipPreStep', function (val) {
                 scope.ttPreStep = val || 'angular.noop()';
               });
-              attrs.$observe('tourtip-postStep', function (val) {
+              attrs.$observe('tourtipPostStep', function (val) {
                 scope.ttPostStep = val || 'angular.noop()';
               });
-              attrs.$observe('tourtip-delay', function (val) {
-                scope.ttPostStep = parseInt(val, 10) || tourConfig.delay;
+              attrs.$observe('tourtipDelay', function (val) {
+                scope.ttDelay = parseInt(val, 10) || tourConfig.delay;
               });
               scope.index = parseInt(attrs.tourtipStep, 10);
               scope.open = function () {
@@ -268,7 +268,7 @@
               var updatePosition = function (element, tourtip) {
                 var atb = scope.ttAppendToBody;
                 var elRect = element[0].getBoundingClientRect(), elHeight = elRect.height, elWidth = elRect.width, elTop = scope.ttAppendToBody ? elRect.top : element.offset().top, elBottom = scope.ttAppendToBody ? elRect.bottom : elTop + elHeight, elLeft = scope.ttAppendToBody ? elRect.left : element.offset().left, elRight = scope.ttAppendToBody ? elRect.right : elLeft + elWidth, ttWidth = tourtip.width(), ttHeight = tourtip.height(), ttPlacement = scope.ttPlacement, ttPosition = {}, ttAlign = scope.ttAlign, ttOffset = scope.ttOffset, arrowOffset = 14;
-                var arrowCenter = 48;
+                var arrowCenter = 22 + arrowOffset;
                 // should we point directly at the element?
                 var pointAt = 'left right'.match(ttPlacement) ? elHeight < arrowCenter * 2 : elWidth < arrowCenter * 2;
                 switch (ttPlacement) {
