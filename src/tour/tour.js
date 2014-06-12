@@ -39,7 +39,7 @@ angular.module('angular-tour.tour', [])
         return;
       }
       self.unselectAllSteps();
-      if (self.currentStep) $scope.$parent.$eval(self.currentStep.ttPostStep);
+      if (self.currentStep) $scope.$parent.$eval(step.ttPostStep);
       self.currentStep = step;
       self.currentIndex = step.index;
       $scope.$parent.$eval(step.ttPreStep);
@@ -57,7 +57,8 @@ angular.module('angular-tour.tour', [])
     };
     self.cancelTour = function () {
       self.unselectAllSteps();
-      if (self.currentStep) $scope.$parent.$eval(self.currentStep.ttPostStep);
+      if (self.currentStep) 
+        $scope.$parent.$eval(step.ttPostStep);
       self.postStepCallback();
       self.postTourCallback();
       self.currentIndex = 0;
