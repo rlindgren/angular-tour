@@ -195,14 +195,14 @@ angular.module('angular-tour.tour', [])
               attrs.$observe('tourtipAppendToBody', function (val) {
                 scope.ttAppendToBody = scope.$eval(val) || tourConfig.appendToBody;
               });
-              attrs.$observe('tourtip-preStep', function (val) {
+              attrs.$observe('tourtipPreStep', function (val) {
                 scope.ttPreStep = val || 'angular.noop()';
               });
-              attrs.$observe('tourtip-postStep', function (val) {
+              attrs.$observe('tourtipPostStep', function (val) {
                 scope.ttPostStep = val || 'angular.noop()';
               });
-              attrs.$observe('tourtip-delay', function (val) {
-                scope.ttPostStep = parseInt(val, 10) || tourConfig.delay;
+              attrs.$observe('tourtipDelay', function (val) {
+                scope.ttDelay = parseInt(val, 10) || tourConfig.delay;
               });
               scope.index = parseInt(attrs.tourtipStep, 10);
               scope.open = function () {
@@ -275,7 +275,7 @@ angular.module('angular-tour.tour', [])
                     ttOffset = scope.ttOffset,
                     arrowOffset = 14;
 
-                var arrowCenter = 48;
+                var arrowCenter = 22 + arrowOffset;
                 // should we point directly at the element?
                 var pointAt = 'left right'.match(ttPlacement) ? elHeight < arrowCenter*2 : elWidth < arrowCenter*2;
 
