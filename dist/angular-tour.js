@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v0.1.49 - 2014-06-13
+ * @version v0.1.50 - 2014-06-14
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -9,14 +9,17 @@
 (function (window, document, undefined) {
   'use strict';
   angular.module('angular-tour', ['angular-tour.tour']);
-  angular.module('angular-tour.tour', ['jquery-ui.scrollParent']).constant('tourConfig', {
+  angular.module('angular-tour.tour', [
+    'easingFunctions',
+    'jquery-ui.scrollParents'
+  ]).constant('tourConfig', {
     placement: 'top',
     animation: true,
     nextLabel: 'Next',
     backLabel: 'Back',
     finishLabel: 'Finish',
     scrollSpeed: 500,
-    offset: 10,
+    offset: 5,
     appendToBody: false,
     delay: 0
   }).controller('TourController', [
@@ -260,52 +263,35 @@
                   }
                 });
               }, 500);
+              var ttRect = tourtip[0].getBoundingClientRect();
+              var arrowHeight = 10;
+              var arrowOffset = 20;
               var updatePosition = function (element, tourtip) {
-                var atb = scope.ttAppendToBody;
-                var elRect = element[0].getBoundingClientRect(), elHeight = elRect.height, elWidth = elRect.width, elTop = scope.ttAppendToBody ? elRect.top : element.offset().top, elBottom = scope.ttAppendToBody ? elRect.bottom : elTop + elHeight, elLeft = scope.ttAppendToBody ? elRect.left : element.offset().left, elRight = scope.ttAppendToBody ? elRect.right : elLeft + elWidth, ttWidth = tourtip.width(), ttHeight = tourtip.height(), ttPlacement = scope.ttPlacement, ttPosition = {}, ttAlign = scope.ttAlign, ttOffset = scope.ttOffset, arrowOffset = 14;
-                var arrowCenter = 22 + arrowOffset / 2;
+                var atb = scope.ttAppendToBody, elRect = element[0].getBoundingClientRect(), elHeight = elRect.height, elWidth = elRect.width, elTop = atb ? elRect.top : element.offset().top, elBottom = atb ? elRect.bottom : elTop + elHeight, elLeft = atb ? elRect.left : element.offset().left, elRight = atb ? elRect.right : elLeft + elWidth, ttWidth = tourtip.width(), ttHeight = tourtip.height(), ttPlacement = scope.ttPlacement, ttAlign = scope.ttAlign, ttOffset = scope.ttOffset, ttPosition = {};
                 // should we point directly at the element?
-                var pointAt = 'left right'.match(ttPlacement) ? elHeight < arrowCenter * 2 : elWidth < arrowCenter * 2;
-                switch (ttPlacement) {
-                case 'right':
-                case 'left':
+                var arrowCenter = arrowOffset + arrowHeight / 2, pointAt = 'left right'.match(ttPlacement) ? elHeight < arrowCenter : elWidth < arrowCenter, pointerOffset = pointAt ? arrowCenter : 0;
+                if ('left right'.match(ttPlacement)) {
                   if (ttAlign === 'top') {
-                    if (pointAt)
-                      ttPosition.top = elTop - arrowCenter / 2 + scope.ttOffsetTop;
-                    else
-                      ttPosition.top = elTop + scope.ttOffsetTop;
+                    ttPosition.top = elTop - pointerOffset + scope.ttOffsetTop;
                   } else {
-                    if (pointAt)
-                      ttPosition.top = elBottom - ttHeight + arrowCenter / 2 + scope.ttOffsetTop;
-                    else
-                      ttPosition.top = elBottom - ttHeight + scope.ttOffsetTop;
+                    ttPosition.top = elBottom - ttHeight + pointerOffset + scope.ttOffsetTop;
                   }
                   if (ttPlacement === 'right') {
                     ttPosition.left = elRight + ttOffset + arrowOffset + scope.ttOffsetLeft;
                   } else {
                     ttPosition.left = elLeft - ttWidth - ttOffset - arrowOffset + scope.ttOffsetLeft;
                   }
-                  break;
-                case 'bottom':
-                case 'top':
+                } else {
                   if (ttAlign === 'right') {
-                    if (pointAt)
-                      ttPosition.left = elRight - ttWidth + arrowCenter / 2 + scope.ttOffsetLeft;
-                    else
-                      ttPosition.left = elRight - ttWidth + scope.ttOffsetLeft;
+                    ttPosition.left = elRight - ttWidth + pointerOffset + scope.ttOffsetLeft;
                   } else {
-                    if (pointAt)
-                      ttPosition.left = elLeft - arrowCenter / 2 + scope.ttOffsetLeft;
-                    else
-                      ttPosition.left = elLeft + scope.ttOffsetLeft;
+                    ttPosition.left = elLeft - pointerOffset + scope.ttOffsetLeft;
                   }
                   if (ttPlacement === 'top') {
                     ttPosition.top = elTop - ttHeight - ttOffset - arrowOffset + scope.ttOffsetTop;
                   } else {
                     ttPosition.top = elBottom + ttOffset + arrowOffset + scope.ttOffsetTop;
                   }
-                  break;
-                default:
                 }
                 ttPosition.top += 'px';
                 ttPosition.left += 'px';
@@ -334,6 +320,7 @@
                 $frame = element.scrollParent();
                 _global.bind('resize.' + scope.$id, scrollHandler);
                 ($frame[0].tagName.match(/body/i) ? _global : $frame).bind('scroll', scrollHandler);
+                updatePosition(element, tourtip);
                 var scrollConfig = { duration: tourConfig.scrollSpeed };
                 var positionOffset = scope.ttPlacement === 'top' || scope.ttAlign === 'bottom' ? tourtip.height() + scope.ttOffset : scope.ttOffset;
                 // scroll the frame into view if (it's not the body)
@@ -346,7 +333,6 @@
                   scrollConfig.offsetLeft = window.innerWidth / 3 + positionOffset + 50;
                 }
                 scrollTo($frame, element, scrollConfig);
-                updatePosition(element, tourtip);
                 $timeout(function () {
                   if (scope.ttAnimation) {
                     tourtip.fadeIn();
@@ -420,8 +406,8 @@
     return tourtipMapFactory;
   }).factory('scrollTo', [
     '$interval',
-    'easingFunctions',
-    function ($interval, easingFunctions) {
+    'PennerEasing',
+    function ($interval, PennerEasing) {
       var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
           window.setTimeout(callback, 1000 / 60);
         };
@@ -430,30 +416,24 @@
           callback = options;
           options = target;
         }
-        if (frame instanceof jQuery) {
-          frame = frame[0];
-        }
-        if (target instanceof jQuery) {
-          target = target[0];
-        }
         var settings = {
-            scrollTarget: target,
-            scrollFrame: frame,
+            scrollTarget: angular.element(target)[0],
+            scrollFrame: angular.element(frame)[0],
             offsetTop: 50,
             offsetLeft: 50,
             duration: 500,
             easing: 'ease-in-out'
           };
         angular.extend(settings, options);
-        if (!easingFunctions[settings.easing]) {
+        if (!PennerEasing[settings.easing]) {
           throw new Error('easing function: "' + settings.easing + '" is unsupported by the `scrollTo` service');
         }
         settings.duration = parseInt(settings.duration, 10);
         settings.offsetTop = parseInt(settings.offsetTop, 10);
         var animCount = 0, animLast;
         function runAnimation(t) {
-          settings.scrollFrame.scrollTop = easingFunctions[settings.easing](animCount, settings.scrollFrame.scrollTop, settings.scrollTarget.offsetTop - settings.scrollFrame.scrollTop - settings.offsetTop, settings.duration);
-          settings.scrollFrame.scrollLeft = easingFunctions[settings.easing](animCount, settings.scrollFrame.scrollLeft, settings.scrollTarget.offsetLeft - settings.scrollFrame.scrollLeft - settings.offsetLeft, settings.duration);
+          settings.scrollFrame.scrollTop = PennerEasing[settings.easing](animCount, settings.scrollFrame.scrollTop, settings.scrollTarget.offsetTop - settings.scrollFrame.scrollTop - settings.offsetTop, settings.duration);
+          settings.scrollFrame.scrollLeft = PennerEasing[settings.easing](animCount, settings.scrollFrame.scrollLeft, settings.scrollTarget.offsetLeft - settings.scrollFrame.scrollLeft - settings.offsetLeft, settings.duration);
           animCount += animLast ? t - animLast : 16;
           animLast = t;
           if (animCount < settings.duration)
@@ -464,7 +444,11 @@
         requestAnimationFrame(runAnimation);
       };
     }
-  ]).factory('easingFunctions', function () {
+  ]);
+  // easingFunctions
+  // Robert Penner's easing function library
+  // http://flashblog.robertpenner.com/
+  angular.module('easingFunctions', []).factory('PennerEasing', function () {
     var Fns = {};
     //simple linear tweening - no easing, no acceleration
     Fns.linearTween = function (t, b, c, d) {
@@ -626,21 +610,7 @@
     // 
     // modified to return self if no match is found.
     if (angular.isFunction(angular.element.fn.scrollParent)) {
-      angular.element.fn.extend({
-        scrollParents: function () {
-          var result = [];
-          return function walkParents(current) {
-            var parent = angular.element(current).scrollParent()[0];
-            if (parent.tagName.match(/body/i)) {
-              result.push(parent[0]);
-              return angular.element(result);
-            } else {
-              result.push(parent);
-              walkParents.call(null, parent);
-            }
-          }(this);
-        }
-      });
+      return;
     } else if (angular.isDefined(jQuery)) {
       angular.element.fn.extend({
         scrollParent: function () {
@@ -652,22 +622,6 @@
               return /(auto|scroll)/.test(parent.css('overflow') + parent.css('overflow-y') + parent.css('overflow-x'));
             }).eq(0);
           return position === 'fixed' || !scrollParent.length ? $('body') : scrollParent;
-        },
-        scrollParents: function () {
-          var result = [];
-          angular.forEach(this, function (parent, index) {
-            (function walkParents(current) {
-              var parent = angular.element(current).scrollParent()[0];
-              if (parent.tagName.match(/body/i)) {
-                result.push(parent);
-                return;
-              } else {
-                result.push(parent);
-                walkParents.call(null, parent);
-              }
-            }(parent));
-          });
-          return angular.element(result);
         }
       });
     } else {
@@ -702,21 +656,28 @@
               return /(auto|scroll)/.test(parent.css('overflow') + parent.css('overflow-y') + parent.css('overflow-x'));
             }).eq(0);
           return position === 'fixed' || !scrollParent.length ? $('body') : scrollParent;
-        },
-        scrollParents: function () {
-          var result = [];
-          return function walkParents(current) {
+        }
+      });
+    }
+  });
+  angular.module('jquery-ui.scrollParents', ['jquery-ui.scrollParent']).run(function () {
+    angular.element.fn.extend({
+      scrollParents: function () {
+        var result = [];
+        angular.forEach(this, function (parent, index) {
+          (function walkParents(current) {
             var parent = angular.element(current).scrollParent()[0];
             if (parent.tagName.match(/body/i)) {
-              result.push(parent[0]);
-              return angular.element(result);
+              result.push(parent);
+              return;
             } else {
               result.push(parent);
               walkParents.call(null, parent);
             }
-          }(this);
-        }
-      });
-    }
+          }(parent));
+        });
+        return angular.element(result);
+      }
+    });
   });
 }(window, document));
