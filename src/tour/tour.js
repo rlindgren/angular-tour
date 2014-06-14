@@ -1,5 +1,5 @@
 'use strict';
-angular.module('angular-tour.tour', [])
+angular.module('angular-tour.tour', ['jquery-ui.scrollParent'])
 
   /**
    * tourConfig
@@ -14,7 +14,6 @@ angular.module('angular-tour.tour', [])
     scrollSpeed      : 500,                    // page scrolling speed in milliseconds
     offset           : 10,                     // how many pixels offset the tip is from the target
     appendToBody     : false,                  // append tourtip to body tag (parent element by default)
-    scrollTarget     : 'body',                 // base scrolling element
     delay            : 0
   })
 
@@ -152,8 +151,7 @@ angular.module('angular-tour.tour', [])
    * Tourtip
    * tourtip manages the state of the tour-popup directive
    */
-  .directive('tourtip', function ($window, $compile, $interpolate, $timeout, $sce, scrollTo, tourConfig) {
-      var startSym = $interpolate.startSymbol(), endSym = $interpolate.endSymbol();
+  .directive('tourtip', function ($window, $compile, $parse, $timeout, $sce, scrollTo, tourConfig) {
       var template = '<div tour-popup></div>';
       return {
         require: '^tour',
@@ -190,17 +188,14 @@ angular.module('angular-tour.tour', [])
               attrs.$observe('tourtipOffsetLeft', function (val) {
                 scope.ttOffsetLeft = parseInt(val, 10) || 0;
               });
-              attrs.$observe('tourtipScrollTarget', function (val) {
-                scope.ttFrame = val || tourConfig.scrollTarget;
-              });
               attrs.$observe('tourtipAppendToBody', function (val) {
                 scope.ttAppendToBody = scope.$eval(val) || tourConfig.appendToBody;
               });
               attrs.$observe('tourtipPreStep', function (val) {
-                scope.ttPreStep = val || 'angular.noop()';
+                scope.ttPreStep = $parse(val) || angular.noop;
               });
               attrs.$observe('tourtipPostStep', function (val) {
-                scope.ttPostStep = val || 'angular.noop()';
+                scope.ttPostStep = $parse(val) || angular.noop;
               });
               attrs.$observe('tourtipDelay', function (val) {
                 scope.ttDelay = parseInt(val, 10) || tourConfig.delay;
@@ -276,7 +271,7 @@ angular.module('angular-tour.tour', [])
                     ttOffset = scope.ttOffset,
                     arrowOffset = 14;
 
-                var arrowCenter = 22 + arrowOffset;
+                var arrowCenter = 22 + arrowOffset/2;
                 // should we point directly at the element?
                 var pointAt = 'left right'.match(ttPlacement) ? elHeight < arrowCenter*2 : elWidth < arrowCenter*2;
 
@@ -317,33 +312,42 @@ angular.module('angular-tour.tour', [])
                 ttPosition.left += 'px';
                 tourtip.css(ttPosition);
               };
+              function scrollFramesIntoView (el, config) {
+                var parents = el.scrollParents();
+                for (var i=parents.length-2; i>=0; i--) {
+                  config.offsetTop  = parseInt(window.innerHeight/(i+3));
+                  config.offsetLeft = parseInt(window.innerWidth/(i+3));
+                  scrollTo(angular.element(parents[i]).scrollParent(), parents[i], config);
+                }
+              }
               function show() {
                 if (!scope.ttContent)
                   return;
                 scope.ttFirst = scope.isFirstStep();
                 scope.ttLast = scope.isLastStep();
-                tourtip.css({display: 'none'});
                 if (scope.ttAppendToBody) {
                   $('body').append(tourtip);
                   tourtip.css({position: 'fixed'});
                 } else {
                   element.append(tourtip);
                 }
-                $frame = 'html,body'.match(scope.ttFrame) ? $('body') : element.closest(scope.ttFrame);
+                tourtip.css({display: 'hidden'});
+                $frame = element.scrollParent();
                 _global.bind('resize.' + scope.$id, scrollHandler);
-                ('html,body'.match(scope.ttFrame) ? _global : $frame).bind('scroll', scrollHandler);
-                updatePosition(element, tourtip);
+                ($frame[0].tagName.match(/body/i) ? _global : $frame).bind('scroll', scrollHandler);
                 var scrollConfig = { duration: tourConfig.scrollSpeed };
                 var positionOffset = scope.ttPlacement === 'top' || scope.ttAlign === 'bottom' ? tourtip.height() + scope.ttOffset : scope.ttOffset;
                 // scroll the frame into view if (it's not the body)
                 if (!$frame[0].tagName.match(/body/i)) {
-                  scrollConfig.offsetTop = window.innerHeight/5;
-                  scrollTo($('body'), $frame, scrollConfig);
-                  scrollConfig.offsetTop = $frame.offset().top - $frame.height()/3 + positionOffset + 50;
+                  scrollFramesIntoView(element, scrollConfig);
+                  scrollConfig.offsetTop  = $frame.offset().top + $frame.height()/3 + positionOffset + 50;
+                  scrollConfig.offsetLeft = $frame.offset().left + $frame.width()/3 + positionOffset + 50;
                 } else {
                   scrollConfig.offsetTop = window.innerHeight/3 + positionOffset + 50;
+                  scrollConfig.offsetLeft = window.innerWidth/3 + positionOffset + 50;
                 }
                 scrollTo($frame, element, scrollConfig);
+                updatePosition(element, tourtip);
                 $timeout(function () {
                   if (scope.ttAnimation) {
                     tourtip.fadeIn();
@@ -353,14 +357,14 @@ angular.module('angular-tour.tour', [])
                 }, scope.ttDelay);
               }
               function hide() {
-                $frame = element.closest(scope.ttFrame);
-                $frame.unbind('scroll', scrollHandler);
+                $frame = element.scrollParent();
+                ($frame[0].tagName.match(/body/i) ? _global : $frame).unbind('scroll', scrollHandler);
                 _global.unbind('resize.' + scope.$id, scrollHandler);
                 tourtip.detach();
               }
               scope.$on('$destroy', function onDestroyTourtip() {
-                $frame = element.closest(scope.ttFrame);
-                $frame.unbind('scroll', scrollHandler);
+                $frame = element.scrollParent();
+                ($frame[0].tagName.match(/body/i) ? _global : $frame).unbind('scroll', scrollHandler);
                 _global.unbind('resize.' + scope.$id, scrollHandler);
                 tourtip.remove();
               });
@@ -447,8 +451,16 @@ angular.module('angular-tour.tour', [])
         options = target;
       }
 
+      if (frame instanceof jQuery) {
+        frame = frame[0];
+      }
+      if (target instanceof jQuery) {
+        target = target[0];
+      }
+
       var settings = {
         scrollTarget  : target,
+        scrollFrame   : frame,
         offsetTop     : 50,
         offsetLeft    : 50,
         duration      : 500,
@@ -466,22 +478,22 @@ angular.module('angular-tour.tour', [])
 
       var animCount = 0, animLast;
       function runAnimation (t) {
-        frame[0].scrollTop  = easingFunctions[settings.easing](
+        settings.scrollFrame.scrollTop  = easingFunctions[settings.easing](
           animCount,
-          frame[0].scrollTop,
-          target[0].offsetTop - frame[0].scrollTop - settings.offsetTop,
+          settings.scrollFrame.scrollTop,
+          settings.scrollTarget.offsetTop - settings.scrollFrame.scrollTop - settings.offsetTop,
           settings.duration
         );
-        frame[0].scrollLeft = easingFunctions[settings.easing](
+        settings.scrollFrame.scrollLeft = easingFunctions[settings.easing](
           animCount,
-          frame[0].scrollLeft,
-          target[0].offsetLeft - frame[0].scrollLeft - settings.offsetLeft,
+          settings.scrollFrame.scrollLeft,
+          settings.scrollTarget.offsetLeft - settings.scrollFrame.scrollLeft - settings.offsetLeft,
           settings.duration
         );
         animCount += animLast ? t - animLast : 16;
         animLast = t;
         if (animCount < settings.duration) return requestAnimationFrame(runAnimation);
-        else return;
+        else if (angular.isFunction(callback)) callback();
       }
 
       requestAnimationFrame(runAnimation);
@@ -670,4 +682,113 @@ angular.module('angular-tour.tour', [])
     Fns['ease-in-out-circ']  = Fns.easeInOutCirc;
 
     return Fns;
+  });
+
+/**
+ * Requires jquery
+ */
+angular.module('jquery-ui.scrollParent', [])
+  .run(function () {
+    // jQueryUI Core scrollParent
+    // http://jqueryui.com
+    // 
+    // modified to return self if no match is found.
+    if (angular.isFunction(angular.element.fn.scrollParent)) {
+      angular.element.fn.extend({
+        scrollParents: function () {
+          var result = [];
+          return (function walkParents (current) {
+            var parent = angular.element(current).scrollParent()[0];
+            if (parent.tagName.match(/body/i)) {
+              result.push(parent[0]);
+              return angular.element(result);
+            } else {
+              result.push(parent);
+              walkParents.call(null, parent);
+            }
+          }(this));
+        }
+      });
+    } else if (angular.isDefined(jQuery)) {
+      angular.element.fn.extend({
+        scrollParent: function() {
+          var position = this.css( "position" ),
+            excludeStaticParent = position === "absolute",
+            scrollParent = this.parents().filter( function() {
+              var parent = $( this );
+              if ( excludeStaticParent && parent.css( "position" ) === "static" ) {
+                return false;
+              }
+              return (/(auto|scroll)/).test( parent.css( "overflow" ) + parent.css( "overflow-y" ) + parent.css( "overflow-x" ) );
+            }).eq( 0 );
+
+          return position === "fixed" || !scrollParent.length ? $( 'body' ) : scrollParent;
+        },
+        scrollParents: function () {
+          var result = [];
+          angular.forEach(this, function (parent, index) {
+            (function walkParents (current) {
+              var parent = angular.element(current).scrollParent()[0];
+              if (parent.tagName.match(/body/i)) {
+                result.push(parent);
+                return
+              } else {
+                result.push(parent);
+                walkParents.call(null, parent);
+              }
+            }(parent));
+          });
+          return angular.element(result);
+        }
+      });
+    } else {
+      angular.element.fn.extend({
+        parents: function (){
+          var result = [];
+          return (function walkParents (current) {
+            var parent = angular.element(current).parent()[0];
+            if (parent.tagName.match(/body/i)) {
+              result.push(parent);
+              return angular.element(result);
+            } else {
+              result.push(parent);
+              walkParents.call(null, parent);
+            }
+          }(this));
+        },
+        filter: function (fn) {
+          var result = [];
+          angular.forEach(this, function (v, k) {
+            if (fn(v, k)) result.push(v);
+          }, this);
+          return angular.element(result);
+        },
+        scrollParent: function() {
+          var position = this.css( "position" ),
+            excludeStaticParent = position === "absolute",
+            scrollParent = this.parents().filter( function() {
+              var parent = $( this );
+              if ( excludeStaticParent && parent.css( "position" ) === "static" ) {
+                return false;
+              }
+              return (/(auto|scroll)/).test( parent.css( "overflow" ) + parent.css( "overflow-y" ) + parent.css( "overflow-x" ) );
+            }).eq( 0 );
+
+          return position === "fixed" || !scrollParent.length ? $( 'body' ) : scrollParent;
+        },
+        scrollParents: function () {
+          var result = [];
+          return (function walkParents (current) {
+            var parent = angular.element(current).scrollParent()[0];
+            if (parent.tagName.match(/body/i)) {
+              result.push(parent[0]);
+              return angular.element(result);
+            } else {
+              result.push(parent);
+              walkParents.call(null, parent);
+            }
+          }(this));
+        }
+      });
+    }
   });
