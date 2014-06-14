@@ -666,7 +666,7 @@ angular.module('angular-tour.tour', ['easingFunctions', 'jquery-ui.scrollParents
 /**
  * Requires jquery
  */
-angular.module('jquery-ui.scrollParent', []).run(function () {
+angular.module('jquery-ui.scrollParents', []).run(function () {
   // jQueryUI Core scrollParent
   // http://jqueryui.com
   // 
@@ -726,9 +726,7 @@ angular.module('jquery-ui.scrollParent', []).run(function () {
       }
     });
   }
-});
-
-angular.module('jquery-ui.scrollParents', ['jquery-ui.scrollParent']).run(function () {
+}).run(function () {
   angular.element.fn.extend({
     scrollParents: function () {
       var result = [];
