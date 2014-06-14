@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v0.1.50 - 2014-06-14
+ * @version v1.0.0 - 2014-06-14
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -614,7 +614,7 @@
   /**
  * Requires jquery
  */
-  angular.module('jquery-ui.scrollParent', []).run(function () {
+  angular.module('jquery-ui.scrollParents', []).run(function () {
     // jQueryUI Core scrollParent
     // http://jqueryui.com
     // 
@@ -669,8 +669,7 @@
         }
       });
     }
-  });
-  angular.module('jquery-ui.scrollParents', ['jquery-ui.scrollParent']).run(function () {
+  }).run(function () {
     angular.element.fn.extend({
       scrollParents: function () {
         var result = [];
