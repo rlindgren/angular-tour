@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.0 - 2014-06-14
+ * @version v1.0.1 - 2014-06-14
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -19,10 +19,7 @@
       $templateCache.put('tour/tour.tpl.html', '<div class="tour-tip">\n' + '\t<span class="tour-arrow tt-{{ ttPlacement + \'-\' + ttAlign }}-border"></span>\n' + '    <span class="tour-arrow tt-{{ ttPlacement + \'-\' + ttAlign }}"></span>\n' + '\t<div class="tour-tip-header">\n' + '\t\t<a ng-click="closeTour()" class="tour-close-tip">\xd7</a>\n' + '\t</div>\n' + '\t<div class="tour-tip-body">\n' + '\t\t<div class="tour-content-wrapper">\n' + '\t        <p ng-bind-html="ttContent"></p>\n' + '\t    </div>\n' + '\t</div>\n' + '\t<div class="tour-tip-footer">\n' + '\t\t<a ng-if="!ttFirst" ng-click="setPrevStep($event)" ng-bind-html="ttBackLabel" class="small button tour-prev-tip"></a>\n' + '\t\t<a ng-if="!ttLast" ng-click="setNextStep($event)" ng-bind-html="ttNextLabel" class="small button tour-next-tip"></a>\n' + '\t\t<a ng-if="ttLast" ng-click="setNextStep($event)" ng-bind-html="ttFinishLabel" class="small button tour-last-tip"></a>\n' + '\t</div>\n' + '\t    \n' + '</div>');
     }
   ]);
-  angular.module('angular-tour.tour', [
-    'easingFunctions',
-    'jquery-ui.scrollParents'
-  ]).constant('tourConfig', {
+  angular.module('angular-tour.tour', ['easingFunctions']).constant('tourConfig', {
     placement: 'top',
     animation: true,
     nextLabel: 'Next',
@@ -75,8 +72,9 @@
       };
       self.cancelTour = function () {
         self.unselectAllSteps();
-        if (self.currentStep)
+        if (self.currentStep) {
           $scope.$parent.$eval(self.currentStep.ttPostStep);
+        }
         self.postStepCallback();
         self.postTourCallback();
         self.currentIndex = 0;
@@ -310,8 +308,8 @@
               function scrollFramesIntoView(el, config) {
                 var parents = el.scrollParents();
                 for (var i = parents.length - 2; i >= 0; i--) {
-                  config.offsetTop = parseInt(window.innerHeight / (i + 3));
-                  config.offsetLeft = parseInt(window.innerWidth / (i + 3));
+                  config.offsetTop = parseInt(window.innerHeight / (i + 3), 10);
+                  config.offsetLeft = parseInt(window.innerWidth / (i + 3), 10);
                   scrollTo(angular.element(parents[i]).scrollParent(), parents[i], config);
                 }
               }
@@ -610,83 +608,5 @@
     Fns['ease-out-circ'] = Fns.easeOutCirc;
     Fns['ease-in-out-circ'] = Fns.easeInOutCirc;
     return Fns;
-  });
-  /**
- * Requires jquery
- */
-  angular.module('jquery-ui.scrollParents', []).run(function () {
-    // jQueryUI Core scrollParent
-    // http://jqueryui.com
-    // 
-    // modified to return self if no match is found.
-    if (angular.isFunction(angular.element.fn.scrollParent)) {
-      return;
-    } else if (angular.isDefined(jQuery)) {
-      angular.element.fn.extend({
-        scrollParent: function () {
-          var position = this.css('position'), excludeStaticParent = position === 'absolute', scrollParent = this.parents().filter(function () {
-              var parent = $(this);
-              if (excludeStaticParent && parent.css('position') === 'static') {
-                return false;
-              }
-              return /(auto|scroll)/.test(parent.css('overflow') + parent.css('overflow-y') + parent.css('overflow-x'));
-            }).eq(0);
-          return position === 'fixed' || !scrollParent.length ? $('body') : scrollParent;
-        }
-      });
-    } else {
-      angular.element.fn.extend({
-        parents: function () {
-          var result = [];
-          return function walkParents(current) {
-            var parent = angular.element(current).parent()[0];
-            if (parent.tagName.match(/body/i)) {
-              result.push(parent);
-              return angular.element(result);
-            } else {
-              result.push(parent);
-              walkParents.call(null, parent);
-            }
-          }(this);
-        },
-        filter: function (fn) {
-          var result = [];
-          angular.forEach(this, function (v, k) {
-            if (fn(v, k))
-              result.push(v);
-          }, this);
-          return angular.element(result);
-        },
-        scrollParent: function () {
-          var position = this.css('position'), excludeStaticParent = position === 'absolute', scrollParent = this.parents().filter(function () {
-              var parent = $(this);
-              if (excludeStaticParent && parent.css('position') === 'static') {
-                return false;
-              }
-              return /(auto|scroll)/.test(parent.css('overflow') + parent.css('overflow-y') + parent.css('overflow-x'));
-            }).eq(0);
-          return position === 'fixed' || !scrollParent.length ? $('body') : scrollParent;
-        }
-      });
-    }
-  }).run(function () {
-    angular.element.fn.extend({
-      scrollParents: function () {
-        var result = [];
-        angular.forEach(this, function (parent, index) {
-          (function walkParents(current) {
-            var parent = angular.element(current).scrollParent()[0];
-            if (parent.tagName.match(/body/i)) {
-              result.push(parent);
-              return;
-            } else {
-              result.push(parent);
-              walkParents.call(null, parent);
-            }
-          }(parent));
-        });
-        return angular.element(result);
-      }
-    });
   });
 }(window, document));
