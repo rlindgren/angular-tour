@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.1 - 2014-06-14
+ * @version v1.0.2 - 2014-06-14
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -608,5 +608,62 @@
     Fns['ease-out-circ'] = Fns.easeOutCirc;
     Fns['ease-in-out-circ'] = Fns.easeInOutCirc;
     return Fns;
+  }).run(function () {
+    // jQueryUI Core scrollParent
+    // http://jqueryui.com
+    var element = angular.element;
+    if (!jQuery) {
+      element.fn.extend({
+        parents: function () {
+          var result = [];
+          return function walkParents(current) {
+            var parent = element(current).parent()[0];
+            if (parent.tagName.match(/body/i)) {
+              result.push(parent);
+              return element(result);
+            } else {
+              result.push(parent);
+              walkParents.call(null, parent);
+            }
+          }(this);
+        },
+        filter: function (fn) {
+          var result = [];
+          angular.forEach(this, function (v, k) {
+            if (fn(v, k))
+              result.push(v);
+          }, this);
+          return element(result);
+        }
+      });
+    }
+    element.fn.extend({
+      scrollParent: function () {
+        var position = this.css('position'), excludeStaticParent = position === 'absolute', scrollParent = this.parents().filter(function () {
+            var parent = $(this);
+            if (excludeStaticParent && parent.css('position') === 'static') {
+              return false;
+            }
+            return /(auto|scroll)/.test(parent.css('overflow') + parent.css('overflow-y') + parent.css('overflow-x'));
+          }).eq(0);
+        return position === 'fixed' || !scrollParent.length ? element('body') : scrollParent;
+      },
+      scrollParents: function () {
+        var result = [];
+        angular.forEach(this, function (parent, index) {
+          (function walkParents(current) {
+            var parent = element(current).scrollParent()[0];
+            if (parent.tagName.match(/body/i)) {
+              result.push(parent);
+              return;
+            } else {
+              result.push(parent);
+              walkParents.call(null, parent);
+            }
+          }(parent));
+        });
+        return element(result);
+      }
+    });
   });
 }(window, document));
