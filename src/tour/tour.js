@@ -259,9 +259,9 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                     elBottom = atb ? elRect.bottom :
                       isNested ? scrollOffset.top + elHeight + $frame.offset().top - $frame.scrollTop() : elTop + elHeight,
                     elLeft = atb ? elRect.left :
-                      isNested ? scrollOffset.left + $frame.offset().left - $frame.scrollLeft() : element.offset().left,
+                      isNested ? scrollOffset.left + $frame.offset().left : element.offset().left,
                     elRight = atb ? elRect.top :
-                      isNested ? scrollOffset.left + elWidth + $frame.offset().left - $frame.scrollLeft() : elLeft + elWidth,
+                      isNested ? scrollOffset.left + elWidth + $frame.offset().left : elLeft + elWidth,
                     ttWidth = tourtip.width(),
                     ttHeight = tourtip.height(),
                     ttPlacement = scope.ttPlacement,

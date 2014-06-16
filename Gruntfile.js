@@ -362,6 +362,7 @@ module.exports = function (grunt) {
           'package.json',
           'bower.json'
         ],
+        updateConfigs: ['pkg'],
         createTag: true,
         tagName: 'v%VERSION%',
         tagMessage: 'Version %VERSION%',
