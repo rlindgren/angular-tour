@@ -245,8 +245,8 @@ angular.module('angular-tour.tour', ['easingFunctions'])
               }, 500);
 
               var ttRect = tourtip[0].getBoundingClientRect();
-              var arrowHeight = 10;
-              var arrowOffset = 20;
+              var arrowHeight = 28;
+              var arrowOffset = 22;
 
               var updatePosition = function (element, tourtip) {
                 var atb = scope.ttAppendToBody,
@@ -270,9 +270,13 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                     ttPosition = {};
 
                 // should we point directly at the element?
-                var arrowCenter = arrowOffset + (arrowHeight / 2),
-                    pointAt = 'left right'.match(ttPlacement) ? elHeight < arrowCenter : elWidth < arrowCenter,
-                    pointerOffset = pointAt ? arrowCenter : 0;
+                var arrowCenter = arrowOffset + (arrowHeight/2),
+                    pointAt = 'left right'.match(ttPlacement) ? elHeight <= arrowCenter : elWidth <= arrowCenter,
+                    pointerOffset = !pointAt ? 0 : 
+                      'left right'.match(ttPlacement) ? 
+                        'top'.match(ttAlign) ? arrowCenter - elHeight/2 : arrowCenter - elHeight/2 :
+                        'left'.match(ttAlign) ? arrowCenter - elWidth/2 : arrowCenter - elWidth/2;
+
 
                 if ('left right'.match(ttPlacement)) {
                   if (ttAlign === 'top') {
