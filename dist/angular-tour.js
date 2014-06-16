@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.5 - 2014-06-16
+ * @version v1.0.6 - 2014-06-16
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -253,12 +253,12 @@
                 });
               }, 500);
               var ttRect = tourtip[0].getBoundingClientRect();
-              var arrowHeight = 10;
-              var arrowOffset = 20;
+              var arrowHeight = 28;
+              var arrowOffset = 22;
               var updatePosition = function (element, tourtip) {
                 var atb = scope.ttAppendToBody, scrollOffset = element.scrollOffset(), elRect = element[0].getBoundingClientRect(), elHeight = elRect.height, elWidth = elRect.width, elTop = atb ? elRect.top : isNested ? scrollOffset.top + $frame.offset().top - $frame.scrollTop() : element.offset().top, elBottom = atb ? elRect.bottom : isNested ? scrollOffset.top + elHeight + $frame.offset().top - $frame.scrollTop() : elTop + elHeight, elLeft = atb ? elRect.left : isNested ? scrollOffset.left + $frame.offset().left : element.offset().left, elRight = atb ? elRect.right : isNested ? scrollOffset.left + elWidth + $frame.offset().left : elLeft + elWidth, ttWidth = tourtip.width(), ttHeight = tourtip.height(), ttPlacement = scope.ttPlacement, ttAlign = scope.ttAlign, ttOffset = scope.ttOffset, ttPosition = {};
                 // should we point directly at the element?
-                var arrowCenter = arrowOffset + arrowHeight / 2, pointAt = 'left right'.match(ttPlacement) ? elHeight < arrowCenter : elWidth < arrowCenter, pointerOffset = pointAt ? arrowCenter : 0;
+                var arrowCenter = arrowOffset + arrowHeight / 2, pointAt = 'left right'.match(ttPlacement) ? elHeight <= arrowCenter : elWidth <= arrowCenter, pointerOffset = !pointAt ? 0 : 'left right'.match(ttPlacement) ? 'top'.match(ttAlign) ? arrowCenter - elHeight / 2 : arrowCenter - elHeight / 2 : 'left'.match(ttAlign) ? arrowCenter - elWidth / 2 : arrowCenter - elWidth / 2;
                 if ('left right'.match(ttPlacement)) {
                   if (ttAlign === 'top') {
                     ttPosition.top = elTop - pointerOffset + scope.ttOffsetTop;
