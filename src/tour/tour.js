@@ -70,7 +70,6 @@ angular.module('angular-tour.tour', ['easingFunctions'])
       self.select(step);
     };
     $rootScope.openTour = function () {
-      console.log(self.steps);
       var step = self.steps.get(0);
       if (step) {
         self.setStep(step);
@@ -250,19 +249,26 @@ angular.module('angular-tour.tour', ['easingFunctions'])
               var arrowOffset = 20;
 
               var updatePosition = function (element, tourtip) {
-                var elHeight = element[0].offsetHeight,
-                    elWidth = element[0].offsetWidth,
-                    elTop = isNested ?  element.scrollOffset().top : element.offset().top,
-                    elBottom = elTop + elHeight,
-                    elLeft = isNested ? element.offset().left - $frame.offset().left - $frame.scrollLeft() : element.offset().left,
-                    elRight = elLeft + elWidth,
+                var atb = scope.ttAppendToBody,
+                    scrollOffset = element.scrollOffset(),
+                    elRect = element[0].getBoundingClientRect(),
+                    elHeight = elRect.height,
+                    elWidth = elRect.width,
+                    elTop = atb ? elRect.top :
+                      isNested ? scrollOffset.top + $frame.offset().top - $frame.scrollTop() : element.offset().top,
+                    elBottom = atb ? elRect.bottom :
+                      isNested ? scrollOffset.top + elHeight + $frame.offset().top - $frame.scrollTop() : elTop + elHeight,
+                    elLeft = atb ? elRect.left :
+                      isNested ? scrollOffset.left + $frame.offset().left - $frame.scrollLeft() : element.offset().left,
+                    elRight = atb ? elRect.top :
+                      isNested ? scrollOffset.left + elWidth + $frame.offset().left - $frame.scrollLeft() : elLeft + elWidth,
                     ttWidth = tourtip.width(),
                     ttHeight = tourtip.height(),
                     ttPlacement = scope.ttPlacement,
                     ttAlign = scope.ttAlign,
                     ttOffset = scope.ttOffset,
                     ttPosition = {};
-                
+
                 // should we point directly at the element?
                 var arrowCenter = arrowOffset + (arrowHeight / 2),
                     pointAt = 'left right'.match(ttPlacement) ? elHeight < arrowCenter : elWidth < arrowCenter,
@@ -311,12 +317,12 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 (isNested ? $frame : angular.element($window)).bind('scroll', scrollHandler);
                 updatePosition(element, tourtip);
                 var scrollConfig = { duration: tourConfig.scrollSpeed };
-                var ttOffsetTop = 50;
-                var ttOffsetLeft = 50;
+                var ttOffsetTop = 100;
+                var ttOffsetLeft = 100;
                 // scroll the frame into view if (it's not the body)
                 if (scope.ttPlacement === 'top' || scope.ttAlign === 'bottom') {
-                  ttOffsetTop += tourtip.height() < element[0].offsetHeight ? 0 : tourtip.height() - element[0].offsetHeight;
-                  ttOffsetLeft += tourtip.width() < element[0].offsetWidth ? 0 : tourtip.width() - element[0].offsetWidth;
+                  ttOffsetTop += tourtip.height() < element.height() ? 0 : tourtip.height() - element.height();
+                  ttOffsetLeft += tourtip.width() < element.width() ? 0 : tourtip.width() - element.width();
                 }
                 scrollConfig.offsetTop = ttOffsetTop;
                 scrollConfig.offsetLeft = ttOffsetLeft;
@@ -584,7 +590,6 @@ angular.module('easingFunctions', [])
 
     return Fns;
   }).run(function (PennerEasing) {
-  'use strict';
   // jQueryUI Core scrollParent
   // http://jqueryui.com
   var element = angular.element;
@@ -640,12 +645,8 @@ angular.module('easingFunctions', [])
       var frame = this.scrollParent();
       var isBody = !!frame[0].tagName.match(/BODY/);
       return {
-        top: isBody ? 
-          this.offset().top - frame.scrollTop() :
-          this.offset().top - frame.offset().top - frame.scrollTop(),
-        left: isBody ?
-          this.offset().left - frame.scrollLeft() :
-          this.offset().left - frame.offset().left - frame.scrollLeft()
+        top: isBody ? this.offset().top : this.offset().top - frame.offset().top + frame.scrollTop(),
+        left: isBody ? this.offset().left : this.offset().left - frame.offset().left + frame.scrollLeft()
       };
     },
     scrollTo: function (target, config, cb) {
@@ -687,25 +688,14 @@ angular.module('easingFunctions', [])
       var $targetTop, $targetLeft, $startTop, $startLeft;
       var $self = $(this);
 
-      var frameConfig = {};
-      var parents = element(this).scrollParents();
-      for (var i=1; i<parents.length; i++) {
-        frameConfig.offsetTop  = parseInt(window.innerHeight/(i+3), 10);
-        frameConfig.offsetLeft = parseInt(window.innerWidth/(i+3), 10);
-        element(parents[i-1]).scrollTo(parents[i], frameConfig);
-      }
-
       $startTop = $self.scrollTop();
       $startLeft = $self.scrollLeft();
       $targetTop = isNumber(settings.target) ? 
         settings.target - parseInt(settings.offsetTop, 10) : 
-        settings.target.scrollOffset().top - $startTop + parseInt(settings.offsetTop, 10);
+        settings.target.scrollOffset().top - $startTop - parseInt(settings.offsetTop, 10);
       $targetLeft = isNumber(settings.target) ? 
         settings.target - parseInt(settings.offsetLeft, 10) : 
-        settings.target.scrollOffset().left - $startLeft + parseInt(settings.offsetLeft, 10);
-
-
-      console.log(settings.target.scrollOffset(), $targetTop, $targetLeft, $startTop, $startLeft);
+        settings.target.scrollOffset().left - $startLeft - parseInt(settings.offsetLeft, 10);
 
       var animCount = 0, animLast;
       function runAnimation (t) {

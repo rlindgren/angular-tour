@@ -56,13 +56,14 @@
 </head>
 <body ng-app="demoApp" ng-controller="DemoCtrl">
 <tour step="currentStep" post-tour="postTourCallback()" post-step="postStepCallback()">
-  <a tourtip="Thanks for reading. Head over to the github page for more info."
-     tourtip-next-label="Finish"
-     tourtip-placement="left"
-     tourtip-align="top"
-     tourtip-step="14"
-     tourtip-append-to-body="true"
-     href="https://github.com/DaftMonk/angular-tour"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+  <a href="https://github.com/DaftMonk/angular-tour">
+    <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"tourtip="Thanks for reading. Head over to the github page for more info."
+      tourtip-next-label="Finish"
+      tourtip-placement="left"
+      tourtip-align="bottom"
+      tourtip-step="14"
+      tourtip-append-to-body="true" />
+  </a>
   <div class="container">
     <div>
       <a class="logo" href="#"
