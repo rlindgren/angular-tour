@@ -260,7 +260,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                       isNested ? scrollOffset.top + elHeight + $frame.offset().top - $frame.scrollTop() : elTop + elHeight,
                     elLeft = atb ? elRect.left :
                       isNested ? scrollOffset.left + $frame.offset().left : element.offset().left,
-                    elRight = atb ? elRect.top :
+                    elRight = atb ? elRect.right :
                       isNested ? scrollOffset.left + elWidth + $frame.offset().left : elLeft + elWidth,
                     ttWidth = tourtip.width(),
                     ttHeight = tourtip.height(),
