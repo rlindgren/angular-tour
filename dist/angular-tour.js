@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.3 - 2014-06-16
+ * @version v1.0.4 - 2014-06-16
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -256,7 +256,7 @@
               var arrowHeight = 10;
               var arrowOffset = 20;
               var updatePosition = function (element, tourtip) {
-                var atb = scope.ttAppendToBody, scrollOffset = element.scrollOffset(), elRect = element[0].getBoundingClientRect(), elHeight = elRect.height, elWidth = elRect.width, elTop = atb ? elRect.top : isNested ? scrollOffset.top + $frame.offset().top - $frame.scrollTop() : element.offset().top, elBottom = atb ? elRect.bottom : isNested ? scrollOffset.top + elHeight + $frame.offset().top - $frame.scrollTop() : elTop + elHeight, elLeft = atb ? elRect.left : isNested ? scrollOffset.left + $frame.offset().left - $frame.scrollLeft() : element.offset().left, elRight = atb ? elRect.top : isNested ? scrollOffset.left + elWidth + $frame.offset().left - $frame.scrollLeft() : elLeft + elWidth, ttWidth = tourtip.width(), ttHeight = tourtip.height(), ttPlacement = scope.ttPlacement, ttAlign = scope.ttAlign, ttOffset = scope.ttOffset, ttPosition = {};
+                var atb = scope.ttAppendToBody, scrollOffset = element.scrollOffset(), elRect = element[0].getBoundingClientRect(), elHeight = elRect.height, elWidth = elRect.width, elTop = atb ? elRect.top : isNested ? scrollOffset.top + $frame.offset().top - $frame.scrollTop() : element.offset().top, elBottom = atb ? elRect.bottom : isNested ? scrollOffset.top + elHeight + $frame.offset().top - $frame.scrollTop() : elTop + elHeight, elLeft = atb ? elRect.left : isNested ? scrollOffset.left + $frame.offset().left : element.offset().left, elRight = atb ? elRect.top : isNested ? scrollOffset.left + elWidth + $frame.offset().left : elLeft + elWidth, ttWidth = tourtip.width(), ttHeight = tourtip.height(), ttPlacement = scope.ttPlacement, ttAlign = scope.ttAlign, ttOffset = scope.ttOffset, ttPosition = {};
                 // should we point directly at the element?
                 var arrowCenter = arrowOffset + arrowHeight / 2, pointAt = 'left right'.match(ttPlacement) ? elHeight < arrowCenter : elWidth < arrowCenter, pointerOffset = pointAt ? arrowCenter : 0;
                 if ('left right'.match(ttPlacement)) {
