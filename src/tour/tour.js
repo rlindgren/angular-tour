@@ -319,7 +319,6 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 tourtip.css({display: 'hidden'});
                 $frame.bind('resize.' + scope.$id, scrollHandler);
                 (isNested ? $frame : angular.element($window)).bind('scroll', scrollHandler);
-                updatePosition(element, tourtip);
                 var scrollConfig = { duration: tourConfig.scrollSpeed };
                 var ttOffsetTop = 100;
                 var ttOffsetLeft = 100;
@@ -332,6 +331,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 scrollConfig.offsetLeft = ttOffsetLeft;
                 element.scrollIntoView(scrollConfig);
                 $timeout(function () {
+                  updatePosition(element, tourtip);
                   if (scope.ttAnimation) {
                     tourtip.fadeIn();
                   } else {

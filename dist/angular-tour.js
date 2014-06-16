@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.6 - 2014-06-16
+ * @version v1.0.7 - 2014-06-16
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -300,7 +300,6 @@
                 tourtip.css({ display: 'hidden' });
                 $frame.bind('resize.' + scope.$id, scrollHandler);
                 (isNested ? $frame : angular.element($window)).bind('scroll', scrollHandler);
-                updatePosition(element, tourtip);
                 var scrollConfig = { duration: tourConfig.scrollSpeed };
                 var ttOffsetTop = 100;
                 var ttOffsetLeft = 100;
@@ -313,6 +312,7 @@
                 scrollConfig.offsetLeft = ttOffsetLeft;
                 element.scrollIntoView(scrollConfig);
                 $timeout(function () {
+                  updatePosition(element, tourtip);
                   if (scope.ttAnimation) {
                     tourtip.fadeIn();
                   } else {
