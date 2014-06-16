@@ -5,6 +5,7 @@ describe('Directive: tour', function () {
 
   beforeEach(module('tour/tour.tpl.html'));
   beforeEach(module('angular-tour.tour'));
+  beforeEach(module('easingFunctions'));
 
   var $rootScope, $compile, $controller, $timeout;
 
@@ -15,11 +16,11 @@ describe('Directive: tour', function () {
     $timeout = _$timeout_;
   }));
 
-  describe('orderedList', function() {
+  describe('tourtipMap', function() {
     var steps;
 
-    beforeEach(inject(function (orderedList) {
-      steps = orderedList();
+    beforeEach(inject(function (tourtipMap) {
+      steps = tourtipMap();
       // add unordered items
     }));
 
@@ -54,6 +55,7 @@ describe('Directive: tour', function () {
       addTypicalSteps();
       expect(steps.indexOf('4'));
     });
+
     it('should have a length of 4 items', function () {
       addTypicalSteps();
       expect(steps.getCount()).toBe(4);
@@ -68,34 +70,6 @@ describe('Directive: tour', function () {
     it('should get the 3rd item', function() {
       addTypicalSteps();
       expect(steps.get(3)).toBe('3');
-    });
-
-    it('should push a value into steps', function () {
-      addTypicalSteps();
-      expect(steps.getCount()).toBe(4);
-      steps.push('5');
-      expect(steps.getCount()).toBe(5);
-      expect(steps.get(5)).toBe('5');
-    });
-
-    it('should push a value into empty list', inject(function (orderedList) {
-      expect(steps.getCount()).toBe(0);
-
-      steps.push('1');
-      expect(steps.getCount()).toBe(1);
-      expect(steps.get(0)).toBe('1');
-    }));
-
-    it('should order numbers properly', function() {
-      addTypicalSteps();
-      var list = [];
-      steps.forEach(function(value, key) {
-        list.push(key);
-      });
-      expect(list[0]).toBe(1);
-      expect(list[1]).toBe(2);
-      expect(list[2]).toBe(3);
-      expect(list[3]).toBe(4);
     });
   });
 
@@ -122,11 +96,11 @@ describe('Directive: tour', function () {
       scope.stepIndex = 0;
 
       tour = angular.element('<tour step="stepIndex"></tour>');
-      tip1 = angular.element('<span tourtip="feature 1!" tourtip-step="0" tourtip-next-label="Next" tourtip-placement="top" class="btn">' +
+      tip1 = angular.element('<span tourtip="feature 1!" tourtip-step="0" tourtip-placement="top" class="btn">' +
         'Important website feature' +
         '</span>');
 
-      tip2 = angular.element('<span tourtip="feature 2!" tourtip-step="1" tourtip-next-label="Next" tourtip-placement="top" class="btn">' +
+      tip2 = angular.element('<span tourtip="feature 2!" tourtip-step="1" tourtip-placement="top" class="btn">' +
         'Another website feature' +
         '</span>');
 
@@ -143,25 +117,27 @@ describe('Directive: tour', function () {
       scope.$destroy();
     });
 
-    it('should be able to close tour', function () {
-      expect(elm).toHaveOpenTourtips(1);
-      tourScope.closeTour();
-      scope.$apply();
-      expect(elm).toHaveOpenTourtips(0);
-    });
-
-    it('should be able to open tour', function () {
-      tourScope.closeTour();
-      scope.$apply();
-      expect(elm).toHaveOpenTourtips(0);
+    function openTour () {
       tourScope.openTour();
       scope.$apply();
+    }
+
+    function closeTour () {
+      tourScope.closeTour();
+      scope.$apply();
+    }
+
+    it('should be able to open tour', function () {
+      expect(elm).toHaveOpenTourtips(0);
+      openTour();
       expect(elm).toHaveOpenTourtips(1);
     });
 
-    it('should show number of tips as array on $scope.pageNums', function () {
-      scope.$digest();
-      expect(scope.pageNums).toBeDefined();
+    it('should be able to close tour', function () {
+      openTour();
+      expect(elm).toHaveOpenTourtips(1);
+      closeTour();
+      expect(elm).toHaveOpenTourtips(0);
     });
 
     describe('tourtip', function() {
@@ -170,6 +146,7 @@ describe('Directive: tour', function () {
       });
 
       it('should append tip1 popup to element and open it', function () {
+        openTour();
         expect(elm).toHaveOpenTourtips(1);
         expect(tip1.next().html()).toContain('feature 1');
         expect(tip1.scope().ttOpen).toBe(true);

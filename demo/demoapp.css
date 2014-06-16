@@ -102,6 +102,8 @@ ul {
     height: 480px;
     overflow-y: scroll;
     overflow-x: hidden;
+    transition: top .5s ease-in-out;
+    -webkit-transition: top .5s ease-in-out;
 }
 
 .button {

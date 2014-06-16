@@ -41,7 +41,7 @@ module.exports = function (grunt) {
         tasks: ['jshint:all']
       },
       jsTest: {
-        files: ['<%= yeoman.src %>/**/*.spec.js'],
+        files: ['<%= yeoman.src %>/**/*.js'],
         tasks: ['karma']
       },
       compass: {
@@ -155,7 +155,8 @@ module.exports = function (grunt) {
     jshint: {
       options: {
         jshintrc: '.jshintrc',
-        reporter: require('jshint-stylish')
+        reporter: require('jshint-stylish'),
+        force: true
       },
       all: [
         'Gruntfile.js',
