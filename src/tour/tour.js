@@ -244,11 +244,34 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 });
               }, 500);
 
+              function elementInViewport(el) {
+                var top = el.offsetTop;
+                var left = el.offsetLeft;
+                var width = el.offsetWidth;
+                var height = el.offsetHeight;
+
+                while(el.offsetParent) {
+                  el = el.offsetParent;
+                  top += el.offsetTop;
+                  left += el.offsetLeft;
+                }
+
+                return (
+                  top >= window.pageYOffset - height &&
+                  left >= window.pageXOffset - width &&
+                  (top + height) <= (window.pageYOffset + window.innerHeight) &&
+                  (left + width) <= (window.pageXOffset + window.innerWidth)
+                );
+              }
+
               var ttRect = tourtip[0].getBoundingClientRect();
               var arrowHeight = 28;
               var arrowOffset = 22;
 
               var updatePosition = function (element, tourtip) {
+
+                if (elementInViewport(element[0])) { tourtip.show(); } else { tourtip.hide(); }
+
                 var atb = scope.ttAppendToBody,
                     scrollOffset = element.scrollOffset(),
                     elRect = element[0].getBoundingClientRect(),
@@ -319,6 +342,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 tourtip.css({display: 'hidden'});
                 $frame.bind('resize.' + scope.$id, scrollHandler);
                 (isNested ? $frame : angular.element($window)).bind('scroll', scrollHandler);
+                updatePosition(element, tourtip);
                 var scrollConfig = { duration: tourConfig.scrollSpeed };
                 var ttOffsetTop = 100;
                 var ttOffsetLeft = 100;
@@ -331,12 +355,12 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 scrollConfig.offsetLeft = ttOffsetLeft;
                 element.scrollIntoView(scrollConfig);
                 $timeout(function () {
-                  updatePosition(element, tourtip);
                   if (scope.ttAnimation) {
                     tourtip.fadeIn();
                   } else {
                     tourtip.css({ display: 'block' });
                   }
+                  updatePosition(element, tourtip);
                 }, scope.ttDelay);
               }
               scope.preventDefault = function (ev) {
