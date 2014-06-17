@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.7 - 2014-06-16
+ * @version v1.0.8 - 2014-06-17
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -262,11 +262,24 @@
                   }
                 });
               }, 500);
+              function elementInViewport(el) {
+                var top = el.offsetTop;
+                var left = el.offsetLeft;
+                var width = el.offsetWidth;
+                var height = el.offsetHeight;
+                while (el.offsetParent) {
+                  el = el.offsetParent;
+                  top += el.offsetTop;
+                  left += el.offsetLeft;
+                }
+                return top >= window.pageYOffset && left >= window.pageXOffset && top + height <= window.pageYOffset + window.innerHeight && left + width <= window.pageXOffset + window.innerWidth;
+              }
               var ttRect = tourtip[0].getBoundingClientRect();
               var arrowHeight = 28;
               var arrowOffset = 22;
               var updatePosition = function (element, tourtip) {
-                var atb = scope.ttAppendToBody, scrollOffset = element.scrollOffset(), elRect = element[0].getBoundingClientRect(), elHeight = elRect.height, elWidth = elRect.width, elTop = atb ? elRect.top : isNested ? scrollOffset.top + $frame.offset().top - $frame.scrollTop() : element.offset().top, elBottom = atb ? elRect.bottom : isNested ? scrollOffset.top + elHeight + $frame.offset().top - $frame.scrollTop() : elTop + elHeight, elLeft = atb ? elRect.left : isNested ? scrollOffset.left + $frame.offset().left : element.offset().left, elRight = atb ? elRect.right : isNested ? scrollOffset.left + elWidth + $frame.offset().left : elLeft + elWidth, ttWidth = tourtip.width(), ttHeight = tourtip.height(), ttPlacement = scope.ttPlacement, ttAlign = scope.ttAlign, ttOffset = scope.ttOffset, ttPosition = {};
+                // if (elementInViewport(element[0])) { tourtip.show(); } else { tourtip.hide(); }
+                var atb = scope.ttAppendToBody, scrollOffset = element.scrollOffset(), elRect = element[0].getBoundingClientRect(), elHeight = elRect.height, elWidth = elRect.width, elTop = atb || isNested ? elRect.top : element.offset().top, elBottom = atb || isNested ? elRect.bottom : elTop + elHeight, elLeft = atb || isNested ? elRect.left : element.offset().left, elRight = atb || isNested ? elRect.right : elLeft + elWidth, ttWidth = tourtip.width(), ttHeight = tourtip.height(), ttPlacement = scope.ttPlacement, ttAlign = scope.ttAlign, ttOffset = scope.ttOffset, ttPosition = {};
                 // should we point directly at the element?
                 var arrowCenter = arrowOffset + arrowHeight / 2, pointAt = 'left right'.match(ttPlacement) ? elHeight <= arrowCenter : elWidth <= arrowCenter, pointerOffset = !pointAt ? 0 : 'left right'.match(ttPlacement) ? 'top'.match(ttAlign) ? arrowCenter - elHeight / 2 : arrowCenter - elHeight / 2 : 'left'.match(ttAlign) ? arrowCenter - elWidth / 2 : arrowCenter - elWidth / 2;
                 if ('left right'.match(ttPlacement)) {
@@ -301,15 +314,19 @@
                   return;
                 scope.ttFirst = scope.isFirstStep();
                 scope.ttLast = scope.isLastStep();
-                if (scope.ttAppendToBody) {
+                if (scope.ttAppendToBody || isNested) {
+                  if (isNested) {
+                    $frame.bind('scroll', scrollHandler);
+                  }
                   $('body').append(tourtip);
                   tourtip.css({ position: 'fixed' });
                 } else {
                   element.append(tourtip);
                 }
                 tourtip.css({ display: 'hidden' });
-                $frame.bind('resize.' + scope.$id, scrollHandler);
-                (isNested ? $frame : angular.element($window)).bind('scroll', scrollHandler);
+                angular.element($window).bind('scroll', scrollHandler);
+                angular.element($window).bind('resize.' + scope.$id, scrollHandler);
+                updatePosition(element, tourtip);
                 var scrollConfig = { duration: tourConfig.scrollSpeed };
                 var ttOffsetTop = 100;
                 var ttOffsetLeft = 100;
@@ -322,12 +339,12 @@
                 scrollConfig.offsetLeft = ttOffsetLeft;
                 element.scrollIntoView(scrollConfig);
                 $timeout(function () {
-                  updatePosition(element, tourtip);
                   if (scope.ttAnimation) {
                     tourtip.fadeIn();
                   } else {
                     tourtip.css({ display: 'block' });
                   }
+                  updatePosition(element, tourtip);
                 }, scope.ttDelay);
               }
               scope.preventDefault = function (ev) {
@@ -336,12 +353,22 @@
                 ev.cancelBubble = true;
               };
               function hide() {
-                (isNested ? $frame : angular.element($window)).unbind('scroll', scrollHandler);
+                if (scope.ttAppendToBody || isNested) {
+                  if (isNested) {
+                    $frame.unbind('scroll', scrollHandler);
+                  }
+                }
+                angular.element($window).unbind('scroll', scrollHandler);
                 $frame.unbind('resize.' + scope.$id, scrollHandler);
                 tourtip.detach();
               }
               scope.$on('$destroy', function onDestroyTourtip() {
-                (isNested ? $frame : angular.element($window)).unbind('scroll', scrollHandler);
+                if (scope.ttAppendToBody || isNested) {
+                  if (isNested) {
+                    $frame.unbind('scroll', scrollHandler);
+                  }
+                }
+                angular.element($window).unbind('scroll', scrollHandler);
                 $frame.unbind('resize.' + scope.$id, scrollHandler);
                 tourtip.remove();
               });
@@ -672,8 +699,8 @@
           var frameConfig = {};
           var parents = element(this).scrollParents();
           for (var i = 1; i < parents.length; i++) {
-            frameConfig.offsetTop = parseInt(window.innerHeight / (i + 3), 10);
-            frameConfig.offsetLeft = parseInt(window.innerWidth / (i + 3), 10);
+            frameConfig.offsetTop = parseInt(window.innerHeight / (i + 5), 10);
+            frameConfig.offsetLeft = parseInt(window.innerWidth / (i + 5), 10);
             element(parents[i - 1]).scrollTo(parents[i], frameConfig);
           }
           return $(this).scrollParent().scrollTo(this, config);
