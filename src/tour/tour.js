@@ -257,8 +257,8 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 }
 
                 return (
-                  top >= window.pageYOffset - height &&
-                  left >= window.pageXOffset - width &&
+                  top >= window.pageYOffset &&
+                  left >= window.pageXOffset &&
                   (top + height) <= (window.pageYOffset + window.innerHeight) &&
                   (left + width) <= (window.pageXOffset + window.innerWidth)
                 );
@@ -270,21 +270,17 @@ angular.module('angular-tour.tour', ['easingFunctions'])
 
               var updatePosition = function (element, tourtip) {
 
-                if (elementInViewport(element[0])) { tourtip.show(); } else { tourtip.hide(); }
+                // if (elementInViewport(element[0])) { tourtip.show(); } else { tourtip.hide(); }
 
                 var atb = scope.ttAppendToBody,
                     scrollOffset = element.scrollOffset(),
                     elRect = element[0].getBoundingClientRect(),
                     elHeight = elRect.height,
                     elWidth = elRect.width,
-                    elTop = atb ? elRect.top :
-                      isNested ? scrollOffset.top + $frame.offset().top - $frame.scrollTop() : element.offset().top,
-                    elBottom = atb ? elRect.bottom :
-                      isNested ? scrollOffset.top + elHeight + $frame.offset().top - $frame.scrollTop() : elTop + elHeight,
-                    elLeft = atb ? elRect.left :
-                      isNested ? scrollOffset.left + $frame.offset().left : element.offset().left,
-                    elRight = atb ? elRect.right :
-                      isNested ? scrollOffset.left + elWidth + $frame.offset().left : elLeft + elWidth,
+                    elTop = atb || isNested ? elRect.top : element.offset().top,
+                    elBottom = atb || isNested ? elRect.bottom : elTop + elHeight,
+                    elLeft = atb || isNested ? elRect.left : element.offset().left,
+                    elRight = atb || isNested ? elRect.right : elLeft + elWidth,
                     ttWidth = tourtip.width(),
                     ttHeight = tourtip.height(),
                     ttPlacement = scope.ttPlacement,
@@ -333,15 +329,18 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                   return;
                 scope.ttFirst = scope.isFirstStep();
                 scope.ttLast = scope.isLastStep();
-                if (scope.ttAppendToBody) {
+                if (scope.ttAppendToBody || isNested) {
+                  if (isNested) {
+                    $frame.bind('scroll', scrollHandler);
+                  }
                   $('body').append(tourtip);
                   tourtip.css({position: 'fixed'});
                 } else {
                   element.append(tourtip);
                 }
                 tourtip.css({display: 'hidden'});
-                $frame.bind('resize.' + scope.$id, scrollHandler);
-                (isNested ? $frame : angular.element($window)).bind('scroll', scrollHandler);
+                angular.element($window).bind('scroll', scrollHandler);
+                angular.element($window).bind('resize.' + scope.$id, scrollHandler);
                 updatePosition(element, tourtip);
                 var scrollConfig = { duration: tourConfig.scrollSpeed };
                 var ttOffsetTop = 100;
@@ -369,12 +368,22 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 ev.cancelBubble = true;
               };
               function hide() {
-                (isNested ? $frame : angular.element($window)).unbind('scroll', scrollHandler);
+                if (scope.ttAppendToBody || isNested) {
+                  if (isNested) {
+                    $frame.unbind('scroll', scrollHandler);
+                  }
+                }
+                angular.element($window).unbind('scroll', scrollHandler);
                 $frame.unbind('resize.' + scope.$id, scrollHandler);
                 tourtip.detach();
               }
               scope.$on('$destroy', function onDestroyTourtip() {
-                (isNested ? $frame : angular.element($window)).unbind('scroll', scrollHandler);
+                if (scope.ttAppendToBody || isNested) {
+                  if (isNested) {
+                    $frame.unbind('scroll', scrollHandler);
+                  }
+                }
+                angular.element($window).unbind('scroll', scrollHandler);
                 $frame.unbind('resize.' + scope.$id, scrollHandler);
                 tourtip.remove();
               });
@@ -746,8 +755,8 @@ angular.module('easingFunctions', [])
       var frameConfig = {};
       var parents = element(this).scrollParents();
       for (var i=1; i<parents.length; i++) {
-        frameConfig.offsetTop  = parseInt(window.innerHeight/(i+3), 10);
-        frameConfig.offsetLeft = parseInt(window.innerWidth/(i+3), 10);
+        frameConfig.offsetTop  = parseInt(window.innerHeight/(i+5), 10);
+        frameConfig.offsetLeft = parseInt(window.innerWidth/(i+5), 10);
         element(parents[i-1]).scrollTo(parents[i], frameConfig);
       }
       return $(this).scrollParent().scrollTo(this, config);
