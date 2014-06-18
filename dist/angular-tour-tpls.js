@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.10 - 2014-06-18
+ * @version v1.0.11 - 2014-06-18
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -312,6 +312,7 @@
               function show() {
                 if (!scope.ttContent)
                   return;
+                $frame = element.scrollParent();
                 scope.ttFirst = scope.isFirstStep();
                 scope.ttLast = scope.isLastStep();
                 if (scope.ttAppendToBody || isNested) {
@@ -335,7 +336,6 @@
                 var scrollConfig = { duration: tourConfig.scrollSpeed };
                 var ttOffsetTop = 100;
                 var ttOffsetLeft = 100;
-                // scroll the frame into view if (it's not the body)
                 if (scope.ttPlacement === 'top' || scope.ttAlign === 'bottom') {
                   ttOffsetTop += tourtip.height() < element.height() ? 0 : tourtip.height() - element.height();
                   ttOffsetLeft += tourtip.width() < element.width() ? 0 : tourtip.width() - element.width();
@@ -350,12 +350,14 @@
                 ev.cancelBubble = true;
               };
               function hide() {
+                $frame = element.scrollParent();
                 $frame.unbind('scroll', scrollHandler);
                 angular.element($window).unbind('scroll', scrollHandler);
                 $frame.unbind('resize.' + scope.$id, scrollHandler);
                 tourtip.detach();
               }
               scope.$on('$destroy', function onDestroyTourtip() {
+                $frame = element.scrollParent();
                 $frame.unbind('scroll', scrollHandler);
                 angular.element($window).unbind('scroll', scrollHandler);
                 $frame.unbind('resize.' + scope.$id, scrollHandler);

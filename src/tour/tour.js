@@ -326,6 +326,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
               function show() {
                 if (!scope.ttContent)
                   return;
+                $frame = element.scrollParent();
                 scope.ttFirst = scope.isFirstStep();
                 scope.ttLast = scope.isLastStep();
                 if (scope.ttAppendToBody || isNested) {
@@ -349,7 +350,6 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 var scrollConfig = { duration: tourConfig.scrollSpeed };
                 var ttOffsetTop = 100;
                 var ttOffsetLeft = 100;
-                // scroll the frame into view if (it's not the body)
                 if (scope.ttPlacement === 'top' || scope.ttAlign === 'bottom') {
                   ttOffsetTop += tourtip.height() < element.height() ? 0 : tourtip.height() - element.height();
                   ttOffsetLeft += tourtip.width() < element.width() ? 0 : tourtip.width() - element.width();
@@ -364,12 +364,14 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 ev.cancelBubble = true;
               };
               function hide() {
+                $frame = element.scrollParent();
                 $frame.unbind('scroll', scrollHandler);
                 angular.element($window).unbind('scroll', scrollHandler);
                 $frame.unbind('resize.' + scope.$id, scrollHandler);
                 tourtip.detach();
               }
               scope.$on('$destroy', function onDestroyTourtip() {
+                $frame = element.scrollParent();
                 $frame.unbind('scroll', scrollHandler);
                 angular.element($window).unbind('scroll', scrollHandler);
                 $frame.unbind('resize.' + scope.$id, scrollHandler);
