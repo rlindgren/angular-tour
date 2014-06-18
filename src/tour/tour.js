@@ -28,7 +28,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
     self.postStepCallback = $attrs.postStep || 'angular.noop()';
     self.currentIndex = 0;
     self.newList = function () {
-      if ($scope.tourActive) self.cancelTour();
+      if ($rootScope.tourActive) self.cancelTour();
       self.steps = tourtipMap();
     };
     self.newList();
@@ -63,7 +63,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
       self.postTourCallback();
       self.currentIndex = 0;
       self.currentStep = null;
-      $scope.tourActive = false;
+      $rootScope.tourActive = false;
     };
     self.setStep = function (step) {
       model.assign($scope.$parent, step.index);
@@ -73,7 +73,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
       var step = self.steps.get(0);
       if (step) {
         self.setStep(step);
-        $scope.tourActive = true;
+        $rootScope.tourActive = true;
       }
     };
     $rootScope.closeTour = function () {
@@ -257,10 +257,10 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 }
 
                 return (
-                  top >= window.pageYOffset &&
-                  left >= window.pageXOffset &&
-                  (top + height) <= (window.pageYOffset + window.innerHeight) &&
-                  (left + width) <= (window.pageXOffset + window.innerWidth)
+                  (top + height) >= window.pageYOffset &&
+                  (left + width) >= window.pageXOffset &&
+                  top <= (window.pageYOffset + window.innerHeight) &&
+                  left <= (window.pageXOffset + window.innerWidth)
                 );
               }
 
@@ -356,9 +356,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 }
                 scrollConfig.offsetTop = ttOffsetTop;
                 scrollConfig.offsetLeft = ttOffsetLeft;
-                if (!elementInViewport(element[0])) {
-                  element.scrollIntoView(scrollConfig);
-                }
+                element.scrollIntoView(scrollConfig);
               }
               scope.preventDefault = function (ev) {
                 ev.preventDefault();

@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.9 - 2014-06-18
+ * @version v1.0.10 - 2014-06-18
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -32,7 +32,7 @@
       self.postStepCallback = $attrs.postStep || 'angular.noop()';
       self.currentIndex = 0;
       self.newList = function () {
-        if ($scope.tourActive)
+        if ($rootScope.tourActive)
           self.cancelTour();
         self.steps = tourtipMap();
       };
@@ -69,7 +69,7 @@
         self.postTourCallback();
         self.currentIndex = 0;
         self.currentStep = null;
-        $scope.tourActive = false;
+        $rootScope.tourActive = false;
       };
       self.setStep = function (step) {
         model.assign($scope.$parent, step.index);
@@ -79,7 +79,7 @@
         var step = self.steps.get(0);
         if (step) {
           self.setStep(step);
-          $scope.tourActive = true;
+          $rootScope.tourActive = true;
         }
       };
       $rootScope.closeTour = function () {
@@ -262,7 +262,7 @@
                   top += el.offsetTop;
                   left += el.offsetLeft;
                 }
-                return top >= window.pageYOffset && left >= window.pageXOffset && top + height <= window.pageYOffset + window.innerHeight && left + width <= window.pageXOffset + window.innerWidth;
+                return top + height >= window.pageYOffset && left + width >= window.pageXOffset && top <= window.pageYOffset + window.innerHeight && left <= window.pageXOffset + window.innerWidth;
               }
               var ttRect = tourtip[0].getBoundingClientRect();
               var arrowHeight = 28;
@@ -332,9 +332,7 @@
                 }
                 scrollConfig.offsetTop = ttOffsetTop;
                 scrollConfig.offsetLeft = ttOffsetLeft;
-                if (!elementInViewport(element[0])) {
-                  element.scrollIntoView(scrollConfig);
-                }
+                element.scrollIntoView(scrollConfig);
               }
               scope.preventDefault = function (ev) {
                 ev.preventDefault();
