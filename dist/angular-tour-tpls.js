@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.8 - 2014-06-17
+ * @version v1.0.9 - 2014-06-18
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -326,6 +326,11 @@
                 tourtip.css({ display: 'hidden' });
                 angular.element($window).bind('scroll', scrollHandler);
                 angular.element($window).bind('resize.' + scope.$id, scrollHandler);
+                if (scope.ttAnimation) {
+                  tourtip.fadeIn();
+                } else {
+                  tourtip.css({ display: 'block' });
+                }
                 updatePosition(element, tourtip);
                 var scrollConfig = { duration: tourConfig.scrollSpeed };
                 var ttOffsetTop = 100;
@@ -337,15 +342,9 @@
                 }
                 scrollConfig.offsetTop = ttOffsetTop;
                 scrollConfig.offsetLeft = ttOffsetLeft;
-                element.scrollIntoView(scrollConfig);
-                $timeout(function () {
-                  if (scope.ttAnimation) {
-                    tourtip.fadeIn();
-                  } else {
-                    tourtip.css({ display: 'block' });
-                  }
-                  updatePosition(element, tourtip);
-                }, scope.ttDelay);
+                if (!elementInViewport(element[0])) {
+                  element.scrollIntoView(scrollConfig);
+                }
               }
               scope.preventDefault = function (ev) {
                 ev.preventDefault();
@@ -353,21 +352,13 @@
                 ev.cancelBubble = true;
               };
               function hide() {
-                if (scope.ttAppendToBody || isNested) {
-                  if (isNested) {
-                    $frame.unbind('scroll', scrollHandler);
-                  }
-                }
+                $frame.unbind('scroll', scrollHandler);
                 angular.element($window).unbind('scroll', scrollHandler);
                 $frame.unbind('resize.' + scope.$id, scrollHandler);
                 tourtip.detach();
               }
               scope.$on('$destroy', function onDestroyTourtip() {
-                if (scope.ttAppendToBody || isNested) {
-                  if (isNested) {
-                    $frame.unbind('scroll', scrollHandler);
-                  }
-                }
+                $frame.unbind('scroll', scrollHandler);
                 angular.element($window).unbind('scroll', scrollHandler);
                 $frame.unbind('resize.' + scope.$id, scrollHandler);
                 tourtip.remove();

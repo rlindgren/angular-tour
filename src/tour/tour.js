@@ -296,7 +296,6 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                         'top'.match(ttAlign) ? arrowCenter - elHeight/2 : arrowCenter - elHeight/2 :
                         'left'.match(ttAlign) ? arrowCenter - elWidth/2 : arrowCenter - elWidth/2;
 
-
                 if ('left right'.match(ttPlacement)) {
                   if (ttAlign === 'top') {
                     ttPosition.top = elTop - pointerOffset + scope.ttOffsetTop;
@@ -341,6 +340,11 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 tourtip.css({display: 'hidden'});
                 angular.element($window).bind('scroll', scrollHandler);
                 angular.element($window).bind('resize.' + scope.$id, scrollHandler);
+                if (scope.ttAnimation) {
+                  tourtip.fadeIn();
+                } else {
+                  tourtip.css({ display: 'block' });
+                }
                 updatePosition(element, tourtip);
                 var scrollConfig = { duration: tourConfig.scrollSpeed };
                 var ttOffsetTop = 100;
@@ -352,15 +356,9 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 }
                 scrollConfig.offsetTop = ttOffsetTop;
                 scrollConfig.offsetLeft = ttOffsetLeft;
-                element.scrollIntoView(scrollConfig);
-                $timeout(function () {
-                  if (scope.ttAnimation) {
-                    tourtip.fadeIn();
-                  } else {
-                    tourtip.css({ display: 'block' });
-                  }
-                  updatePosition(element, tourtip);
-                }, scope.ttDelay);
+                if (!elementInViewport(element[0])) {
+                  element.scrollIntoView(scrollConfig);
+                }
               }
               scope.preventDefault = function (ev) {
                 ev.preventDefault();
@@ -368,21 +366,13 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 ev.cancelBubble = true;
               };
               function hide() {
-                if (scope.ttAppendToBody || isNested) {
-                  if (isNested) {
-                    $frame.unbind('scroll', scrollHandler);
-                  }
-                }
+                $frame.unbind('scroll', scrollHandler);
                 angular.element($window).unbind('scroll', scrollHandler);
                 $frame.unbind('resize.' + scope.$id, scrollHandler);
                 tourtip.detach();
               }
               scope.$on('$destroy', function onDestroyTourtip() {
-                if (scope.ttAppendToBody || isNested) {
-                  if (isNested) {
-                    $frame.unbind('scroll', scrollHandler);
-                  }
-                }
+                $frame.unbind('scroll', scrollHandler);
                 angular.element($window).unbind('scroll', scrollHandler);
                 $frame.unbind('resize.' + scope.$id, scrollHandler);
                 tourtip.remove();
