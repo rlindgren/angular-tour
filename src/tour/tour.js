@@ -79,28 +79,38 @@ angular.module('angular-tour.tour', ['easingFunctions'])
     $rootScope.closeTour = function () {
       self.cancelTour();
     };
-    $rootScope.ttNextStep = function (val) {
+    $rootScope.ttNextStep = function () {
       val = (val || self.currentIndex) + 1;
-      if (val >= self.steps.getCount()) {
-        self.cancelTour();
-        return;
-      }
       var step = self.steps.get(val);
       if (!step) {
-        $rootScope.ttNextStep(val);
+        var keys = self.steps.keys();
+        var pole = keys[keys.length - 1];
+        while (val <= pole) {
+          val += 1;
+          step = self.steps.get(val);
+          if (step) {
+            self.setStep(step);
+          }
+        }
+        self.cancelTour();
       } else {
         self.setStep(step);
       }
     };
-    $rootScope.ttPrevStep = function (val) {
+    $rootScope.ttPrevStep = function () {
       val = (val || self.currentIndex) - 1;
-      if (val < 0) {
-        self.cancelTour();
-        return;
-      }
       var step = self.steps.get(val);
       if (!step) {
-        $rootScope.ttPrevStep(val);
+        var keys = self.steps.keys();
+        var pole = keys[0];
+        while (val >= pole) {
+          val -= 1;
+          step = self.steps.get(val);
+          if (step) {
+            self.setStep(step);
+          }
+        }
+        self.cancelTour();
       } else {
         self.setStep(step);
       }
@@ -432,9 +442,16 @@ angular.module('angular-tour.tour', ['easingFunctions'])
         f(v, k);
       });
     };
-    TourtipMap.prototype.first = function () {
+    TourtipMap.prototype.keys = function () {
       var keys = Object.keys(this.map).sort(function (a,b) { return a>b });
       return this.map[keys[0]];
+    };
+    TourtipMap.prototype.first = function () {
+      return this.map[this.keys()[0]];
+    };
+    TourtipMap.prototype.last = function () {
+      var keys = this.keys();
+      return this.map[keys[keys.length-1]];
     };
     var tourtipMapFactory = function () {
       return new TourtipMap();
