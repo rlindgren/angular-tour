@@ -202,14 +202,10 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 scope.ttOpen = false;
               };
               scope.isFirstStep = function () {
-                console.log(tourCtrl.steps.keys()[0])
-                console.log(tourCtrl.steps, tourCtrl.steps.keys())
-                return scope.index == tourCtrl.steps.keys()[0];
+                return scope.index == tourCtrl.steps.first().index;
               };
               scope.isLastStep = function () {
-                var keys = tourCtrl.steps.keys();
-                console.log(keys[keys.length-1])
-                return scope.index == keys[keys.length-1];
+                return scope.index == tourCtrl.steps.last().index;
               };
               scope.close();
               scope.ttAnimation = tourConfig.animation;
