@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.16 - 2014-06-18
+ * @version v1.0.17 - 2014-06-18
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -119,6 +119,7 @@
           if (!angular.isDefined(attrs.step)) {
             throw 'The <tour> directive requires a `step` attribute to bind the current step to.';
           }
+          var model = $parse(attrs.step);
           scope.$on(attrs.rebuildOn ? attrs.rebuildOn : '$locationChangeStart', function () {
             ctrl.newList();
           });
@@ -128,18 +129,15 @@
           ctrl.postStepCallback = function () {
             scope.$parent.$eval(attrs.postStep || 'angular.noop()');
           };
+          ctrl.setStep = function (step) {
+            model.assign(scope.$parent, step.index);
+            ctrl.select(step);
+          };
           scope.setNextStep = function () {
             $rootScope.ttNextStep();
           };
           scope.setPrevStep = function () {
             $rootScope.ttPrevStep();
-          };
-          var model = $parse(attrs.step);
-          ctrl.postTourCallback = attrs.postTour || 'angular.noop()';
-          ctrl.postStepCallback = attrs.postStep || 'angular.noop()';
-          ctrl.setStep = function (step) {
-            model.assign(scope.$parent, step.index);
-            ctrl.select(step);
           };
         }
       };
