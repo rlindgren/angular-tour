@@ -199,8 +199,8 @@ angular.module('angular-tour.tour', ['easingFunctions'])
               attrs.$observe('tourtipPostStep', function (val) {
                 scope.ttPostStep = $parse(val) || angular.noop;
               });
-              attrs.$observe('tourtipDelay', function (val) {
-                scope.ttDelay = parseInt(val, 10) || tourConfig.delay;
+              attrs.$observe('tourtipNoScroll', function (val) {
+                scope.ttNoScroll = scope.$eval(val) || false;
               });
               scope.index = parseInt(attrs.tourtipStep, 10);
               scope.open = function () {
@@ -254,7 +254,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 });
               }, 500);
 
-              function elementInViewport(el) {
+              function elementVisible(el) {
                 var top = el.offsetTop;
                 var left = el.offsetLeft;
                 var width = el.offsetWidth;
@@ -280,7 +280,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
 
               var updatePosition = function (element, tourtip) {
 
-                // if (elementInViewport(element[0])) { tourtip.show(); } else { tourtip.hide(); }
+                // if (elementVisible(element[0])) { tourtip.show(); } else { tourtip.hide(); }
 
                 var atb = scope.ttAppendToBody,
                     scrollOffset = element.scrollOffset(),
@@ -366,7 +366,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 }
                 scrollConfig.offsetTop = ttOffsetTop;
                 scrollConfig.offsetLeft = ttOffsetLeft;
-                element.scrollIntoView(scrollConfig);
+                if (!scope.ttNoScroll) element.scrollIntoView(scrollConfig);
               }
               scope.preventDefault = function (ev) {
                 ev.preventDefault();
