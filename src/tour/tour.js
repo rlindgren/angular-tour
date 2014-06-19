@@ -72,7 +72,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
     $rootScope.closeTour = function () {
       self.cancelTour();
     };
-    $rootScope.ttNextStep = function () {
+    $rootScope.ttNextStep = function (val) {
       var val = (val || self.currentIndex) + 1;
       var step = self.steps.get(val);
       if (!step) {
@@ -87,7 +87,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
         self.setStep(step);
       }
     };
-    $rootScope.ttPrevStep = function () {
+    $rootScope.ttPrevStep = function (val) {
       var val = (val || self.currentIndex) - 1;
       var step = self.steps.get(val);
       if (!step) {
