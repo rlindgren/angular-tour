@@ -218,11 +218,6 @@ angular.module('angular-tour.tour', ['easingFunctions'])
             },
             post: function (scope, element, attrs, tourCtrl) {
               var tourtip = $compile(template)(scope);
-              if (!element.height() && !element.width()) {
-                element = element.parent();
-              } else {
-                element = element;
-              }
               var $frame = element.scrollParent();
               var isNested = !$frame[0].tagName.match(/body/i);
               var scrollHandler = function (e) {
@@ -315,7 +310,13 @@ angular.module('angular-tour.tour', ['easingFunctions'])
               function show() {
                 if (!scope.ttContent)
                   return;
+                if (!element.height() && !element.width()) {
+                  element = element.parent();
+                } else {
+                  element = element;
+                }
                 $frame = element.scrollParent();
+                isNested = !$frame[0].tagName.match(/body/i);
                 scope.ttFirst = scope.isFirstStep();
                 scope.ttLast = scope.isLastStep();
                 if (scope.ttAppendToBody || isNested) {
@@ -357,14 +358,14 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 $frame = element.scrollParent();
                 $frame.unbind('scroll', scrollHandler);
                 angular.element($window).unbind('scroll', scrollHandler);
-                $frame.unbind('resize.' + scope.$id, scrollHandler);
+                angular.element($window).unbind('resize.' + scope.$id, scrollHandler);
                 tourtip.detach();
               }
               scope.$on('$destroy', function onDestroyTourtip() {
                 $frame = element.scrollParent();
                 $frame.unbind('scroll', scrollHandler);
                 angular.element($window).unbind('scroll', scrollHandler);
-                $frame.unbind('resize.' + scope.$id, scrollHandler);
+                angular.element($window).unbind('resize.' + scope.$id, scrollHandler);
                 tourtip.remove();
               });
             }
