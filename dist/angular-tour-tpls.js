@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.14 - 2014-06-18
+ * @version v1.0.16 - 2014-06-18
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -32,14 +32,9 @@
   }).controller('TourController', [
     '$scope',
     '$rootScope',
-    '$attrs',
-    '$parse',
     'tourtipMap',
-    function ($scope, $rootScope, $attrs, $parse, tourtipMap) {
+    function ($scope, $rootScope, tourtipMap) {
       var self = this;
-      var model = $parse($attrs.step);
-      self.postTourCallback = $attrs.postTour || 'angular.noop()';
-      self.postStepCallback = $attrs.postStep || 'angular.noop()';
       self.currentIndex = 0;
       self.newList = function () {
         if ($rootScope.tourActive)
@@ -80,10 +75,6 @@
         self.currentIndex = 0;
         self.currentStep = null;
         $rootScope.tourActive = false;
-      };
-      self.setStep = function (step) {
-        model.assign($scope.$parent, step.index);
-        self.select(step);
       };
       $rootScope.openTour = function () {
         var step = self.steps.get(0);
@@ -128,7 +119,8 @@
     }
   ]).directive('tour', [
     '$rootScope',
-    function ($rootScope) {
+    '$parse',
+    function ($rootScope, $parse) {
       return {
         controller: 'TourController',
         restrict: 'EA',
@@ -151,6 +143,13 @@
           };
           scope.setPrevStep = function () {
             $rootScope.ttPrevStep();
+          };
+          var model = $parse(attrs.step);
+          ctrl.postTourCallback = attrs.postTour || 'angular.noop()';
+          ctrl.postStepCallback = attrs.postStep || 'angular.noop()';
+          ctrl.setStep = function (step) {
+            model.assign(scope.$parent, step.index);
+            ctrl.select(step);
           };
         }
       };
@@ -219,10 +218,10 @@
                 scope.ttOpen = false;
               };
               scope.isFirstStep = function () {
-                return scope.index == self.steps.keys()[0];
+                return scope.index == tourCtrl.steps.keys()[0];
               };
               scope.isLastStep = function () {
-                var keys = self.steps.keys();
+                var keys = tourCtrl.steps.keys();
                 return scope.index == keys[keys.length - 1];
               };
               scope.close();
@@ -316,7 +315,7 @@
                 tourtip.css({ display: 'hidden' });
                 angular.element($window).bind('scroll', scrollHandler);
                 angular.element($window).bind('resize.' + scope.$id, scrollHandler);
-                pdatePosition(element, tourtip);
+                updatePosition(element, tourtip);
                 if (scope.ttAnimation) {
                   tourtip.fadeIn();
                 } else {

@@ -21,11 +21,8 @@ angular.module('angular-tour.tour', ['easingFunctions'])
    * TourController
    * the logic for the tour, which manages all the steps
    */
-  .controller('TourController', function ($scope, $rootScope, $attrs, $parse, tourtipMap) {
+  .controller('TourController', function ($scope, $rootScope, tourtipMap) {
     var self = this;
-    var model = $parse($attrs.step);
-    self.postTourCallback = $attrs.postTour || 'angular.noop()';
-    self.postStepCallback = $attrs.postStep || 'angular.noop()';
     self.currentIndex = 0;
     self.newList = function () {
       if ($rootScope.tourActive) self.cancelTour();
@@ -64,10 +61,6 @@ angular.module('angular-tour.tour', ['easingFunctions'])
       self.currentIndex = 0;
       self.currentStep = null;
       $rootScope.tourActive = false;
-    };
-    self.setStep = function (step) {
-      model.assign($scope.$parent, step.index);
-      self.select(step);
     };
     $rootScope.openTour = function () {
       var step = self.steps.get(0);
@@ -115,7 +108,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
    * Tour
    * directive that allows you to control the tour
    */
-  .directive('tour', function ($rootScope) {
+  .directive('tour', function ($rootScope, $parse) {
     return {
       controller: 'TourController',
       restrict: 'EA',
@@ -138,6 +131,13 @@ angular.module('angular-tour.tour', ['easingFunctions'])
         };
         scope.setPrevStep = function () {
           $rootScope.ttPrevStep();
+        };
+        var model = $parse(attrs.step);
+        ctrl.postTourCallback = attrs.postTour || 'angular.noop()';
+        ctrl.postStepCallback = attrs.postStep || 'angular.noop()';
+        ctrl.setStep = function (step) {
+          model.assign(scope.$parent, step.index);
+          ctrl.select(step);
         };
       }
     };
