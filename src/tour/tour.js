@@ -204,10 +204,10 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 scope.ttOpen = false;
               };
               scope.isFirstStep = function () {
-                return scope.index == self.steps.keys()[0];
+                return scope.index == tourCtrl.steps.keys()[0];
               };
               scope.isLastStep = function () {
-                var keys = self.steps.keys();
+                var keys = tourCtrl.steps.keys();
                 return scope.index == keys[keys.length-1];
               };
               scope.close();
@@ -329,7 +329,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 tourtip.css({display: 'hidden'});
                 angular.element($window).bind('scroll', scrollHandler);
                 angular.element($window).bind('resize.' + scope.$id, scrollHandler);
-                pdatePosition(element, tourtip);
+                updatePosition(element, tourtip);
                 if (scope.ttAnimation) {
                   tourtip.fadeIn();
                 } else {
