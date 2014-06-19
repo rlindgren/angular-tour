@@ -202,10 +202,13 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 scope.ttOpen = false;
               };
               scope.isFirstStep = function () {
+                console.log(tourCtrl.steps.keys()[0])
+                console.log(tourCtrl.steps, tourCtrl.steps.keys())
                 return scope.index == tourCtrl.steps.keys()[0];
               };
               scope.isLastStep = function () {
                 var keys = tourCtrl.steps.keys();
+                console.log(keys[keys.length-1])
                 return scope.index == keys[keys.length-1];
               };
               scope.close();
@@ -258,7 +261,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
               var updatePosition = function (element, tourtip) {
 
                 // if (elementVisible(element[0])) { tourtip.show(); } else { tourtip.hide(); }
-
+                
                 var atb = scope.ttAppendToBody,
                     elRect = element[0].getBoundingClientRect(),
                     elHeight = elRect.height,
@@ -420,8 +423,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
       });
     };
     TourtipMap.prototype.keys = function () {
-      var keys = Object.keys(this.map).sort(function (a,b) { return a>b });
-      return this.map[keys[0]];
+      return Object.keys(this.map).sort(function (a,b) { return a-b; });
     };
     TourtipMap.prototype.first = function () {
       return this.map[this.keys()[0]];
