@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.12 - 2014-06-18
+ * @version v1.0.13 - 2014-06-18
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -96,6 +96,7 @@
             step = self.steps.get(val);
             if (step) {
               self.setStep(step);
+              return;
             }
           }
           self.cancelTour();
@@ -114,6 +115,7 @@
             step = self.steps.get(val);
             if (step) {
               self.setStep(step);
+              return;
             }
           }
           self.cancelTour();
@@ -679,8 +681,8 @@
           $targetLeft = isNumber(settings.target) ? settings.target - parseInt(settings.offsetLeft, 10) : settings.target.scrollOffset().left - $startLeft - parseInt(settings.offsetLeft, 10);
           var animCount = 0, animLast;
           function runAnimation(t) {
-            $self.scrollTop(easingFn(animCount, $startTop, $targetTop, parseInt(settings.duration)));
-            $self.scrollLeft(easingFn(animCount, $startLeft, $targetLeft, parseInt(settings.duration)));
+            $self.scrollTop(parseInt(easingFn(animCount, $startTop, $targetTop, parseInt(settings.duration))));
+            $self.scrollLeft(parseInt(easingFn(animCount, $startLeft, $targetLeft, parseInt(settings.duration))));
             animCount += animLast ? t - animLast : 16;
             animLast = t;
             if (animCount < settings.duration)
