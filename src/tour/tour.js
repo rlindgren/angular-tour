@@ -90,6 +90,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
           step = self.steps.get(val);
           if (step) {
             self.setStep(step);
+            return;
           }
         }
         self.cancelTour();
@@ -108,6 +109,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
           step = self.steps.get(val);
           if (step) {
             self.setStep(step);
+            return;
           }
         }
         self.cancelTour();
@@ -742,8 +744,8 @@ angular.module('easingFunctions', [])
 
       var animCount = 0, animLast;
       function runAnimation (t) {
-        $self.scrollTop(easingFn( animCount, $startTop, $targetTop, parseInt(settings.duration) ));
-        $self.scrollLeft(easingFn( animCount, $startLeft, $targetLeft, parseInt(settings.duration) ));
+        $self.scrollTop(parseInt(easingFn( animCount, $startTop, $targetTop, parseInt(settings.duration) )));
+        $self.scrollLeft(parseInt(easingFn( animCount, $startLeft, $targetLeft, parseInt(settings.duration) )));
         animCount += animLast ? t - animLast : 16;
         animLast = t;
         if (animCount < settings.duration) return requestAnimationFrame(runAnimation);
