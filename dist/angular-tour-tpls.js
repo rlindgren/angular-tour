@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.17 - 2014-06-18
+ * @version v1.0.18 - 2014-06-19
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -216,10 +216,13 @@
                 scope.ttOpen = false;
               };
               scope.isFirstStep = function () {
+                console.log(tourCtrl.steps.keys()[0]);
+                console.log(tourCtrl.steps, tourCtrl.steps.keys());
                 return scope.index == tourCtrl.steps.keys()[0];
               };
               scope.isLastStep = function () {
                 var keys = tourCtrl.steps.keys();
+                console.log(keys[keys.length - 1]);
                 return scope.index == keys[keys.length - 1];
               };
               scope.close();
@@ -397,10 +400,9 @@
       });
     };
     TourtipMap.prototype.keys = function () {
-      var keys = Object.keys(this.map).sort(function (a, b) {
-          return a > b;
-        });
-      return this.map[keys[0]];
+      return Object.keys(this.map).sort(function (a, b) {
+        return a - b;
+      });
     };
     TourtipMap.prototype.first = function () {
       return this.map[this.keys()[0]];
