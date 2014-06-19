@@ -85,15 +85,11 @@ angular.module('angular-tour.tour', ['easingFunctions'])
       if (!step) {
         var keys = self.steps.keys();
         var pole = keys[keys.length - 1];
-        while (val <= pole) {
-          val += 1;
-          step = self.steps.get(val);
-          if (step) {
-            self.setStep(step);
-            return;
-          }
+        if (val <= pole) {
+          $rootScope.ttNextStep(val + 1);
+        } else {
+          self.cancelTour();
         }
-        self.cancelTour();
       } else {
         self.setStep(step);
       }
@@ -104,15 +100,11 @@ angular.module('angular-tour.tour', ['easingFunctions'])
       if (!step) {
         var keys = self.steps.keys();
         var pole = keys[0];
-        while (val >= pole) {
-          val -= 1;
-          step = self.steps.get(val);
-          if (step) {
-            self.setStep(step);
-            return;
-          }
+        if (val >= pole) {
+          $rootScope.ttNextStep(val - 1);
+        } else {
+          self.cancelTour();
         }
-        self.cancelTour();
       } else {
         self.setStep(step);
       }
@@ -212,26 +204,11 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 scope.ttOpen = false;
               };
               scope.isFirstStep = function () {
-                var index = parseInt(scope.index.toString(), 10);
-                var len = tourCtrl.steps.getCount();
-                while (index >= 0) {
-                  index -= 1;
-                  if (tourCtrl.steps.get(index)) {
-                    return false;
-                  }
-                }
-                return true;
+                return scope.index == self.steps.keys()[0];
               };
               scope.isLastStep = function () {
-                var index = parseInt(scope.index.toString(), 10);
-                var len = tourCtrl.steps.getCount();
-                while (index < len) {
-                  index += 1;
-                  if (tourCtrl.steps.get(index)) {
-                    return false;
-                  }
-                }
-                return true;
+                var keys = self.steps.keys();
+                return scope.index == keys[keys.length-1];
               };
               scope.close();
               scope.ttAnimation = tourConfig.animation;
@@ -352,6 +329,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 tourtip.css({display: 'hidden'});
                 angular.element($window).bind('scroll', scrollHandler);
                 angular.element($window).bind('resize.' + scope.$id, scrollHandler);
+                pdatePosition(element, tourtip);
                 if (scope.ttAnimation) {
                   tourtip.fadeIn();
                 } else {
