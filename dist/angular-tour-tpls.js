@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.21 - 2014-06-20
+ * @version v1.0.22 - 2014-06-20
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -259,7 +259,7 @@
               var arrowOffset = 22;
               var updatePosition = function (element, tourtip) {
                 // if (elementVisible(element[0])) { tourtip.show(); } else { tourtip.hide(); }
-                var atb = scope.ttAppendToBody, elRect = element[0].getBoundingClientRect(), elHeight = elRect.height, elWidth = elRect.width, elTop = atb ? elRect.top : element.offset().top, elBottom = atb ? elRect.bottom : elTop + elHeight, elLeft = atb ? elRect.left : element.offset().left, elRight = atb ? elRect.right : elLeft + elWidth, ttWidth = tourtip.width(), ttHeight = tourtip.height(), ttPlacement = scope.ttPlacement, ttAlign = scope.ttAlign, ttOffset = scope.ttOffset, ttPosition = {};
+                var atb = scope.ttAppendToBody, elRect = element[0].getBoundingClientRect(), elHeight = elRect.height, elWidth = elRect.width, elTop = atb || isNested ? elRect.top : element.offset().top, elBottom = atb || isNested ? elRect.bottom : elTop + elHeight, elLeft = atb || isNested ? elRect.left : element.offset().left, elRight = atb || isNested ? elRect.right : elLeft + elWidth, ttWidth = tourtip.width(), ttHeight = tourtip.height(), ttPlacement = scope.ttPlacement, ttAlign = scope.ttAlign, ttOffset = scope.ttOffset, ttPosition = {};
                 // should we point directly at the element?
                 var arrowCenter = arrowOffset + arrowHeight / 2, pointAt = 'left right'.match(ttPlacement) ? elHeight <= arrowCenter : elWidth <= arrowCenter, pointerOffset = !pointAt ? 0 : 'left right'.match(ttPlacement) ? 'top'.match(ttAlign) ? arrowCenter - elHeight / 2 : arrowCenter - elHeight / 2 : 'left'.match(ttAlign) ? arrowCenter - elWidth / 2 : arrowCenter - elWidth / 2;
                 if ('left right'.match(ttPlacement)) {
@@ -302,14 +302,14 @@
                 scope.ttFirst = scope.isFirstStep();
                 scope.ttLast = scope.isLastStep();
                 if (scope.ttAppendToBody) {
+                  if (isNested) {
+                    $frame.bind('scroll', scrollHandler);
+                  }
                   $('body').append(tourtip);
                   tourtip.css({ position: 'fixed' });
                   angular.element($window).bind('scroll', scrollHandler);
                 } else {
                   element.append(tourtip);
-                }
-                if (isNested) {
-                  $frame.bind('scroll', scrollHandler);
                 }
                 tourtip.css({ display: 'hidden' });
                 angular.element($window).bind('resize.' + scope.$id, scrollHandler);

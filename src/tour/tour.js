@@ -257,10 +257,10 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                     elRect = element[0].getBoundingClientRect(),
                     elHeight = elRect.height,
                     elWidth = elRect.width,
-                    elTop = atb ? elRect.top : element.offset().top,
-                    elBottom = atb ? elRect.bottom : elTop + elHeight,
-                    elLeft = atb ? elRect.left : element.offset().left,
-                    elRight = atb ? elRect.right : elLeft + elWidth,
+                    elTop = atb || isNested ? elRect.top : element.offset().top,
+                    elBottom = atb || isNested ? elRect.bottom : elTop + elHeight,
+                    elLeft = atb || isNested ? elRect.left : element.offset().left,
+                    elRight = atb || isNested ? elRect.right : elLeft + elWidth,
                     ttWidth = tourtip.width(),
                     ttHeight = tourtip.height(),
                     ttPlacement = scope.ttPlacement,
@@ -316,14 +316,14 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 scope.ttFirst = scope.isFirstStep();
                 scope.ttLast = scope.isLastStep();
                 if (scope.ttAppendToBody) {
+                  if (isNested) {
+                    $frame.bind('scroll', scrollHandler);
+                  }
                   $('body').append(tourtip);
                   tourtip.css({position: 'fixed'});
                   angular.element($window).bind('scroll', scrollHandler);
                 } else {
                   element.append(tourtip);
-                }
-                if (isNested) {
-                  $frame.bind('scroll', scrollHandler);
                 }
                 tourtip.css({display: 'hidden'});
                 angular.element($window).bind('resize.' + scope.$id, scrollHandler);
