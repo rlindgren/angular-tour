@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.22 - 2014-06-20
+ * @version v1.0.23 - 2014-06-20
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -301,7 +301,7 @@
                 isNested = !$frame[0].tagName.match(/body/i);
                 scope.ttFirst = scope.isFirstStep();
                 scope.ttLast = scope.isLastStep();
-                if (scope.ttAppendToBody) {
+                if (scope.ttAppendToBody || isNested) {
                   if (isNested) {
                     $frame.bind('scroll', scrollHandler);
                   }

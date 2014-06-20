@@ -315,7 +315,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 isNested = !$frame[0].tagName.match(/body/i);
                 scope.ttFirst = scope.isFirstStep();
                 scope.ttLast = scope.isLastStep();
-                if (scope.ttAppendToBody) {
+                if (scope.ttAppendToBody || isNested) {
                   if (isNested) {
                     $frame.bind('scroll', scrollHandler);
                   }
