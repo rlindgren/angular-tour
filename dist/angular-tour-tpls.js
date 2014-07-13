@@ -49,10 +49,10 @@
         }
         self.unselectAllSteps();
         if (self.currentStep)
-          $scope.$parent.$eval(self.currentStep.ttPostStep);
+          self.currentStep.ttPostStep(self.currentStep.$parent);
         self.currentStep = step;
         self.currentIndex = step.index;
-        $scope.$parent.$eval(self.currentStep.ttPreStep);
+        self.currentStep.ttPreStep(self.currentStep.$parent);
         step.open();
       };
       self.addStep = function (step) {
