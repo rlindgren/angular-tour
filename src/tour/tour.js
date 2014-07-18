@@ -74,6 +74,9 @@ angular.module('angular-tour.tour', ['easingFunctions'])
     $rootScope.closeTour = function () {
       self.cancelTour();
     };
+    $rootScope.tourStepsCount = function () {
+      return self.steps.getCount();
+    };
     $rootScope.ttNextStep = function (val) {
       var val = (val || self.currentIndex) + 1;
       var step = self.steps.get(val);
