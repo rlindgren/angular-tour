@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.25 - 2014-07-18
+ * @version v1.0.26 - 2014-08-06
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -156,7 +156,7 @@
     function ($window, $compile, $parse, $timeout, $sce, tourConfig) {
       var template = '<div tour-popup></div>';
       return {
-        require: '^tour',
+        require: '^?tour',
         restrict: 'EA',
         scope: true,
         compile: function (EL, ATTRS) {

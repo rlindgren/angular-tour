@@ -153,7 +153,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
   .directive('tourtip', function ($window, $compile, $parse, $timeout, $sce, tourConfig) {
       var template = '<div tour-popup></div>';
       return {
-        require: '^tour',
+        require: '^?tour',
         restrict: 'EA',
         scope: true,
         compile: function (EL, ATTRS) {
