@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.29 - 2014-08-07
+ * @version v1.0.30 - 2014-08-07
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -170,47 +170,21 @@
         restrict: 'EA',
         scope: true,
         compile: function (EL, ATTRS) {
-          var _global = angular.element($window);
           return {
             pre: function (scope, element, attrs, tourCtrl) {
-              attrs.$observe('tourtip', function (val) {
-                scope.ttContent = $sce.trustAsHtml(val || '');
-              });
-              attrs.$observe('tourtipPlacement', function (val) {
-                scope.ttPlacement = val || tourConfig.placement;
-              });
-              attrs.$observe('tourtipAlign', function (val) {
-                scope.ttAlign = 'top bottom'.match(scope.ttPlacement) ? val || 'left' : val || 'top';
-              });
-              attrs.$observe('tourtipNextLabel', function (val) {
-                scope.ttNextLabel = $sce.trustAsHtml(val || tourConfig.nextLabel);
-              });
-              attrs.$observe('tourtipBackLabel', function (val) {
-                scope.ttBackLabel = $sce.trustAsHtml(val || tourConfig.backLabel);
-              });
-              attrs.$observe('tourtipFinishLabel', function (val) {
-                scope.ttFinishLabel = $sce.trustAsHtml(val || tourConfig.finishLabel);
-              });
-              attrs.$observe('tourtipOffset', function (val) {
-                scope.ttOffset = parseInt(val, 10) || tourConfig.offset;
-              });
-              attrs.$observe('tourtipOffsetTop', function (val) {
-                scope.ttOffsetTop = parseInt(val, 10) || 0;
-              });
-              attrs.$observe('tourtipOffsetLeft', function (val) {
-                scope.ttOffsetLeft = parseInt(val, 10) || 0;
-              });
-              attrs.$observe('tourtipAppendToBody', function (val) {
-                scope.ttAppendToBody = scope.$eval(val) || tourConfig.appendToBody;
-              });
-              attrs.$observe('tourtipPreStep', function (val) {
-                scope.ttPreStep = $parse(val) || angular.noop;
-              });
-              attrs.$observe('tourtipPostStep', function (val) {
-                scope.ttPostStep = $parse(val) || angular.noop;
-              });
-              attrs.$observe('tourtipNoScroll', function (val) {
-                scope.ttNoScroll = scope.$eval(val) || false;
+              angular.extend(scope, {
+                ttContent: $sce.trustAsHtml(attrs.tourtip || ''),
+                ttPlacement: attrs.tourtipPlacement || tourConfig.placement,
+                ttAlign: 'top bottom'.match(attrs.tourtipPlacement) ? attrs.tourtipAlign || 'left' : attrs.tourtipAlign || 'top',
+                ttNextLabel: $sce.trustAsHtml(attrs.tourtipNextLabel || tourConfig.nextLabel),
+                ttBackLabel: $sce.trustAsHtml(attrs.tourtipBackLabel || tourConfig.backLabel),
+                ttFinishLabel: $sce.trustAsHtml(attrs.tourtipFinishLabel || tourConfig.finishLabel),
+                ttOffsetTop: parseInt(attrs.tourtipOffsetTop, 10) || 0,
+                ttOffsetLeft: parseInt(attrs.tourtipOffsetLeft, 10) || 0,
+                ttAppendToBody: scope.$eval(attrs.tourtipAppendToBody) || tourConfig.appendToBody,
+                ttPreStep: $parse(attrs.tourtipPreStep) || angular.noop,
+                ttPostStep: $parse(attrs.tourtipPostStep) || angular.noop,
+                ttNoScroll: scope.$eval(attrs.tourtipNoScroll) || false
               });
               scope.index = parseInt(attrs.tourtipStep, 10);
               scope.open = function () {
