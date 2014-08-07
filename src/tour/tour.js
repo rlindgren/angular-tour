@@ -224,8 +224,10 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 updatePosition(element, tourtip);
               };
               $timeout(function () {
-                scope.$watch('ttOpen', function (val) {
-                  if (val) { show() } else { hide() }
+                scope.$watch('ttOpen', function (val, oVal) {
+                  if (val !== oVal) {
+                    if (val) { show(); } else { hide(); }
+                  }
                 });
               }, 500);
 
@@ -362,8 +364,6 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 tourtip.detach();
               }
               scope.$on('$destroy', function onDestroyTourtip() {
-                $frame.unbind('scroll', scrollHandler);
-                $frame = null;
                 angular.element($window).unbind('scroll', scrollHandler);
                 angular.element($window).unbind('resize.' + scope.$id, scrollHandler);
                 tourtip.remove();

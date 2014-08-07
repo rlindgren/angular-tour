@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.28 - 2014-08-07
+ * @version v1.0.29 - 2014-08-07
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -237,11 +237,13 @@
                 updatePosition(element, tourtip);
               };
               $timeout(function () {
-                scope.$watch('ttOpen', function (val) {
-                  if (val) {
-                    show();
-                  } else {
-                    hide();
+                scope.$watch('ttOpen', function (val, oVal) {
+                  if (val !== oVal) {
+                    if (val) {
+                      show();
+                    } else {
+                      hide();
+                    }
                   }
                 });
               }, 500);
@@ -348,8 +350,6 @@
                 tourtip.detach();
               }
               scope.$on('$destroy', function onDestroyTourtip() {
-                $frame.unbind('scroll', scrollHandler);
-                $frame = null;
                 angular.element($window).unbind('scroll', scrollHandler);
                 angular.element($window).unbind('resize.' + scope.$id, scrollHandler);
                 tourtip.remove();
