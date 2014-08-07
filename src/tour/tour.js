@@ -356,15 +356,15 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 ev.cancelBubble = true;
               };
               function hide() {
-                $frame = element.scrollParent();
                 $frame.unbind('scroll', scrollHandler);
+                $frame = null;
                 angular.element($window).unbind('scroll', scrollHandler);
                 angular.element($window).unbind('resize.' + scope.$id, scrollHandler);
                 tourtip.detach();
               }
               scope.$on('$destroy', function onDestroyTourtip() {
-                $frame = element.scrollParent();
                 $frame.unbind('scroll', scrollHandler);
+                $frame = null;
                 angular.element($window).unbind('scroll', scrollHandler);
                 angular.element($window).unbind('resize.' + scope.$id, scrollHandler);
                 tourtip.remove();
