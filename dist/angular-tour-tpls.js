@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.27 - 2014-08-07
+ * @version v1.0.28 - 2014-08-07
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -232,8 +232,7 @@
             },
             post: function (scope, element, attrs, tourCtrl) {
               var tourtip = $compile(template)(scope);
-              var $frame = element.scrollParent();
-              var isNested = !$frame[0].tagName.match(/body/i);
+              var $frame, isNested;
               var scrollHandler = function (e) {
                 updatePosition(element, tourtip);
               };

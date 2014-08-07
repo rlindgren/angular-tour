@@ -219,8 +219,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
             },
             post: function (scope, element, attrs, tourCtrl) {
               var tourtip = $compile(template)(scope);
-              var $frame = element.scrollParent();
-              var isNested = !$frame[0].tagName.match(/body/i);
+              var $frame, isNested;
               var scrollHandler = function (e) {
                 updatePosition(element, tourtip);
               };
