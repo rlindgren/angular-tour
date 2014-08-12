@@ -234,7 +234,6 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 // if (elementVisible(element[0])) { tourtip.show(); } else { tourtip.hide(); }
                 
                 var atb = scope.ttAppendToBody,
-                    elRect = element[0].getBoundingClientRect(),
                     elHeight = elRect.height,
                     elWidth = elRect.width,
                     elTop = atb || isNested ? elRect.top : element.offset().top,
