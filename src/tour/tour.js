@@ -225,6 +225,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
 
               var arrowHeight = 28;
               var arrowOffset = 22;
+              var elRect;
 
               var updatePosition = function (element, tourtip) {
 
@@ -291,7 +292,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 isNested = !$frame[0].tagName.match(/body/i);
                 scope.ttFirst = scope.isFirstStep();
                 scope.ttLast = scope.isLastStep();
-                var ttRect = tourtip[0].getBoundingClientRect();
+                elRect = element.getBoundingClientRect();
                 if (scope.ttAppendToBody || isNested) {
                   if (isNested) {
                     $frame.bind('scroll', scrollHandler);
@@ -318,9 +319,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 }
                 scrollConfig.offsetTop = ttOffsetTop;
                 scrollConfig.offsetLeft = ttOffsetLeft;
-                if (scope.ttAppendToBody || isNested) {
-                  updatePosition(element, tourtip);
-                }
+                updatePosition(element, tourtip);
                 if (!scope.ttNoScroll) element.scrollIntoView(scrollConfig);
               }
               scope.preventDefault = function (ev) {
