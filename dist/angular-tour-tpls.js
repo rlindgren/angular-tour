@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.49 - 2014-08-12
+ * @version v1.0.50 - 2014-08-12
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -212,7 +212,7 @@
                 tourCtrl.addStep(scope);
               }
               if (scope.ttIf && !scope.ttAppendToBody) {
-                element.wrap(ttTarget);
+                element.wrap(scope.ttTarget);
               }
             },
             post: function (scope, element, attrs, tourCtrl) {
@@ -317,7 +317,7 @@
                   tourtip.css({ position: 'fixed' });
                   $window.addEventListener('scroll', scrollHandler);
                 } else {
-                  console.log('appending tourtip to targetEL', $scope.$id);
+                  console.log('appending tourtip to targetEL', scope.$id);
                   tourtip.css({ position: 'absolute' });
                   scope.ttTarget.append(tourtip);
                 }

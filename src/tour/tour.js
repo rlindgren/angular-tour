@@ -199,7 +199,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 tourCtrl.addStep(scope);
               }
               if (scope.ttIf && !scope.ttAppendToBody) {
-                element.wrap(ttTarget);
+                element.wrap(scope.ttTarget);
               }
             },
             post: function (scope, element, attrs, tourCtrl) {
@@ -316,7 +316,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                   tourtip.css({position: 'fixed'});
                   $window.addEventListener('scroll', scrollHandler);
                 } else {
-                  console.log('appending tourtip to targetEL', $scope.$id)
+                  console.log('appending tourtip to targetEL', scope.$id)
                   tourtip.css({position: 'absolute'});
                   scope.ttTarget.append(tourtip);
                 }
