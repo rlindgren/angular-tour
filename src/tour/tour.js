@@ -157,6 +157,8 @@ angular.module('angular-tour.tour', ['easingFunctions'])
         restrict: 'EA',
         scope: true,
         compile: function (EL, ATTRS) {
+          var scrollParent = EL.scrollParent();
+          var ttTarget = angular.element('<div class="tourtip-target"></div>');
           return {
             pre: function (scope, element, attrs, tourCtrl) {
               angular.extend(scope, {
@@ -168,10 +170,11 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 ttFinishLabel: $sce.trustAsHtml(attrs.tourtipFinishLabel || tourConfig.finishLabel),
                 ttOffsetTop: parseInt(attrs.tourtipOffsetTop, 10) || 0,
                 ttOffsetLeft: parseInt(attrs.tourtipOffsetLeft, 10) || 0,
-                ttAppendToBody: scope.$eval(attrs.tourtipAppendToBody) || tourConfig.appendToBody,
+                ttAppendToBody: scope.$eval(attrs.tourtipAppendToBody) || /BODY/i.test(scrollParent.tagName) || tourConfig.appendToBody,
                 ttPreStep: $parse(attrs.tourtipPreStep) || angular.noop,
                 ttPostStep: $parse(attrs.tourtipPostStep) || angular.noop,
-                ttNoScroll: scope.$eval(attrs.tourtipNoScroll) || false
+                ttNoScroll: scope.$eval(attrs.tourtipNoScroll) || false,
+                ttTarget: attrs.tourtipTarget ? $(attrs.tourtipTarget) : ttTarget
               });
               scope.index = parseInt(attrs.tourtipStep, 10);
               scope.open = function () {
@@ -190,6 +193,9 @@ angular.module('angular-tour.tour', ['easingFunctions'])
               scope.ttAnimation = tourConfig.animation;
               scope.ttOffset = tourConfig.offset;
               tourCtrl.addStep(scope);
+              if (!scope.ttAppendToBody) {
+                element.wrap(ttTarget);
+              }
             },
             post: function (scope, element, attrs, tourCtrl) {
               var tourtip = $compile(template)(scope);
@@ -225,60 +231,69 @@ angular.module('angular-tour.tour', ['easingFunctions'])
 
               var arrowHeight = 28;
               var arrowOffset = 22;
-              var elRect;
+              var arrowCenter, pointAt, pointerOffset
 
               var updatePosition = function (element, tourtip) {
 
                 // if (elementVisible(element[0])) { tourtip.show(); } else { tourtip.hide(); }
                 
-                var atb = scope.ttAppendToBody,
-                    elHeight = elRect.height,
-                    elWidth = elRect.width,
-                    elTop = atb || isNested ? elRect.top : element.offset().top,
-                    elBottom = atb || isNested ? elRect.bottom : elTop + elHeight,
-                    elLeft = atb || isNested ? elRect.left : element.offset().left,
-                    elRight = atb || isNested ? elRect.right : elLeft + elWidth,
-                    ttWidth = tourtip.width(),
-                    ttHeight = tourtip.height(),
-                    ttPlacement = scope.ttPlacement,
+                var ttPlacement = scope.ttPlacement,
                     ttAlign = scope.ttAlign,
                     ttOffset = scope.ttOffset,
                     ttPosition = {};
 
-                // should we point directly at the element?
-                var arrowCenter = arrowOffset + (arrowHeight/2),
-                    pointAt = 'left right'.match(ttPlacement) ? elHeight <= arrowCenter : elWidth <= arrowCenter,
-                    pointerOffset = !pointAt ? 0 : 
-                      'left right'.match(ttPlacement) ? 
-                        'top'.match(ttAlign) ? arrowCenter - elHeight/2 : arrowCenter - elHeight/2 :
-                        'left'.match(ttAlign) ? arrowCenter - elWidth/2 : arrowCenter - elWidth/2;
 
-                if ('left right'.match(ttPlacement)) {
-                  if (ttAlign === 'top') {
-                    ttPosition.top = elTop - pointerOffset + scope.ttOffsetTop;
+                if (scope.ttAppendToBody) {
+                  var elRect = element.getBoundingClientRect();
+                      elHeight = elRect.height,
+                      elWidth = elRect.width,
+                      elTop = elRect.top,
+                      elBottom = elRect.bottom,
+                      elLeft = elRect.left,
+                      elRight = elRect.right,
+                      ttWidth = tourtip.width(),
+                      ttHeight = tourtip.height();
+                  if ('left right'.match(ttPlacement)) {
+                    if (ttAlign === 'top') {
+                      ttPosition.top = elTop - pointerOffset + scope.ttOffsetTop;
+                    } else {
+                      ttPosition.top = elBottom - ttHeight + pointerOffset + scope.ttOffsetTop;
+                    }
+                    if (ttPlacement === 'right') {
+                      ttPosition.left = elRight + ttOffset + arrowOffset + scope.ttOffsetLeft;
+                    } else {
+                      ttPosition.left = elLeft - ttWidth - ttOffset - arrowOffset + scope.ttOffsetLeft;
+                    }
                   } else {
-                    ttPosition.top = elBottom - ttHeight + pointerOffset + scope.ttOffsetTop;
+                    if (ttAlign === 'right') {
+                      ttPosition.left = elRight - ttWidth + pointerOffset + scope.ttOffsetLeft;
+                    } else {
+                      ttPosition.left = elLeft - pointerOffset + scope.ttOffsetLeft;
+                    }
+                    if (ttPlacement === 'top') {
+                      ttPosition.top = elTop - ttHeight - ttOffset - arrowOffset + scope.ttOffsetTop;
+                    } else {
+                      ttPosition.top = elBottom + ttOffset + arrowOffset + scope.ttOffsetTop;
+                    }
                   }
-                  if (ttPlacement === 'right') {
-                    ttPosition.left = elRight + ttOffset + arrowOffset + scope.ttOffsetLeft;
-                  } else {
-                    ttPosition.left = elLeft - ttWidth - ttOffset - arrowOffset + scope.ttOffsetLeft;
-                  }
+                  ttPosition.top += 'px';
+                  ttPosition.left += 'px';
+                  tourtip.css(ttPosition);
                 } else {
-                  if (ttAlign === 'right') {
-                    ttPosition.left = elRight - ttWidth + pointerOffset + scope.ttOffsetLeft;
+                  if ('left right'.match(ttPlacement)) {
+                    if (ttAlign === 'top') ttPosition.top = 0;
+                    else ttPosition.bottom = 0;
+                    if (ttPlacement === 'right') ttPosition.left = 100 + arrowOffset + ttOffsetLeft + scope.ttOffsetLeft + '%';
+                    else ttPosition.right = 100 + arrowOffset + ttOffsetLeft + scope.ttOffsetLeft + '%';
                   } else {
-                    ttPosition.left = elLeft - pointerOffset + scope.ttOffsetLeft;
+                    if (ttAlign === 'right') ttPosition.right = 0;
+                    else ttPosition.left = 0;
+                    if (ttPlacement === 'top') ttPosition.bottom = 100 + arrowOffset + ttOffsetTop + scope.ttOffsetTop + '%';
+                    else ttPosition.top = 100 + arrowOffset + ttOffsetTop + scope.ttOffsetTop + '%';
                   }
-                  if (ttPlacement === 'top') {
-                    ttPosition.top = elTop - ttHeight - ttOffset - arrowOffset + scope.ttOffsetTop;
-                  } else {
-                    ttPosition.top = elBottom + ttOffset + arrowOffset + scope.ttOffsetTop;
-                  }
+                  tourtip.css(ttPosition);
+                  ttTarget.append(tourtip);
                 }
-                ttPosition.top += 'px';
-                ttPosition.left += 'px';
-                tourtip.css(ttPosition);
               };
               function show() {
                 if (!scope.ttContent)
@@ -292,19 +307,18 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 isNested = !$frame[0].tagName.match(/body/i);
                 scope.ttFirst = scope.isFirstStep();
                 scope.ttLast = scope.isLastStep();
-                elRect = element.getBoundingClientRect();
                 if (scope.ttAppendToBody || isNested) {
                   if (isNested) {
                     $frame.bind('scroll', scrollHandler);
                   }
                   $('body').append(tourtip);
                   tourtip.css({position: 'fixed'});
-                  angular.element($window).bind('scroll', scrollHandler);
+                  $window.addEventListener('scroll', scrollHandler);
                 } else {
-                  element.append(tourtip);
+                  tourtip.css({position: 'absolute'});
                 }
                 tourtip.css({display: 'hidden'});
-                angular.element($window).bind('resize.' + scope.$id, scrollHandler);
+                $window.addEventListener('resize', scrollHandler);
                 if (scope.ttAnimation) {
                   tourtip.fadeIn();
                 } else {
@@ -319,6 +333,13 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 }
                 scrollConfig.offsetTop = ttOffsetTop;
                 scrollConfig.offsetLeft = ttOffsetLeft;
+                // should we point directly at the element?
+                arrowCenter = arrowOffset + (arrowHeight/2),
+                pointAt = 'left right'.match(ttPlacement) ? elHeight <= arrowCenter : elWidth <= arrowCenter,
+                pointerOffset = !pointAt ? 0 : 
+                    'left right'.match(ttPlacement) ? 
+                        'top'.match(ttAlign) ? arrowCenter - elHeight/2 : arrowCenter - elHeight/2 :
+                        'left'.match(ttAlign) ? arrowCenter - elWidth/2 : arrowCenter - elWidth/2;
                 updatePosition(element, tourtip);
                 if (!scope.ttNoScroll) element.scrollIntoView(scrollConfig);
               }
@@ -330,13 +351,13 @@ angular.module('angular-tour.tour', ['easingFunctions'])
               function hide() {
                 $frame.unbind('scroll', scrollHandler);
                 $frame = null;
-                angular.element($window).unbind('scroll', scrollHandler);
-                angular.element($window).unbind('resize.' + scope.$id, scrollHandler);
+                $window.removeEventListener('scroll', scrollHandler);
+                $window.removeEventListener('resize', scrollHandler);
                 tourtip.detach();
               }
               scope.$on('$destroy', function onDestroyTourtip() {
-                angular.element($window).unbind('scroll', scrollHandler);
-                angular.element($window).unbind('resize.' + scope.$id, scrollHandler);
+                $window.removeEventListener('scroll', scrollHandler);
+                $window.removeEventListener('resize', scrollHandler);
                 unregisterWatchttOpen();
                 tourtip.remove();
               });
