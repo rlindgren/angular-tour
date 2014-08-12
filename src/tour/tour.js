@@ -170,7 +170,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 ttFinishLabel: $sce.trustAsHtml(attrs.tourtipFinishLabel || tourConfig.finishLabel),
                 ttOffsetTop: parseInt(attrs.tourtipOffsetTop, 10) || 0,
                 ttOffsetLeft: parseInt(attrs.tourtipOffsetLeft, 10) || 0,
-                ttAppendToBody: scope.$eval(attrs.tourtipAppendToBody) || /BODY/i.test(scrollParent.tagName) || tourConfig.appendToBody,
+                ttAppendToBody: scope.$eval(attrs.tourtipAppendToBody) || tourConfig.appendToBody,
                 ttPreStep: $parse(attrs.tourtipPreStep) || angular.noop,
                 ttPostStep: $parse(attrs.tourtipPostStep) || angular.noop,
                 ttNoScroll: scope.$eval(attrs.tourtipNoScroll) || false,
@@ -316,6 +316,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                   tourtip.css({position: 'fixed'});
                   $window.addEventListener('scroll', scrollHandler);
                 } else {
+                  console.log('appending tourtip to targetEL', $scope.$id)
                   tourtip.css({position: 'absolute'});
                   ttTarget.append(tourtip);
                 }
