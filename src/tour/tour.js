@@ -318,7 +318,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 } else {
                   console.log('appending tourtip to targetEL', scope.$id)
                   tourtip.css({position: 'absolute'});
-                  scope.ttTarget.append(tourtip);
+                  element.parent().append(tourtip);
                 }
                 tourtip.css({display: 'hidden'});
                 $window.addEventListener('resize', scrollHandler);
