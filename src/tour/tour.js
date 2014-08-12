@@ -205,7 +205,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
             post: function (scope, element, attrs, tourCtrl) {
               if (!scope.ttIf) return;
               var tourtip = $compile(template)(scope);
-              var $frame, isNested;
+              var $frame;
               var scrollHandler = function (e) {
                 updatePosition(element, tourtip);
               };
@@ -309,13 +309,9 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                   element = element;
                 }
                 $frame = element.scrollParent();
-                isNested = !$frame[0].tagName.match(/body/i);
                 scope.ttFirst = scope.isFirstStep();
                 scope.ttLast = scope.isLastStep();
-                if (scope.ttAppendToBody || isNested) {
-                  if (isNested) {
-                    $frame.bind('scroll', scrollHandler);
-                  }
+                if (scope.ttAppendToBody) {
                   $('body').append(tourtip);
                   tourtip.css({position: 'fixed'});
                   $window.addEventListener('scroll', scrollHandler);
