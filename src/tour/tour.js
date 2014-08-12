@@ -318,6 +318,10 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 } else {
                   console.log('appending tourtip to targetEL', scope.$id)
                   tourtip.css({position: 'absolute'});
+                  element.parent().css({
+                    width: element.width(),
+                    height: element.height()
+                  });
                   element.parent().append(tourtip);
                 }
                 tourtip.css({display: 'hidden'});

@@ -1,3 +1,7 @@
+.tourtip-target {
+  position: relative;
+}
+
 .tour-tip {
   display: none;
   position: absolute;
