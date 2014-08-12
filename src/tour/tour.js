@@ -195,6 +195,8 @@ angular.module('angular-tour.tour', ['easingFunctions'])
               scope.ttOffset = tourConfig.offset;
               if (!scope.ttIf) {
                 return;
+              } else {
+                tourCtrl.addStep(scope);
               }
               if (scope.ttIf && !scope.ttAppendToBody) {
                 element.wrap(ttTarget);

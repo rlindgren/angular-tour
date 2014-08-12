@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.41 - 2014-08-12
+ * @version v1.0.42 - 2014-08-12
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -208,6 +208,8 @@
               scope.ttOffset = tourConfig.offset;
               if (!scope.ttIf) {
                 return;
+              } else {
+                tourCtrl.addStep(scope);
               }
               if (scope.ttIf && !scope.ttAppendToBody) {
                 element.wrap(ttTarget);
