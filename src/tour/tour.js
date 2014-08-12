@@ -298,7 +298,6 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                     else ttPosition.top = 100 + arrowOffset + ttOffset + scope.ttOffsetTop + '%';
                   }
                   tourtip.css(ttPosition);
-                  ttTarget.append(tourtip);
                 }
               };
               function show() {
@@ -322,6 +321,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                   $window.addEventListener('scroll', scrollHandler);
                 } else {
                   tourtip.css({position: 'absolute'});
+                  ttTarget.append(tourtip);
                 }
                 tourtip.css({display: 'hidden'});
                 $window.addEventListener('resize', scrollHandler);
