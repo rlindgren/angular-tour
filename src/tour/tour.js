@@ -283,13 +283,13 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                   if ('left right'.match(ttPlacement)) {
                     if (ttAlign === 'top') ttPosition.top = 0;
                     else ttPosition.bottom = 0;
-                    if (ttPlacement === 'right') ttPosition.left = 100 + arrowOffset + ttOffsetLeft + scope.ttOffsetLeft + '%';
-                    else ttPosition.right = 100 + arrowOffset + ttOffsetLeft + scope.ttOffsetLeft + '%';
+                    if (ttPlacement === 'right') ttPosition.left = 100 + arrowOffset + ttOffset + scope.ttOffsetLeft + '%';
+                    else ttPosition.right = 100 + arrowOffset + ttOffset + scope.ttOffsetLeft + '%';
                   } else {
                     if (ttAlign === 'right') ttPosition.right = 0;
                     else ttPosition.left = 0;
-                    if (ttPlacement === 'top') ttPosition.bottom = 100 + arrowOffset + ttOffsetTop + scope.ttOffsetTop + '%';
-                    else ttPosition.top = 100 + arrowOffset + ttOffsetTop + scope.ttOffsetTop + '%';
+                    if (ttPlacement === 'top') ttPosition.bottom = 100 + arrowOffset + ttOffset + scope.ttOffsetTop + '%';
+                    else ttPosition.top = 100 + arrowOffset + ttOffset + scope.ttOffsetTop + '%';
                   }
                   tourtip.css(ttPosition);
                   ttTarget.append(tourtip);

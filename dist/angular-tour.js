@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.38 - 2014-08-12
+ * @version v1.0.39 - 2014-08-12
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -268,18 +268,18 @@
                     else
                       ttPosition.bottom = 0;
                     if (ttPlacement === 'right')
-                      ttPosition.left = 100 + arrowOffset + ttOffsetLeft + scope.ttOffsetLeft + '%';
+                      ttPosition.left = 100 + arrowOffset + ttOffset + scope.ttOffsetLeft + '%';
                     else
-                      ttPosition.right = 100 + arrowOffset + ttOffsetLeft + scope.ttOffsetLeft + '%';
+                      ttPosition.right = 100 + arrowOffset + ttOffset + scope.ttOffsetLeft + '%';
                   } else {
                     if (ttAlign === 'right')
                       ttPosition.right = 0;
                     else
                       ttPosition.left = 0;
                     if (ttPlacement === 'top')
-                      ttPosition.bottom = 100 + arrowOffset + ttOffsetTop + scope.ttOffsetTop + '%';
+                      ttPosition.bottom = 100 + arrowOffset + ttOffset + scope.ttOffsetTop + '%';
                     else
-                      ttPosition.top = 100 + arrowOffset + ttOffsetTop + scope.ttOffsetTop + '%';
+                      ttPosition.top = 100 + arrowOffset + ttOffset + scope.ttOffsetTop + '%';
                   }
                   tourtip.css(ttPosition);
                   ttTarget.append(tourtip);
