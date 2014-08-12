@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.34 - 2014-08-12
+ * @version v1.0.35 - 2014-08-12
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -223,6 +223,7 @@
               }
               var arrowHeight = 28;
               var arrowOffset = 22;
+              var elRect;
               var updatePosition = function (element, tourtip) {
                 // if (elementVisible(element[0])) { tourtip.show(); } else { tourtip.hide(); }
                 var atb = scope.ttAppendToBody, elHeight = elRect.height, elWidth = elRect.width, elTop = atb || isNested ? elRect.top : element.offset().top, elBottom = atb || isNested ? elRect.bottom : elTop + elHeight, elLeft = atb || isNested ? elRect.left : element.offset().left, elRight = atb || isNested ? elRect.right : elLeft + elWidth, ttWidth = tourtip.width(), ttHeight = tourtip.height(), ttPlacement = scope.ttPlacement, ttAlign = scope.ttAlign, ttOffset = scope.ttOffset, ttPosition = {};
@@ -267,7 +268,7 @@
                 isNested = !$frame[0].tagName.match(/body/i);
                 scope.ttFirst = scope.isFirstStep();
                 scope.ttLast = scope.isLastStep();
-                var ttRect = tourtip[0].getBoundingClientRect();
+                elRect = element.getBoundingClientRect();
                 if (scope.ttAppendToBody || isNested) {
                   if (isNested) {
                     $frame.bind('scroll', scrollHandler);
@@ -294,9 +295,7 @@
                 }
                 scrollConfig.offsetTop = ttOffsetTop;
                 scrollConfig.offsetLeft = ttOffsetLeft;
-                if (scope.ttAppendToBody || isNested) {
-                  updatePosition(element, tourtip);
-                }
+                updatePosition(element, tourtip);
                 if (!scope.ttNoScroll)
                   element.scrollIntoView(scrollConfig);
               }
