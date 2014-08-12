@@ -157,10 +157,10 @@ angular.module('angular-tour.tour', ['easingFunctions'])
         restrict: 'EA',
         scope: true,
         compile: function (EL, ATTRS) {
-          var scrollParent = EL.scrollParent();
-          var ttTarget = angular.element('<div class="tourtip-target"></div>');
           return {
             pre: function (scope, element, attrs, tourCtrl) {
+              var scrollParent = EL.scrollParent();
+              scope.ttTarget = angular.element('<div class="tourtip-target"></div>');
               angular.extend(scope, {
                 ttContent: $sce.trustAsHtml(attrs.tourtip || ''),
                 ttPlacement: attrs.tourtipPlacement || tourConfig.placement,
@@ -174,7 +174,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 ttPreStep: $parse(attrs.tourtipPreStep) || angular.noop,
                 ttPostStep: $parse(attrs.tourtipPostStep) || angular.noop,
                 ttNoScroll: scope.$eval(attrs.tourtipNoScroll) || false,
-                ttTarget: attrs.tourtipTarget ? $(attrs.tourtipTarget) : ttTarget,
+                ttTarget: attrs.tourtipTarget ? $(attrs.tourtipTarget) : scope.ttTarget,
                 ttIf: attrs.tourtipIf ? !!scope.$eval(attrs.tourtipIf) : true
               });
               scope.index = parseInt(attrs.tourtipStep, 10);

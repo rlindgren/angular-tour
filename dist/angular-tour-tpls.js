@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.48 - 2014-08-12
+ * @version v1.0.49 - 2014-08-12
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -170,10 +170,10 @@
         restrict: 'EA',
         scope: true,
         compile: function (EL, ATTRS) {
-          var scrollParent = EL.scrollParent();
-          var ttTarget = angular.element('<div class="tourtip-target"></div>');
           return {
             pre: function (scope, element, attrs, tourCtrl) {
+              var scrollParent = EL.scrollParent();
+              scope.ttTarget = angular.element('<div class="tourtip-target"></div>');
               angular.extend(scope, {
                 ttContent: $sce.trustAsHtml(attrs.tourtip || ''),
                 ttPlacement: attrs.tourtipPlacement || tourConfig.placement,
@@ -187,7 +187,7 @@
                 ttPreStep: $parse(attrs.tourtipPreStep) || angular.noop,
                 ttPostStep: $parse(attrs.tourtipPostStep) || angular.noop,
                 ttNoScroll: scope.$eval(attrs.tourtipNoScroll) || false,
-                ttTarget: attrs.tourtipTarget ? $(attrs.tourtipTarget) : ttTarget,
+                ttTarget: attrs.tourtipTarget ? $(attrs.tourtipTarget) : scope.ttTarget,
                 ttIf: attrs.tourtipIf ? !!scope.$eval(attrs.tourtipIf) : true
               });
               scope.index = parseInt(attrs.tourtipStep, 10);
