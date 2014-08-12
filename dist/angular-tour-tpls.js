@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.40 - 2014-08-12
+ * @version v1.0.41 - 2014-08-12
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -16,7 +16,7 @@
   angular.module('tour/tour.tpl.html', []).run([
     '$templateCache',
     function ($templateCache) {
-      $templateCache.put('tour/tour.tpl.html', '<div class="tour-tip" ng-click="preventDefault($event);" ng-if="ttIf">\n' + '\t<span class="tour-arrow tt-{{ ttPlacement + \'-\' + ttAlign }}-border"></span>\n' + '    <span class="tour-arrow tt-{{ ttPlacement + \'-\' + ttAlign }}"></span>\n' + '\t<div class="tour-tip-header">\n' + '\t\t<a ng-click="closeTour()" class="tour-close-tip">\xd7</a>\n' + '\t</div>\n' + '\t<div class="tour-tip-body">\n' + '\t\t<div class="tour-content-wrapper">\n' + '\t        <p ng-bind-html="ttContent"></p>\n' + '\t    </div>\n' + '\t</div>\n' + '\t<div class="tour-tip-footer">\n' + '\t\t<a ng-if="!ttFirst" ng-click="setPrevStep()" ng-bind-html="ttBackLabel" class="small button tour-prev-tip"></a>\n' + '\t\t<a ng-if="!ttLast" ng-click="setNextStep()" ng-bind-html="ttNextLabel" class="small button tour-next-tip"></a>\n' + '\t\t<a ng-if="ttLast" ng-click="setNextStep()" ng-bind-html="ttFinishLabel" class="small button tour-last-tip"></a>\n' + '\t</div>\n' + '\t    \n' + '</div>');
+      $templateCache.put('tour/tour.tpl.html', '<div class="tour-tip" ng-click="preventDefault($event);">\n' + '\t<span class="tour-arrow tt-{{ ttPlacement + \'-\' + ttAlign }}-border"></span>\n' + '    <span class="tour-arrow tt-{{ ttPlacement + \'-\' + ttAlign }}"></span>\n' + '\t<div class="tour-tip-header">\n' + '\t\t<a ng-click="closeTour()" class="tour-close-tip">\xd7</a>\n' + '\t</div>\n' + '\t<div class="tour-tip-body">\n' + '\t\t<div class="tour-content-wrapper">\n' + '\t        <p ng-bind-html="ttContent"></p>\n' + '\t    </div>\n' + '\t</div>\n' + '\t<div class="tour-tip-footer">\n' + '\t\t<a ng-if="!ttFirst" ng-click="setPrevStep()" ng-bind-html="ttBackLabel" class="small button tour-prev-tip"></a>\n' + '\t\t<a ng-if="!ttLast" ng-click="setNextStep()" ng-bind-html="ttNextLabel" class="small button tour-next-tip"></a>\n' + '\t\t<a ng-if="ttLast" ng-click="setNextStep()" ng-bind-html="ttFinishLabel" class="small button tour-last-tip"></a>\n' + '\t</div>\n' + '\t    \n' + '</div>');
     }
   ]);
   angular.module('angular-tour.tour', ['easingFunctions']).constant('tourConfig', {
@@ -187,7 +187,8 @@
                 ttPreStep: $parse(attrs.tourtipPreStep) || angular.noop,
                 ttPostStep: $parse(attrs.tourtipPostStep) || angular.noop,
                 ttNoScroll: scope.$eval(attrs.tourtipNoScroll) || false,
-                ttTarget: attrs.tourtipTarget ? $(attrs.tourtipTarget) : ttTarget
+                ttTarget: attrs.tourtipTarget ? $(attrs.tourtipTarget) : ttTarget,
+                ttIf: attrs.tourtipIf ? !!scope.$eval(attrs.tourtipIf) : true
               });
               scope.index = parseInt(attrs.tourtipStep, 10);
               scope.open = function () {
@@ -205,12 +206,16 @@
               scope.close();
               scope.ttAnimation = tourConfig.animation;
               scope.ttOffset = tourConfig.offset;
-              tourCtrl.addStep(scope);
-              if (!scope.ttAppendToBody) {
+              if (!scope.ttIf) {
+                return;
+              }
+              if (scope.ttIf && !scope.ttAppendToBody) {
                 element.wrap(ttTarget);
               }
             },
             post: function (scope, element, attrs, tourCtrl) {
+              if (!scope.ttIf)
+                return;
               var tourtip = $compile(template)(scope);
               var $frame, isNested;
               var scrollHandler = function (e) {

@@ -174,7 +174,8 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 ttPreStep: $parse(attrs.tourtipPreStep) || angular.noop,
                 ttPostStep: $parse(attrs.tourtipPostStep) || angular.noop,
                 ttNoScroll: scope.$eval(attrs.tourtipNoScroll) || false,
-                ttTarget: attrs.tourtipTarget ? $(attrs.tourtipTarget) : ttTarget
+                ttTarget: attrs.tourtipTarget ? $(attrs.tourtipTarget) : ttTarget,
+                ttIf: attrs.tourtipIf ? !!scope.$eval(attrs.tourtipIf) : true
               });
               scope.index = parseInt(attrs.tourtipStep, 10);
               scope.open = function () {
@@ -192,12 +193,15 @@ angular.module('angular-tour.tour', ['easingFunctions'])
               scope.close();
               scope.ttAnimation = tourConfig.animation;
               scope.ttOffset = tourConfig.offset;
-              tourCtrl.addStep(scope);
-              if (!scope.ttAppendToBody) {
+              if (!scope.ttIf) {
+                return;
+              }
+              if (scope.ttIf && !scope.ttAppendToBody) {
                 element.wrap(ttTarget);
               }
             },
             post: function (scope, element, attrs, tourCtrl) {
+              if (!scope.ttIf) return;
               var tourtip = $compile(template)(scope);
               var $frame, isNested;
               var scrollHandler = function (e) {
