@@ -335,11 +335,11 @@ angular.module('angular-tour.tour', ['easingFunctions'])
                 scrollConfig.offsetLeft = ttOffsetLeft;
                 // should we point directly at the element?
                 arrowCenter = arrowOffset + (arrowHeight/2),
-                pointAt = 'left right'.match(ttPlacement) ? elHeight <= arrowCenter : elWidth <= arrowCenter,
+                pointAt = 'left right'.match(scope.ttPlacement) ? element.height() <= arrowCenter : element.width() <= arrowCenter,
                 pointerOffset = !pointAt ? 0 : 
-                    'left right'.match(ttPlacement) ? 
-                        'top'.match(ttAlign) ? arrowCenter - elHeight/2 : arrowCenter - elHeight/2 :
-                        'left'.match(ttAlign) ? arrowCenter - elWidth/2 : arrowCenter - elWidth/2;
+                    'left right'.match(scope.ttPlacement) ? 
+                        'top'.match(scope.ttAlign) ? arrowCenter - element.height()/2 : arrowCenter - element.height()/2 :
+                        'left'.match(scope.ttAlign) ? arrowCenter - element.width()/2 : arrowCenter - element.width()/2;
                 updatePosition(element, tourtip);
                 if (!scope.ttNoScroll) element.scrollIntoView(scrollConfig);
               }
