@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website. Adapted from DaftMonk @ https://github.com/DaftMonk/angular-tour
- * @version v1.0.37 - 2014-08-12
+ * @version v1.0.38 - 2014-08-12
  * @link https://github.com/DaftMonk/angular-tour
  * @author Ryan Lindgren
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -234,8 +234,7 @@
                 // if (elementVisible(element[0])) { tourtip.show(); } else { tourtip.hide(); }
                 var ttPlacement = scope.ttPlacement, ttAlign = scope.ttAlign, ttOffset = scope.ttOffset, ttPosition = {};
                 if (scope.ttAppendToBody) {
-                  var elRect = element.getBoundingClientRect();
-                  elHeight = elRect.height, elWidth = elRect.width, elTop = elRect.top, elBottom = elRect.bottom, elLeft = elRect.left, elRight = elRect.right, ttWidth = tourtip.width(), ttHeight = tourtip.height();
+                  var elRect = element[0].getBoundingClientRect(), elHeight = elRect.height, elWidth = elRect.width, elTop = elRect.top, elBottom = elRect.bottom, elLeft = elRect.left, elRight = elRect.right, ttWidth = tourtip.width(), ttHeight = tourtip.height();
                   if ('left right'.match(ttPlacement)) {
                     if (ttAlign === 'top') {
                       ttPosition.top = elTop - pointerOffset + scope.ttOffsetTop;

@@ -244,7 +244,7 @@ angular.module('angular-tour.tour', ['easingFunctions'])
 
 
                 if (scope.ttAppendToBody) {
-                  var elRect = element.getBoundingClientRect();
+                  var elRect = element[0].getBoundingClientRect(),
                       elHeight = elRect.height,
                       elWidth = elRect.width,
                       elTop = elRect.top,
